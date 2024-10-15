@@ -20,10 +20,7 @@ const HomePage = () => {
       <LayoutComponen>
         <ContentSection>
           <MainHeading>Danh Mục Sản Phẩm Clothify</MainHeading>
-        </ContentSection>
-        
-        {/* Sản phẩm */}
-          
+        </ContentSection>    
       </LayoutComponen>
       {/* footer */}      
     </HomeContainer>

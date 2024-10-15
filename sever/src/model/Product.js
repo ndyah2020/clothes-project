@@ -6,6 +6,8 @@ const Product = new Schema({
     color: { type: String },
     size: { type: String },
     price: { type: String }
+}, {
+    timestamps: true
 });
 
 module.exports = mongoose.model('Product', Product); 
