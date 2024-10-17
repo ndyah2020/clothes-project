@@ -11,14 +11,40 @@ import {
   StyledLink,
 } from './style';
 
-const SignInComponent = () => {
+const SignInPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
-  const handleLogin = (e) => {
-    e.preventDefault();
-    console.log('Email:', email);
-    console.log('Password:', password);
+  
+  const handleSignIn = async (values) => {
+    const { email, password, firstName, lastName } = values;
+    try {
+      const response = isEditMode
+         await fetch("http://localhost:3001/user/login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email,
+              password,
+              firstName,
+              lastName,
+            }),
+          });
+      if (response.ok) {
+        message.success(
+          `User ${isEditMode ? "updated" : "created"} successfully!`
+        );
+        fetchData(); // Fetch lại danh sách người dùng sau khi tạo mới hoặc cập nhật thành công
+        setIsModalVisible(false);
+      } else {
+        const errorData = await response.json();
+        message.error(`Error: ${errorData.message || "Failed to save user."}`);
+      }
+    } catch (error) {
+      console.error("Error saving user:", error);
+      message.error("Failed to save user.");
+    }
   };
 
   return (
@@ -53,4 +79,4 @@ const SignInComponent = () => {
   );
 };
 
-export default SignInComponent;
+export default SignInPage;

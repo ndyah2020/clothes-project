@@ -1,5 +1,4 @@
-import SignInComponent from "../components/SignInComponent/SignInComponent";
-import SignUpComponent from "../components/SignUpComponent/SignUpComponent";
+
 import CategoryPage from "../pages/CategoryPage/CategoryPage";
 import ContractPage from "../pages/ContractPage/ContractPage";
 import HomePage from "../pages/HomePage/HomePage";
@@ -7,6 +6,8 @@ import NotFoundPage from "../pages/NotFoundPage/NotFoundPage";
 import OrderPage from "../pages/OrderPage/OrderPage";
 import ProductsDetail from "../pages/ProductsDetail/ProductsDetail";
 import ProductsPage from "../pages/ProductsPage/ProductsPage";
+import SignInPage from "../pages/SignInPage/SignInPage";
+import SignUpPage from "../pages/SignUpPage/SignUpPage";
 
 export const  routes = [
     {
@@ -41,12 +42,12 @@ export const  routes = [
     },
     {
         path: '/Signin',
-        page: SignInComponent,                        
+        page: SignInPage,                        
         isShowHeader: true
     },
     {
         path: '/Signup',
-        page: SignUpComponent,                        
+        page: SignUpPage,                        
         isShowHeader: true
     },
     {

@@ -11,7 +11,7 @@ import {
   StyledLink,
 } from './style';
 
-const SignUpComponent = () => {
+const SignUpPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -66,11 +66,11 @@ const SignUpComponent = () => {
           <Button type="submit">Đăng Ký</Button>
         </Form>
         <LinkContainer>
-          <StyledLink href="/SignIn">Đăng Nhập</StyledLink>
+          <StyledLink href="/Signin">Đăng Nhập</StyledLink>
         </LinkContainer>
       </RightSection>
     </PageContainer>
   );
 };
 
-export default SignUpComponent;
+export default SignUpPage;

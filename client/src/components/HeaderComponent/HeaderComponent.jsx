@@ -1,9 +1,8 @@
 // HeaderComponent.jsx
 import React from 'react';
-import { Badge } from 'antd';
-import { ShoppingCartOutlined, UserOutlined,} from '@ant-design/icons';
+import { Badge, Input } from 'antd';
+import { ShoppingCartOutlined, UserOutlined, SearchOutlined} from '@ant-design/icons';
 import { Link } from 'react-router-dom';
-import SearchComponen from '../SearchComponen/SearchComponen';
 import {
   HeaderContainer,
   Logo,
@@ -30,7 +29,16 @@ const HeaderComponent = () => {
           <Link to="/contract">
             <NavLink>LIÊN HỆ</NavLink>
           </Link>
-          <SearchComponen></SearchComponen>
+          <Input
+            className="header-search"
+            placeholder="Type here..."
+            prefix={<SearchOutlined />}
+            style={{ 
+              width: 400, 
+              marginLeft: 400,
+              padding: 8,
+            }}
+        />
         </Navigation>
 
         <Actions>
