@@ -14,36 +14,25 @@ import {
 const SignInPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  
-  const handleSignIn = async (values) => {
-    const { email, password, firstName, lastName } = values;
+
+  const handleSignIn = async (event) => {
+    event.preventDefault();
     try {
-      const response = isEditMode
-         await fetch("http://localhost:3001/user/login", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              email,
-              password,
-              firstName,
-              lastName,
-            }),
-          });
-      if (response.ok) {
-        message.success(
-          `User ${isEditMode ? "updated" : "created"} successfully!`
-        );
-        fetchData(); // Fetch lại danh sách người dùng sau khi tạo mới hoặc cập nhật thành công
-        setIsModalVisible(false);
-      } else {
-        const errorData = await response.json();
-        message.error(`Error: ${errorData.message || "Failed to save user."}`);
-      }
+      const response = await fetch("http://localhost:3001/user/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+
+      const data = await response.json();
+      console.log(data); 
     } catch (error) {
-      console.error("Error saving user:", error);
-      message.error("Failed to save user.");
+      console.error("Error signing in:", error);
     }
   };
 
@@ -53,7 +42,7 @@ const SignInPage = () => {
         <Title>Đăng nhập</Title>
       </LeftSection>
       <RightSection>
-        <Form onSubmit={handleLogin}>
+        <Form onSubmit={handleSignIn}>
           <Input
             type="email"
             value={email}
