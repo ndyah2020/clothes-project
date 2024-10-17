@@ -20,4 +20,10 @@ router.get("/get-user/:id", user.getUserById);
 // Thay đổi trạng thái của người dùng
 router.patch("/change-status/:id", user.changeUserStatus);
 
+// Đăng ký tài khoản 
+router.post("/register", user.register)
+
+// Đăng Nhập
+router.post("/login", user.login)
+
 module.exports = router;

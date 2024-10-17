@@ -9,8 +9,8 @@ export const HeaderContainer = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 20px;
-  background-color: #ffffff;
-   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background-color: #ffff;
+  margin-bottom: 86px;
   z-index: 1; 
   top: 0;
   left: 0;
@@ -20,7 +20,7 @@ export const HeaderContainer = styled.div`
 export const Logo = styled.h1`
     font-size: 30px;
     font-weight: bold;
-    color: #1890ff;
+    color: #777777;
     font-family: 'Lobster', cursive; /* Sử dụng font chữ đặc biệt từ Google Fonts */
     margin: 0;
     cursor: pointer;
@@ -35,6 +35,7 @@ export const Logo = styled.h1`
 export const Navigation = styled.div`
   display: flex;
   gap: 50px;
+ 
 `;
 
 

@@ -16,6 +16,8 @@ const { Option } = Select;
 const Users = () => {
   const [searchText, setSearchText] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
   const [users, setUsers] = useState([]);
 
   // Hàm lấy danh sách người dùng từ API
@@ -42,38 +44,115 @@ const Users = () => {
 
   const showModal = () => {
     setIsModalVisible(true);
+    setIsEditMode(false);
+    setCurrentUser(null);
   };
 
   const handleOk = async (values) => {
     const { email, password, firstName, lastName, role } = values;
 
     try {
-      const response = await fetch("http://localhost:3001/user/create-user", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password, firstName, lastName, role }),
-      });
+      const response = isEditMode
+        ? await fetch(
+            `http://localhost:3001/user/update-user/${currentUser._id}`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ email, firstName, lastName, role }),
+            }
+          )
+        : await fetch("http://localhost:3001/user/create-user", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email,
+              password,
+              firstName,
+              lastName,
+              role,
+            }),
+          });
 
       if (response.ok) {
-        message.success("User created successfully!");
-        fetchData(); // Fetch lại danh sách người dùng sau khi tạo mới thành công
+        message.success(
+          `User ${isEditMode ? "updated" : "created"} successfully!`
+        );
+        fetchData(); // Fetch lại danh sách người dùng sau khi tạo mới hoặc cập nhật thành công
         setIsModalVisible(false);
       } else {
         const errorData = await response.json();
-        message.error(
-          `Error: ${errorData.message || "Failed to create user."}`
-        );
+        message.error(`Error: ${errorData.message || "Failed to save user."}`);
       }
     } catch (error) {
-      console.error("Error creating user:", error);
-      message.error("Failed to create user.");
+      console.error("Error saving user:", error);
+      message.error("Failed to save user.");
     }
   };
 
   const handleCancel = () => {
     setIsModalVisible(false);
+  };
+
+  const handleEdit = (user) => {
+    setCurrentUser(user);
+    setIsEditMode(true);
+    setIsModalVisible(true);
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3001/user/delete-user/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (response.ok) {
+        message.success("User deleted successfully!");
+        fetchData(); // Fetch lại danh sách người dùng sau khi xóa thành công
+      } else {
+        const errorData = await response.json();
+        message.error(
+          `Error: ${errorData.message || "Failed to delete user."}`
+        );
+      }
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      message.error("Failed to delete user.");
+    }
+  };
+
+  const handleChangeStatus = async (userId, status) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3001/user/change-status/${userId}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ accountStatus: status }),
+        }
+      );
+
+      if (response.ok) {
+        message.success("User status updated successfully!");
+        fetchData(); // Fetch lại danh sách người dùng sau khi cập nhật trạng thái thành công
+      } else {
+        const errorData = await response.json();
+        message.error(
+          `Error: ${errorData.message || "Failed to update status."}`
+        );
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
+      message.error("Failed to update status.");
+    }
   };
 
   return (
@@ -116,8 +195,32 @@ const Users = () => {
           },
           {
             title: "Status",
-            dataIndex: "accountStatus", // Đảm bảo sử dụng đúng tên trường từ backend
-            render: (text) => <span>{text || "Active"}</span>,
+            dataIndex: "accountStatus",
+            render: (text, record) => (
+              <Select
+                defaultValue={text}
+                onChange={(value) => handleChangeStatus(record._id, value)}
+              >
+                <Option value="active">Active</Option>
+                <Option value="inactive">Inactive</Option>
+                <Option value="suspended">Suspended</Option>
+              </Select>
+            ),
+          },
+          {
+            title: "Actions",
+            render: (text, record) => (
+              <div>
+                <Button onClick={() => handleEdit(record)}>Edit</Button>
+                <Button
+                  type="danger"
+                  onClick={() => handleDelete(record._id)}
+                  style={{ marginLeft: 8 }}
+                >
+                  Delete
+                </Button>
+              </div>
+            ),
           },
         ]}
         dataSource={filteredData}
@@ -125,18 +228,22 @@ const Users = () => {
       />
 
       <Modal
-        title="Create New User"
+        title={isEditMode ? "Edit User" : "Create New User"}
         visible={isModalVisible}
         onCancel={handleCancel}
         footer={null}
       >
-        <Form layout="vertical" onFinish={handleOk}>
+        <Form
+          layout="vertical"
+          onFinish={handleOk}
+          initialValues={isEditMode ? currentUser : {}}
+        >
           <Form.Item
             name="email"
             label="Email"
             rules={[{ required: true, message: "Please enter email!" }]}
           >
-            <Input />
+            <Input disabled={isEditMode} />
           </Form.Item>
 
           <Form.Item
@@ -167,21 +274,25 @@ const Users = () => {
             </Select>
           </Form.Item>
 
-          <Form.Item
-            name="password"
-            label="Password"
-            rules={[{ required: true, message: "Please enter password!" }]}
-          >
-            <Input.Password />
-          </Form.Item>
+          {!isEditMode && (
+            <Form.Item
+              name="password"
+              label="Password"
+              rules={[{ required: true, message: "Please enter password!" }]}
+            >
+              <Input.Password />
+            </Form.Item>
+          )}
 
-          <Form.Item
-            name="confirm"
-            label="Confirm Password"
-            rules={[{ required: true, message: "Please confirm password!" }]}
-          >
-            <Input.Password />
-          </Form.Item>
+          {!isEditMode && (
+            <Form.Item
+              name="confirm"
+              label="Confirm Password"
+              rules={[{ required: true, message: "Please confirm password!" }]}
+            >
+              <Input.Password />
+            </Form.Item>
+          )}
 
           <Form.Item>
             <Button type="primary" htmlType="submit">

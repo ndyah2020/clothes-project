@@ -9,7 +9,8 @@ import {
 
 import LayoutComponen from '../../components/LayoutComponent/LayoutComponent';
 import BannerComponent from '../../components/BannerComponent/BannerComponent';
-import FooterComponent from '../../components/FooterComponent/FooterComponent';
+import ProductComponent from '../../components/ProductComponent/ProductComponent';
+
 
 const HomePage = () => {
   return (
@@ -19,8 +20,10 @@ const HomePage = () => {
       {/* Phần giới thiệu */}
       <LayoutComponen>
         <ContentSection>
-          <MainHeading>Danh Mục Sản Phẩm Clothify</MainHeading>
-        </ContentSection>    
+          <MainHeading>Sản Phẩm Clothify</MainHeading>
+        </ContentSection>  
+
+        <ProductComponent/>  
       </LayoutComponen>
       {/* footer */}      
     </HomeContainer>

@@ -1,6 +1,6 @@
 const UserModel = require("../model/User");
 const bcrypt = require("bcrypt");
-
+const jwt = require("jsonwebtoken")
 class UserController {
   // Lấy tất cả người dùng
   async getUsers(req, res) {
@@ -119,6 +119,69 @@ class UserController {
       res.status(500).json({ message: "Error changing user status", error });
     }
   }
-}
 
+  // Đăng ký người dùng
+  async register(req, res) {
+    const { email, password, firstName, lastName, role, accountStatus } =
+      req.body;
+
+    if (!email || !password || !firstName || !lastName) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    try {
+      const existingUser = await UserModel.findOne({ email });
+      if (existingUser) {
+        return res.status(400).json({ message: "Email already exists" });
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const newUser = new UserModel({
+        email,
+        password: hashedPassword,
+        firstName,
+        lastName,
+        role: role || "client",
+        accountStatus: accountStatus || "active",
+      });
+
+      await newUser.save();
+      res
+        .status(201)
+        .json({ message: "User registered successfully", user: newUser });
+    } catch (error) {
+      res.status(500).json({ message: "Error creating user", error });
+    }
+  }
+
+  async login(req, res) {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    try {
+      const user = await UserModel.findOne({ email });
+      if (!user) {
+        return res.status(400).json({ message: "Invalid credentials" });
+      }
+
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return res.status(400).json({ message: "Invalid credentials" });
+      }
+      // Create and sign JWT
+      const token = jwt.sign(
+        { userId: user._id, role: user.role },
+        "duyanh",
+        { expiresIn: "1d" }
+      );
+      res.json({ token });
+      
+    } catch (error) {
+      res.status(500).json({ message: "Error logging in", error });
+    }
+  }
+}
 module.exports = new UserController();

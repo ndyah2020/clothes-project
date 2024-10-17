@@ -3,7 +3,7 @@ import React from 'react';
 import { Badge } from 'antd';
 import { ShoppingCartOutlined, UserOutlined,} from '@ant-design/icons';
 import { Link } from 'react-router-dom';
-
+import SearchComponen from '../SearchComponen/SearchComponen';
 import {
   HeaderContainer,
   Logo,
@@ -12,7 +12,6 @@ import {
   Actions,
   Icon,
 } from './style';
-import ButtonInputSearch from '../ButtonInputSearch/ButtonInputSearch';
 
 const HeaderComponent = () => {
 
@@ -31,17 +30,14 @@ const HeaderComponent = () => {
           <Link to="/contract">
             <NavLink>Liên Hệ</NavLink>
           </Link>
+          <SearchComponen></SearchComponen>
         </Navigation>
-        <ButtonInputSearch 
-          size = 'large'
-          placeholder= "Bạn cần gì..."
-        /> 
 
         <Actions>
           <Badge count={5}>
             <Icon as={ShoppingCartOutlined} />
           </Badge>
-          <Link>
+          <Link to='/Signin'>
             <Icon as={UserOutlined} />
           </Link>
         </Actions>

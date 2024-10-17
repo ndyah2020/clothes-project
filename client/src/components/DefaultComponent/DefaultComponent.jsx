@@ -1,4 +1,4 @@
-import React, {useRef} from 'react';
+import React from 'react';
 import HeaderComponent from '../HeaderComponent/HeaderComponent';
 import FooterComponent from '../FooterComponent/FooterComponent'
 const DefaultComponent = ({ children }) => {

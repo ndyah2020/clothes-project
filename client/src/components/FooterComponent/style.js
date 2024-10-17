@@ -1,14 +1,13 @@
 import styled from 'styled-components';
 
 export const FooterContainer = styled.footer`
-  background-color: #f5f5f5;
+  background-color: #ffff;
   padding: 40px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-top: 1px solid #eaeaea;
-  margin-top: 50px;
+  // margin-top: 50px;
   margin-bottom: 0;
 `;
 

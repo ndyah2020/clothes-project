@@ -23,12 +23,12 @@ export const PaginationContainer = styled.div`
     }
 
     .pagination li a:hover {
-        background-color: #1890ff;
+        background-color: #777777;
         color: white;
     }
 
     .pagination li.active a {
-        background-color: #1890ff;
+        background-color: #777777;
         color: white;
         border: none;
     }

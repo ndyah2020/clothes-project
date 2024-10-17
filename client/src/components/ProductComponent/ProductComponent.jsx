@@ -126,7 +126,7 @@ const products = [
 const ProductComponent = () => {
     const [category, setCategory] = useState('all');
     const [currentPage, setCurrentPage] = useState(0);
-    const productsPerPage = 8; // Số sản phẩm mỗi trang
+    const productsPerPage = 4; // Số sản phẩm mỗi trang
     // Lọc sản phẩm theo danh mục
     const filteredProducts = products.filter(
         (product) => category === 'all' || product.category === category
