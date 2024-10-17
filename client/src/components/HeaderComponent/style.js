@@ -20,7 +20,7 @@ export const HeaderContainer = styled.div`
 export const Logo = styled.h1`
     font-size: 30px;
     font-weight: bold;
-    color: #777777;
+    color: black;
     font-family: 'Lobster', cursive; /* Sử dụng font chữ đặc biệt từ Google Fonts */
     margin: 0;
     cursor: pointer;
@@ -41,14 +41,15 @@ export const Navigation = styled.div`
 
 export const NavLink = styled(Button)`
   font-size: 16px; 
-  color: #555;
+  color: black;
   background: none;
   border: none;
   cursor: pointer;
   padding: 10px;
   font-family: 'Poppins', sans-serif; 
-  font-weight: 500; 
-  letter-spacing: 1px; 
+  font-weight: 500;
+  letter-spacing: 1px;
+  box-shadow: none;
   transition: color 0.3s ease-in-out, transform 0.2s ease; 
   &:hover {
     color: #1890ff;

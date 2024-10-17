@@ -25,10 +25,10 @@ const HeaderComponent = () => {
         </Link>
         <Navigation>
           <Link to="/category/show">
-            <NavLink>Danh Mục</NavLink>
+            <NavLink>DANH MỤC</NavLink>
           </Link>
           <Link to="/contract">
-            <NavLink>Liên Hệ</NavLink>
+            <NavLink>LIÊN HỆ</NavLink>
           </Link>
           <SearchComponen></SearchComponen>
         </Navigation>

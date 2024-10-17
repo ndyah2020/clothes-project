@@ -5,6 +5,7 @@ import {
   HomeContainer,
   ContentSection,
   MainHeading,
+  FullWidthImage,
 } from './style'; 
 
 import LayoutComponen from '../../components/LayoutComponent/LayoutComponent';
@@ -25,7 +26,10 @@ const HomePage = () => {
 
         <ProductComponent/>  
       </LayoutComponen>
-      {/* footer */}      
+      {/* footer */}     
+      <FullWidthImage
+      src="/assets/image/background/background.jpg" 
+      alt="" /> 
     </HomeContainer>
   );
 };

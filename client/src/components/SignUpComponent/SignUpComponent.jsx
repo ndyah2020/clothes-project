@@ -11,7 +11,7 @@ import {
   StyledLink,
 } from './style';
 
-const SignInComponent = () => {
+const SignUpComponent = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -24,7 +24,7 @@ const SignInComponent = () => {
   return (
     <PageContainer>
       <LeftSection>
-        <Title>Đăng nhập</Title>
+        <Title>Đăng Ký</Title>
       </LeftSection>
       <RightSection>
         <Form onSubmit={handleLogin}>
@@ -36,21 +36,41 @@ const SignInComponent = () => {
             required
           />
           <Input
+            type="text"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Họ"
+            required
+          />
+          <Input
+            type="text"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Tên"
+            required
+          />
+          <Input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Mật khẩu"
             required
           />
-          <Button type="submit">Đăng nhập</Button>
+          <Input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Nhập lại mật khẩu"
+            required
+          />
+          <Button type="submit">Đăng Ký</Button>
         </Form>
         <LinkContainer>
-          <StyledLink href="#">Quên mật khẩu?</StyledLink>
-          <StyledLink href="/Signup">Đăng ký</StyledLink>
+          <StyledLink href="/SignIn">Đăng Nhập</StyledLink>
         </LinkContainer>
       </RightSection>
     </PageContainer>
   );
 };
 
-export default SignInComponent;
+export default SignUpComponent;

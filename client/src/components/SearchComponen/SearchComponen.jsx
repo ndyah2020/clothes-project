@@ -9,12 +9,12 @@ const SearchComponen = () => {
   return (
     <div>
       <Search 
-      placeholder="input search text"
-      allowClear
-      enterButton="Search"
-      size="large"
-      onSearch={onSearch}
-    />
+      placeholder="input search text" 
+      onSearch={onSearch} 
+      style={{ 
+        width: 400, 
+        marginLeft: 400,
+      }} />
     </div>
   )
 }

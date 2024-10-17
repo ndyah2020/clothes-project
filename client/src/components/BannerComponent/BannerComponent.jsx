@@ -5,7 +5,6 @@ import { Carousel } from 'antd'
 const arrImage = [
     { id: 1, Image: '/assets/image/banner/banner1.jpg' },
     { id: 2, Image: '/assets/image/banner/banner2.jpg' },
-    { id: 3, Image: '/assets/image/banner/banner3.jpg' },
 ];
 const BannerComponent = () => {
   return (

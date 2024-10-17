@@ -1,4 +1,5 @@
 import SignInComponent from "../components/SignInComponent/SignInComponent";
+import SignUpComponent from "../components/SignUpComponent/SignUpComponent";
 import CategoryPage from "../pages/CategoryPage/CategoryPage";
 import ContractPage from "../pages/ContractPage/ContractPage";
 import HomePage from "../pages/HomePage/HomePage";
@@ -37,9 +38,15 @@ export const  routes = [
         path: '/product-detail',
         page: ProductsDetail,
         isShowHeader: true
-    },{
+    },
+    {
         path: '/Signin',
         page: SignInComponent,                        
+        isShowHeader: true
+    },
+    {
+        path: '/Signup',
+        page: SignUpComponent,                        
         isShowHeader: true
     },
     {
