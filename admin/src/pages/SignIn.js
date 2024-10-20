@@ -29,7 +29,6 @@ import {
   InstagramOutlined,
   GithubOutlined,
 } from "@ant-design/icons";
-
 function onChange(checked) {
   console.log(`switch to ${checked}`);
 }
