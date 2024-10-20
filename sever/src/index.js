@@ -4,7 +4,6 @@ const { connect } = require('mongoose');
 
 const app = express()
 const db = require('./config/db');
-
 const cors = require("cors");
 
 
@@ -14,7 +13,6 @@ app.use(express.urlencoded({ extended: true }));
 
 db.connetct()
 app.use(cors());
-
 const port = 3001
 const route = require('./routes')
 route(app)

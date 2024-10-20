@@ -21,6 +21,7 @@ import Main from "./components/layout/Main";
 import "antd/dist/antd.css";
 import "./assets/styles/main.css";
 import "./assets/styles/responsive.css";
+import Products from "./pages/Products";
 
 function App() {
   return (
@@ -31,7 +32,7 @@ function App() {
         <Main>
           <Route exact path="/dashboard" component={Home} />
           <Route exact path="/users" component={User} />
-          <Route exact path="/billing" component={Billing} />
+          <Route exact path="/products" component={Products} />
           <Route exact path="/rtl" component={Rtl} />
           <Route exact path="/profile" component={Profile} />
           <Redirect from="*" to="/dashboard" />

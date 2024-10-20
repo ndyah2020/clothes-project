@@ -10,8 +10,7 @@ const supplierSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
-  address: 
-  {
+  address: {
     type: String,
     required: true,
     unique: true,

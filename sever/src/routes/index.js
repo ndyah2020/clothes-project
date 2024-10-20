@@ -1,10 +1,10 @@
-const categoryRouter = require("./category");
 const userRouter = require("./user");
-const supplierRouter = require('./supplier')
+const productRouter = require("./product");
+const supplier = require("./supplier")
 function route(app) {
-  app.use("/category", categoryRouter);
   app.use("/user", userRouter);
-  app.use("/supplier", supplierRouter)
+  app.use("/product", productRouter);
+  app.use("/supplier", supplier )
 }
 
 module.exports = route;

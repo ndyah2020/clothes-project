@@ -1,6 +1,7 @@
 const UserModel = require("../model/User");
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken")
+const jwt = require("jsonwebtoken");
+
 class UserController {
   // Lấy tất cả người dùng
   async getUsers(req, res) {
@@ -153,7 +154,6 @@ class UserController {
       res.status(500).json({ message: "Error creating user", error });
     }
   }
-
   async login(req, res) {
     const { email, password } = req.body;
 
@@ -169,19 +169,20 @@ class UserController {
 
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
-        return res.status(400).json({ success: false ,message: "Invalid credentials" });
+        return res.status(400).json({ message: "Invalid credentials" });
       }
+
       // Create and sign JWT
       const token = jwt.sign(
         { userId: user._id, role: user.role },
-        "nduyanh",
+        "duyanh",
         { expiresIn: "1d" }
       );
-      res.json({success: true, token: token });
-      
+      res.json({ token });
     } catch (error) {
       res.status(500).json({ message: "Error logging in", error });
     }
   }
 }
+
 module.exports = new UserController();
