@@ -12,6 +12,7 @@ import "antd/dist/antd.css";
 import "./assets/styles/main.css";
 import "./assets/styles/responsive.css";
 import Products from "./pages/Products";
+import Supplier from "./pages/Supplier";
 
 function isTokenValid() {
   const token = localStorage.getItem("token");
@@ -54,6 +55,7 @@ function App() {
             <Route exact path="/dashboard" component={Home} />
             <Route exact path="/users" component={User} />
             <Route exact path="/products" component={Products} />
+            <Route exact path="/supplier" component={Supplier} />
             <Route exact path="/rtl" component={Rtl} />
             <Route exact path="/profile" component={Profile} />
             <Redirect from="*" to="/dashboard" />
