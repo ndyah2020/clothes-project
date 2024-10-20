@@ -14,7 +14,6 @@ import {
 const SignInPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
   const handleSignIn = async (event) => {
     event.preventDefault();
     try {
@@ -26,15 +25,17 @@ const SignInPage = () => {
         body: JSON.stringify({
           email,
           password,
-        }),
-      });
-
-      const data = await response.json();
-      console.log(data); 
+        })
+      })
+      const data = await response.json()
+      if(data.success) {
+        const token = await data.token
+        localStorage.setItem('jsonwebtoken', token)
+      }
     } catch (error) {
       console.error("Error signing in:", error);
-    }
-  };
+    }  
+  }
 
   return (
     <PageContainer>

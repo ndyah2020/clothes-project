@@ -169,15 +169,15 @@ class UserController {
 
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
-        return res.status(400).json({ message: "Invalid credentials" });
+        return res.status(400).json({ success: false ,message: "Invalid credentials" });
       }
       // Create and sign JWT
       const token = jwt.sign(
         { userId: user._id, role: user.role },
-        "duyanh",
+        "nduyanh",
         { expiresIn: "1d" }
       );
-      res.json({ token });
+      res.json({success: true, token: token });
       
     } catch (error) {
       res.status(500).json({ message: "Error logging in", error });

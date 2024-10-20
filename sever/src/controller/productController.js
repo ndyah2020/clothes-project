@@ -38,7 +38,7 @@ class ProductController {
         })
         .catch(error => res.status(500).json({ message: 'Thêm sản phẩm thất bại', error }))
     }
-    //Chỉnh sửa sản phẩm method: put  - http://localhost:3001/category/id
+    //Chỉnh sửa sản phẩm method: put  - http://localhost:3001/category/:id
     update(req, res) {
         const productId = req.params.id
         const updatedData = req.body
