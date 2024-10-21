@@ -14,6 +14,7 @@ import {
 const { Option } = Select;
 
 const Users = () => {
+  const [form] = Form.useForm();
   const [searchText, setSearchText] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -36,6 +37,14 @@ const Users = () => {
     fetchData(); // Gọi hàm fetchData khi component được mount
   }, []);
 
+  useEffect(() => {
+    if (isEditMode && currentUser) {
+      form.setFieldsValue(currentUser);
+    } else {
+      form.resetFields();
+    }
+  }, [currentUser, isEditMode, form]);
+
   const filteredData = users.filter((user) =>
     Object.values(user).some((value) =>
       String(value).toLowerCase().includes(searchText.toLowerCase())
@@ -46,6 +55,7 @@ const Users = () => {
     setIsModalVisible(true);
     setIsEditMode(false);
     setCurrentUser(null);
+    form.resetFields(); // Reset form when creating a new user
   };
 
   const handleOk = async (values) => {
@@ -95,6 +105,7 @@ const Users = () => {
 
   const handleCancel = () => {
     setIsModalVisible(false);
+    form.resetFields();
   };
 
   const handleEdit = (user) => {
@@ -233,11 +244,7 @@ const Users = () => {
         onCancel={handleCancel}
         footer={null}
       >
-        <Form
-          layout="vertical"
-          onFinish={handleOk}
-          initialValues={isEditMode ? currentUser : {}}
-        >
+        <Form form={form} layout="vertical" onFinish={handleOk}>
           <Form.Item
             name="email"
             label="Email"
