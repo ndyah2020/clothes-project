@@ -5,13 +5,10 @@ import {
   Button,
   Modal,
   Form,
-  Select,
   Row,
   Col,
   message,
 } from "antd";
-
-const { Option } = Select;
 
 const Supplier = () => {
   const [searchText, setSearchText] = useState("");
@@ -19,7 +16,7 @@ const Supplier = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [currentSupplier, setCurrentSupplier] = useState(null);
   const [suppliers, setsuppliers] = useState([]);
-
+  const [form] = Form.useForm();
   // Hàm lấy danh sách người dùng từ API
   const fetchData = async () => {
     try {
@@ -36,6 +33,14 @@ const Supplier = () => {
     fetchData(); // Gọi hàm fetchData khi component được mount
   }, []);
 
+  useEffect(() => {
+    if (isEditMode && currentSupplier) {
+      form.setFieldsValue(currentSupplier);
+    } else {
+      form.resetFields();
+    }
+  }, [currentSupplier, isEditMode, form]);
+
   const filteredData = suppliers.filter((supplier) =>
     Object.values(supplier).some((value) =>
       String(value).toLowerCase().includes(searchText.toLowerCase())
@@ -46,6 +51,7 @@ const Supplier = () => {
     setIsModalVisible(true);
     setIsEditMode(false);
     setCurrentSupplier(null);
+    form.resetFields()
   };
 
   const handleOk = async (values) => {
@@ -94,6 +100,9 @@ const Supplier = () => {
 
   const handleCancel = () => {
     setIsModalVisible(false);
+    if(!isEditMode){
+      form.resetFields();
+    }
   };
 
   const handleEdit = (supplier) => {
@@ -192,11 +201,7 @@ const Supplier = () => {
         onCancel={handleCancel}
         footer={null}
       >
-        <Form
-          layout="vertical"
-          onFinish={handleOk}
-          initialValues={isEditMode ? currentSupplier : {}}
-        >
+        <Form form={form} layout="vertical" onFinish={handleOk}>
           <Form.Item
             name="email"
             label="Email"

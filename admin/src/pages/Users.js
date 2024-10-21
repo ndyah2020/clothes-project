@@ -105,7 +105,9 @@ const Users = () => {
 
   const handleCancel = () => {
     setIsModalVisible(false);
-    form.resetFields();
+    if(!isEditMode){
+      form.resetFields();
+    }
   };
 
   const handleEdit = (user) => {
