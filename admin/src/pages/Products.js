@@ -15,7 +15,7 @@ import { UploadOutlined } from "@ant-design/icons";
 import axios from "axios";
 
 const { Option, OptGroup } = Select;
-
+const validSizes = ["S", "M", "L", "XL", "XXL"];
 const Products = () => {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -46,7 +46,7 @@ const Products = () => {
         }
         return product;
       });
-
+      
       setProducts(productsWithImages);
       setFilteredProducts(productsWithImages);
     } catch (error) {
@@ -61,27 +61,38 @@ const Products = () => {
   }, []);
 
   const handleCategoryChange = (value) => {
-    // Filter products by selected category
-    const categoryProducts = products.filter((product) => product.category === value);
-
+    const categoryProducts = products.filter(
+      (product) => product.category === value
+    );
+  
     // Extract the numerical part of the SKU for the selected category, safely handling NaN
-    const skus = categoryProducts.map((product) => {
-      const skuParts = product.sku.split('-');
-      return parseInt(skuParts[1], 10); // Get the number part from SKU and convert to integer
-    }).filter((num) => !isNaN(num)); // Filter out NaN values
-
-    // Find the highest SKU number and increment it
-    const nextSkuNumber = skus.length > 0 ? Math.max(...skus) + 1 : 1;
-
+    const skus = categoryProducts
+      .map((product) => {
+        const skuParts = product.sku.split("-");
+        return parseInt(skuParts[1], 10); // Get the number part from SKU and convert to integer
+      })
+      .filter((num) => !isNaN(num)) // Filter out NaN values
+      .sort((a, b) => a - b); // Sort SKU numbers in ascending order
+  
+    // Find the first missing SKU number in the sequence
+    let nextSkuNumber = 1;
+    for (let i = 0; i < skus.length; i++) {
+      if (skus[i] !== nextSkuNumber) {
+        break; // We've found a gap, so use this number
+      }
+      nextSkuNumber++;
+    }
+  
     // Format the number with leading zeros (e.g., 001, 002, etc.)
-    const formattedNumber = nextSkuNumber.toString().padStart(3, '0');
-
+    const formattedNumber = nextSkuNumber.toString().padStart(3, "0");
+  
     // Generate SKU in the format 'category-001'
     const generatedSku = `${value}-${formattedNumber}`;
-
+  
     // Set the generated SKU in the form
     form.setFieldsValue({ sku: generatedSku.toUpperCase() });
   };
+  
 
   // Handle search and filter
   useEffect(() => {
@@ -90,8 +101,7 @@ const Products = () => {
         product.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.name.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = !statusFilter || product.status === statusFilter;
-      const matchesCategory =
-        !categoryFilter || product.category === categoryFilter;
+      const matchesCategory = !categoryFilter || product.category === categoryFilter;
 
       return matchesSearch && matchesStatus && matchesCategory;
     });
@@ -119,13 +129,12 @@ const Products = () => {
     setLoading(true);
     try {
       const formData = new FormData();
+      if(!values.sizes.size)
       formData.append("sku", values.sku);
       formData.append("name", values.name);
       formData.append("description", values.description); // Add description to the FormData
       formData.append("category", values.category);
-      formData.append("price", values.price);
       formData.append("status", values.status);
-
       if (imageFile) {
         formData.append("images", imageFile);
       }
@@ -204,14 +213,48 @@ const Products = () => {
     },
     {
       title: "Price",
-      dataIndex: "price",
+      dataIndex: "sizes",
       key: "price",
-      render: (price) => `$${price.toFixed(2)}`,
+      render: (sizes, record) => {
+        const defaultSize = record.selectedSize !== undefined ? record.selectedSize : 0; // Sử dụng size mặc định
+        return sizes.length > 0 ? `${sizes[defaultSize].price.toFixed(2)} VNĐ` : "No Data";
+      },
     },
+    {
+      title: "Quantity",
+      dataIndex: "sizes",
+      key: "quantity",
+      render: (sizes, record) => {
+        const defaultSize = record.selectedSize !== undefined ? record.selectedSize : 0; // Sử dụng size mặc định
+        return sizes.length > 0 ? sizes[defaultSize].quantity : "No Data";
+      },
+    },    
     {
       title: "Status",
       dataIndex: "status",
       key: "status",
+    },
+    {
+      title: "Size",
+      dataIndex: "sizes",
+      key: "sizes",
+      render: (sizes, record) => {
+        return (
+          <Select
+            onChange={(value) => {
+              record.selectedSize = value;
+              setProducts([...products]);  
+            }}
+            value={record.selectedSize !== undefined ? record.selectedSize : 0}  
+          >
+            {sizes.map((size, index) => (
+              <Option key={index} value={index}>
+                {size.size}
+              </Option>
+            ))}
+          </Select>
+        );
+      }      
     },
     {
       title: "Image",
@@ -223,6 +266,17 @@ const Products = () => {
         ) : (
           "No Image"
         ),
+    },
+    {
+      title: "Add Size",
+      dataIndex: "sizes",
+      key: "sizes",  
+      render: (sizes, record) => (
+        <Input
+          style={{ width: 50 }}
+          
+        />
+      )
     },
     {
       title: "Actions",
@@ -368,19 +422,11 @@ const Products = () => {
             label="Description"
             rules={[
               {
-                required: true,
                 message: "Please input the product description",
               },
             ]}
           >
             <Input.TextArea rows={4} />
-          </Form.Item>
-          <Form.Item
-            name="price"
-            label="Price"
-            rules={[{ required: true, message: "Please input the price" }]}
-          >
-            <Input type="number" />
           </Form.Item>
           <Form.Item
             name="status"

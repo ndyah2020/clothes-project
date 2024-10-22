@@ -31,19 +31,18 @@ class ProductController {
   // Tạo mới sản phẩm
   async createProduct(req, res) {
     try {
-      const { sku, name, category, price, status, description } = req.body;
+      const { sku, name, category, sizes, status, description } = req.body;
 
       // Xử lý hình ảnh từ `req.files` (nếu có)
       const images = req.files?.map((file) => ({
         data: file.buffer.toString("base64"),
         contentType: file.mimetype,
       }));
-
       const newProduct = new ProductModel({
         sku,
         name,
         category,
-        price,
+        sizes,
         status,
         description, // Thêm trường description
         images, // Lưu hình ảnh nếu có
@@ -72,7 +71,6 @@ class ProductController {
         category,
         color,
         sizes,
-        price,
         discount,
         status,
         tags,
@@ -97,7 +95,6 @@ class ProductController {
         category,
         color,
         sizes,
-        price,
         discount,
         status,
         tags,
@@ -108,7 +105,7 @@ class ProductController {
       if (images) {
         updatedFields.images = images;
       }
-
+      
       // Loại bỏ các trường không có giá trị (undefined)
       Object.keys(updatedFields).forEach(
         (key) => updatedFields[key] === undefined && delete updatedFields[key]

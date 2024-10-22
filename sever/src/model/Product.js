@@ -27,8 +27,6 @@ const Product = new Schema(
         contentType: { type: String, required: true },
       },
     ],
-
-    price: { type: Number, required: true, min: 0 }, 
     discount: { type: Number, default: 0 },
     status: {
       type: String,
