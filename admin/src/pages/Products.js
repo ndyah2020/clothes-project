@@ -53,11 +53,35 @@ const Products = () => {
       message.error("Failed to fetch products");
     }
     setLoading(false);
+    
   };
 
   useEffect(() => {
     fetchProducts();
   }, []);
+
+  const handleCategoryChange = (value) => {
+    // Filter products by selected category
+    const categoryProducts = products.filter((product) => product.category === value);
+
+    // Extract the numerical part of the SKU for the selected category, safely handling NaN
+    const skus = categoryProducts.map((product) => {
+      const skuParts = product.sku.split('-');
+      return parseInt(skuParts[1], 10); // Get the number part from SKU and convert to integer
+    }).filter((num) => !isNaN(num)); // Filter out NaN values
+
+    // Find the highest SKU number and increment it
+    const nextSkuNumber = skus.length > 0 ? Math.max(...skus) + 1 : 1;
+
+    // Format the number with leading zeros (e.g., 001, 002, etc.)
+    const formattedNumber = nextSkuNumber.toString().padStart(3, '0');
+
+    // Generate SKU in the format 'category-001'
+    const generatedSku = `${value}-${formattedNumber}`;
+
+    // Set the generated SKU in the form
+    form.setFieldsValue({ sku: generatedSku.toUpperCase() });
+  };
 
   // Handle search and filter
   useEffect(() => {
@@ -90,7 +114,6 @@ const Products = () => {
       setEditingProduct(null);
     }
   };
-
   // Handle form submission to create or update product
   const handleSubmit = async (values) => {
     setLoading(true);
@@ -295,40 +318,12 @@ const Products = () => {
         onOk={() => form.submit()}
       >
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
-          <Form.Item
-            name="sku"
-            label="SKU"
-            rules={[{ required: true, message: "Please input the SKU" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            name="name"
-            label="Name"
-            rules={[
-              { required: true, message: "Please input the product name" },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            name="description"
-            label="Description"
-            rules={[
-              {
-                required: true,
-                message: "Please input the product description",
-              },
-            ]}
-          >
-            <Input.TextArea rows={4} />
-          </Form.Item>
-          <Form.Item
+        <Form.Item
             name="category"
             label="Category"
             rules={[{ required: true, message: "Please select a category" }]}
           >
-            <Select>
+            <Select onChange={handleCategoryChange}>
               <OptGroup label="Shirts">
                 <Option value="T-shirt">T-shirt</Option>
                 <Option value="Shirt">Shirt</Option>
@@ -351,6 +346,34 @@ const Products = () => {
                 <Option value="Hat">Hat</Option>
               </OptGroup>
             </Select>
+          </Form.Item>
+          <Form.Item
+            name="sku"
+            label="SKU"
+            rules={[{ required: true, message: "Please input the SKU" }]}
+          >
+            <Input value={''}/>
+          </Form.Item>
+          <Form.Item
+            name="name"
+            label="Name"
+            rules={[
+              { required: true, message: "Please input the product name" },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="description"
+            label="Description"
+            rules={[
+              {
+                required: true,
+                message: "Please input the product description",
+              },
+            ]}
+          >
+            <Input.TextArea rows={4} />
           </Form.Item>
           <Form.Item
             name="price"

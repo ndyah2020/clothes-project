@@ -27,12 +27,13 @@ const Product = new Schema(
         contentType: { type: String, required: true },
       },
     ],
-    price: { type: Number, required: true, min: 0 }, // Default price (if needed)
+
+    price: { type: Number, required: true, min: 0 }, 
     discount: { type: Number, default: 0 },
     status: {
       type: String,
       enum: ["in_stock", "out_of_stock", "restocking", "discontinued"],
-      default: "in_stock",
+      default: "out_of_stock",
     },
     rating: {
       average: { type: Number, default: 0, min: 0, max: 5 },
