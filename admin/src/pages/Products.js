@@ -129,7 +129,6 @@ const Products = () => {
     setLoading(true);
     try {
       const formData = new FormData();
-      if(!values.sizes.size)
       formData.append("sku", values.sku);
       formData.append("name", values.name);
       formData.append("description", values.description); // Add description to the FormData
