@@ -47,7 +47,6 @@ class ProductController {
         description, // Thêm trường description
         images, // Lưu hình ảnh nếu có
       });
-
       await newProduct.save();
       res.status(201).json({
         message: "Product created successfully",
@@ -61,30 +60,32 @@ class ProductController {
   async addSize(req, res) {
     const { id } = req.params;
     const { size } = req.body;
+    const upperSize = size.toUpperCase();
     try {
-      const dataSize = await ProductModel.findByIdAndUpdate(
+      const product = await ProductModel.findById(id);
+      // Kiểm tra nếu size đã tồn tại
+      const existingSize = product.sizes.find((s) => s.size.toUpperCase() === upperSize);
+      if (existingSize) {
+        return res.status(400).json({ message: "Size already exists" });
+      }
+      // Thêm size mới
+      const updatedProduct = await ProductModel.findByIdAndUpdate(
         id,
         {
-          $push: { 
+          $push: {
             sizes: {
               size,
               quantity: 0,
               price: 0,
-              type: "letter"
+              type: "letter",
             },
           },
         },
         { new: true, runValidators: true }
-      )
-      if (!dataSize) {
-        return res.status(404).json({ message: "Size not found" });
-      }
-      res.status(200).json({
-        message: "Size added successfully",
-        dataSize,
-      })
-    }catch (error) {
-      res.status(500).json({ message: "Error add size to product", error });
+      );
+      res.status(200).json(updatedProduct);
+    } catch (error) {
+      res.status(500).json({ message: "Error adding size to product", error });
     }
   }
 

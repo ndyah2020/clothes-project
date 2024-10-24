@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Table,
   Button,
@@ -15,7 +15,6 @@ import { UploadOutlined } from "@ant-design/icons";
 import axios from "axios";
 
 const { Option, OptGroup } = Select;
-const validSizes = ["S", "M", "L", "XL", "XXL"];
 const Products = () => {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -29,7 +28,7 @@ const Products = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
-  const [newSize, setNewSize] = useState("")
+  const [newSizeByProduct, setNewSizeByProduct] = useState({});
   // Fetch product list
   const fetchProducts = async () => {
     setLoading(true);
@@ -192,17 +191,40 @@ const Products = () => {
     reader.readAsDataURL(file);
     return false; // Prevent automatic upload
   };
-  const handleAddSize = async (size, id) =>{
-    try{
-      await axios.patch(`http://localhost:3001/product/addsize/${id}`,{
 
-      });
-      message.success("Size added successfully");
-      fetchProducts();
-    } catch (error) {
-      message.error("Failed to add size")
+  //Thêm size khi ấn enter
+  const handleAddSize = async (size, id) => {
+    const validSizes = ["S", "M", "L", "XL", "XXL"];
+    const upperSize = size.toUpperCase();
+
+    const isSize = validSizes.includes(upperSize);
+
+    if (!isSize) {
+      return message.error("Valid size is S, M, L, XL, XXL");
     }
-  }
+    try {
+      const response = await fetch(`http://localhost:3001/product/addsize/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ size: upperSize }), 
+      });
+
+      fetchProducts();
+      setNewSizeByProduct((prev) => ({ ...prev, [id]: "" })); // Reset chỉ size của sản phẩm hiện tại
+      if (!response.ok) {
+        const result = await response.json();
+        return message.error(result.message);
+      }
+
+      message.success("Size added successfully");
+    } catch (error) {
+      message.error("Failed to add size");
+    }
+  };
+  //reset input khi add size
+
   const columns = [
     {
       title: "SKU",
@@ -220,11 +242,12 @@ const Products = () => {
       key: "category",
     },
     {
+      //Dữ liệu giá và số lượng sẽ theo hiện ra theo size
       title: "Price",
       dataIndex: "sizes",
       key: "price",
       render: (sizes, record) => {
-        const defaultSize = record.selectedSize !== undefined ? record.selectedSize : 0; // Sử dụng size mặc định
+        const defaultSize = record.selectedSize !== undefined ? record.selectedSize : 0;
         return sizes.length > 0 ? `${sizes[defaultSize].price.toFixed(2)} VNĐ` : "No Data";
       },
     },
@@ -233,10 +256,10 @@ const Products = () => {
       dataIndex: "sizes",
       key: "quantity",
       render: (sizes, record) => {
-        const defaultSize = record.selectedSize !== undefined ? record.selectedSize : 0; // Sử dụng size mặc định
+        const defaultSize = record.selectedSize !== undefined ? record.selectedSize : 0; 
         return sizes.length > 0 ? sizes[defaultSize].quantity : "No Data";
       },
-    },    
+    },
     {
       title: "Status",
       dataIndex: "status",
@@ -278,18 +301,25 @@ const Products = () => {
     {
       title: "Add Size",
       dataIndex: "sizes",
-      key: "sizes",  
+      key: "sizes",
       render: (sizes, record) => (
         <Input
-            style={{ width: 100 }}
-            placeholder="Enter size"
-            value={newSize}
-            onChange={(e) => setNewSize(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") handleAddSize(newSize, record._id);
-        }}
+          style={{ width: 100 }}
+          placeholder="Enter size"
+          value={newSizeByProduct[record._id] || ""} // Lấy giá trị từ trạng thái dựa trên id sản phẩm
+          onChange={(e) =>
+            setNewSizeByProduct((prev) => ({
+              ...prev,
+              [record._id]: e.target.value, // Chỉ thay đổi giá trị cho sản phẩm hiện tại
+            }))
+          }
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleAddSize(newSizeByProduct[record._id], record._id); // Thêm size cho sản phẩm hiện tại
+            }
+          }}
         />
-      )
+      ),
     },
     {
       title: "Actions",

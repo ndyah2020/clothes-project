@@ -10,12 +10,12 @@ const Product = new Schema(
     sizes: [
       {
         size: { type: String ,required: true}, // Example: "M", "L", "XL"
-        quantity: { type: Number, default: 0 }, // Stock quantity
-        price: { type: Number, default: 0 }, // Price for the specific size
+        quantity: { type: Number, required: true, min: 0 }, // Stock quantity
+        price: { type: Number, required: true,  min: 0 }, // Price for the specific size
         type: {
           type: String,
           enum: ["number", "letter"],
-          require: false,
+          require: true,
         }, // 'number' for number-based sizes (pants), 'letter' for letter-based sizes (shirts)
       },
     ],
