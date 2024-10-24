@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   Button,
@@ -29,6 +29,7 @@ const Products = () => {
   const [statusFilter, setStatusFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [newSizeByProduct, setNewSizeByProduct] = useState({});
+  const [showSizes, setShowSize] = useState(0);
   // Fetch product list
   const fetchProducts = async () => {
     setLoading(true);
@@ -222,7 +223,40 @@ const Products = () => {
       message.error("Failed to add size");
     }
   };
-  //reset input khi add size
+  //Xóa size
+  const handleDeleteSize = async (size, id, value) => {
+    //Kiểm tra size cuối cùng thì không được xóa
+    if(value.length === 1) 
+      return message.warning("No sizes left. You can add new sizes.");
+
+    const upperSize = size.toUpperCase();
+    try {
+      const response = await fetch(`http://localhost:3001/product/deletesize/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ size: upperSize }),
+      });
+      if (!response.ok) {
+        const result = await response.json();
+        return message.error(result.message);
+      }
+  
+      // Cập nhật lại dữ liệu sản phẩm sau khi xóa size thành công
+      const updatedProduct = await axios.get(
+        `http://localhost:3001/product/get-product/${id}`
+      );
+
+      // Đặt lại giá trị form với dữ liệu mới
+      setEditingProduct(updatedProduct.data);
+      form.setFieldsValue(updatedProduct.data); 
+      fetchProducts();
+      message.success("Size deleted successfully");
+    } catch (error) {
+      message.error("Failed to delete size");
+    }
+  }
 
   const columns = [
     {
@@ -481,6 +515,52 @@ const Products = () => {
               <Option value="discontinued">Discontinued</Option>
             </Select>
           </Form.Item>
+
+          {editingProduct && (
+            <Form.Item label="Sizes">
+
+              <Select
+                style={{ marginBottom: 10 }}
+                onChange={(value) => {
+                  setShowSize(value); 
+                }}
+                value={editingProduct.sizes[showSizes] ? editingProduct.sizes[showSizes].size : editingProduct.sizes[0].size} // Nếu không còn size, chọn size đầu tiên
+              >
+                {editingProduct.sizes.map((size, index) => (
+                  <Option key={index} value={index}>
+                    {size.size}
+                  </Option>
+                ))}
+              </Select>
+
+              <Form.Item label="Price" >
+                <Input
+                  value={editingProduct.sizes[showSizes].price}
+                  disabled = {editingProduct}
+                />
+              </Form.Item>
+
+              <Form.Item label="Quantity">
+                <Input          
+                  value={editingProduct.sizes[showSizes].quantity} 
+                  disabled = {editingProduct}
+                />
+              </Form.Item>
+            
+              <Button 
+                style={{color: 'white', backgroundColor: 'red'}} 
+                onClick={() =>{
+                  setShowSize(0)
+                  handleDeleteSize(editingProduct.sizes[showSizes].size, editingProduct._id,editingProduct.sizes)
+                }
+              }
+              >
+                Delete Size
+              </Button>
+
+            </Form.Item>
+          )}
+
           <Form.Item label="Upload Image">
             <Upload
               listType="picture"

@@ -40,6 +40,9 @@ router.get(
   "/get-products/status/:status",
   productController.getProductsByStatus
 );
-//
+// Thêm size vào sản phẩm
 router.patch("/addsize/:id", productController.addSize)
+// Xóa size 
+router.patch("/deletesize/:id", productController.deleteSize)
+
 module.exports = router;

@@ -88,6 +88,24 @@ class ProductController {
       res.status(500).json({ message: "Error adding size to product", error });
     }
   }
+//Xóa size 
+  async deleteSize(req, res) {
+    const { id } = req.params;
+    const { size } = req.body;
+    const upperSize = size.toUpperCase();
+    try {
+      const deleteSizes = await ProductModel.findByIdAndUpdate(
+        id,
+        {
+            $pull: {sizes:{size:upperSize}}
+        },
+        {new: true, runValidators: true}
+      );
+      res.status(200).json(deleteSizes)
+    }catch (error) {
+      res.status(500).json({ message: "Error deleting size", error });
+    }
+  }
 
   // Cập nhật thông tin sản phẩm theo ID
   async updateProduct(req, res) {
