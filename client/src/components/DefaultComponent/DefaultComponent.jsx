@@ -10,5 +10,4 @@ const DefaultComponent = ({ children }) => {
     </div>
   );
 };
-
 export default DefaultComponent;

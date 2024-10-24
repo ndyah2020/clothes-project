@@ -29,7 +29,7 @@ const Products = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
-
+  const [newSize, setNewSize] = useState("")
   // Fetch product list
   const fetchProducts = async () => {
     setLoading(true);
@@ -65,7 +65,6 @@ const Products = () => {
       (product) => product.category === value
     );
   
-    // Extract the numerical part of the SKU for the selected category, safely handling NaN
     const skus = categoryProducts
       .map((product) => {
         const skuParts = product.sku.split("-");
@@ -193,7 +192,17 @@ const Products = () => {
     reader.readAsDataURL(file);
     return false; // Prevent automatic upload
   };
+  const handleAddSize = async (size, id) =>{
+    try{
+      await axios.patch(`http://localhost:3001/product/addsize/${id}`,{
 
+      });
+      message.success("Size added successfully");
+      fetchProducts();
+    } catch (error) {
+      message.error("Failed to add size")
+    }
+  }
   const columns = [
     {
       title: "SKU",
@@ -272,8 +281,13 @@ const Products = () => {
       key: "sizes",  
       render: (sizes, record) => (
         <Input
-          style={{ width: 50 }}
-          
+            style={{ width: 100 }}
+            placeholder="Enter size"
+            value={newSize}
+            onChange={(e) => setNewSize(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleAddSize(newSize, record._id);
+        }}
         />
       )
     },

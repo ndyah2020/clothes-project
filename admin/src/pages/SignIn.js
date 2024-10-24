@@ -26,7 +26,7 @@ export default class SignIn extends Component {
           email: values.email,
           password: values.password,
         });
-
+        
         // If the request is successful and a token is returned
         if (response.status === 200) {
           const { token } = response.data;

@@ -57,6 +57,36 @@ class ProductController {
       res.status(500).json({ message: "Error creating product", error });
     }
   }
+  //cap nhat them size vao san pham
+  async addSize(req, res) {
+    const { id } = req.params;
+    const { size } = req.body;
+    try {
+      const dataSize = await ProductModel.findByIdAndUpdate(
+        id,
+        {
+          $push: { 
+            sizes: {
+              size,
+              quantity: 0,
+              price: 0,
+              type: "letter"
+            },
+          },
+        },
+        { new: true, runValidators: true }
+      )
+      if (!dataSize) {
+        return res.status(404).json({ message: "Size not found" });
+      }
+      res.status(200).json({
+        message: "Size added successfully",
+        dataSize,
+      })
+    }catch (error) {
+      res.status(500).json({ message: "Error add size to product", error });
+    }
+  }
 
   // Cập nhật thông tin sản phẩm theo ID
   async updateProduct(req, res) {

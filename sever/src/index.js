@@ -1,6 +1,6 @@
 const express = require('express')
 const morgan = require('morgan')
-const { connect } = require('mongoose');
+
 
 const app = express()
 const db = require('./config/db');

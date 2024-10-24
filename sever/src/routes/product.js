@@ -40,5 +40,6 @@ router.get(
   "/get-products/status/:status",
   productController.getProductsByStatus
 );
-
+//
+router.patch("/addsize/:id", productController.addSize)
 module.exports = router;
