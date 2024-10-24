@@ -210,9 +210,8 @@ const Products = () => {
         },
         body: JSON.stringify({ size: upperSize }), 
       });
-
       fetchProducts();
-      setNewSizeByProduct((prev) => ({ ...prev, [id]: "" })); // Reset chỉ size của sản phẩm hiện tại
+      setNewSizeByProduct(() => ({[id]: "" })); // Reset chỉ size của sản phẩm hiện tại
       if (!response.ok) {
         const result = await response.json();
         return message.error(result.message);
@@ -305,12 +304,11 @@ const Products = () => {
       render: (sizes, record) => (
         <Input
           style={{ width: 100 }}
-          placeholder="Enter size"
+          placeholder="Enter to add size"
           value={newSizeByProduct[record._id] || ""} // Lấy giá trị từ trạng thái dựa trên id sản phẩm
           onChange={(e) =>
-            setNewSizeByProduct((prev) => ({
-              ...prev,
-              [record._id]: e.target.value, // Chỉ thay đổi giá trị cho sản phẩm hiện tại
+            setNewSizeByProduct(() => ({
+              [record._id]: e.target.value,
             }))
           }
           onKeyDown={(e) => {
