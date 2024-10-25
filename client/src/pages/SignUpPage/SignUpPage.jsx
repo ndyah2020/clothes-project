@@ -13,12 +13,18 @@ import {
 
 const SignUpPage = () => {
   const [email, setEmail] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const handleLogin = (e) => {
     e.preventDefault();
     console.log('Email:', email);
+    console.log('First Name:', firstName);
+    console.log('Last Name:', lastName);
     console.log('Password:', password);
+    console.log('Confirm Password:', confirmPassword);
   };
 
   return (
@@ -30,36 +36,36 @@ const SignUpPage = () => {
         <Form onSubmit={handleLogin}>
           <Input
             type="email"
-            value={email}
+            
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
             required
           />
           <Input
             type="text"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+          
+            onChange={(e) => setLastName(e.target.value)}
             placeholder="Họ"
             required
           />
           <Input
             type="text"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+           
+            onChange={(e) => setFirstName(e.target.value)}
             placeholder="Tên"
             required
           />
           <Input
             type="password"
-            value={password}
+           
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Mật khẩu"
             required
           />
           <Input
             type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+          
+            onChange={(e) => setConfirmPassword(e.target.value)} 
             placeholder="Nhập lại mật khẩu"
             required
           />
