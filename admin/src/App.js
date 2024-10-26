@@ -13,7 +13,7 @@ import "./assets/styles/main.css";
 import "./assets/styles/responsive.css";
 import Products from "./pages/Products";
 import Supplier from "./pages/Supplier";
-
+import Employee from "./pages/Employee"
 function isTokenValid() {
   const token = localStorage.getItem("token");
   if (!token) {
@@ -54,6 +54,7 @@ function App() {
           <Main>
             <Route exact path="/dashboard" component={Home} />
             <Route exact path="/users" component={User} />
+            <Route exact path="/employee" component={Employee} />
             <Route exact path="/products" component={Products} />
             <Route exact path="/supplier" component={Supplier} />
             <Route exact path="/rtl" component={Rtl} />

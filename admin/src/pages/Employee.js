@@ -10,7 +10,7 @@ import {
   message,
 } from "antd";
 
-const Supplier = () => {
+const Employee = () => {
   const [searchText, setSearchText] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -244,4 +244,4 @@ const Supplier = () => {
   );
 };
 
-export default Supplier;
+export default Employee;
