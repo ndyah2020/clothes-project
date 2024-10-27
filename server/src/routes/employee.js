@@ -3,6 +3,9 @@ const router = express.Router()
 
 const employee = require("../controller/employeeController");
 
+//tạo nhân viên khi tạo 1 tài khoản từ user
+router.post("/create-from-user", employee.createEmployeeFromUser);
+
 // Lấy tất nhân viên
 router.get("/get-employee", employee.getEmployee);
 

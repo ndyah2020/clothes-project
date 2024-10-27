@@ -11,6 +11,26 @@ class EmployeeContronller {
           res.status(500).json({ message: "Error retrieving employee", error });
         }
       }
+
+  //được gọi khi tạo user
+  async createEmployeeFromUser(req, res) {
+    console.log("Request body:", req.body); // Thêm dòng này để kiểm tra dữ liệu nhận được
+    const { email, firstName, lastName, role } = req.body;
+    try {
+      const employeeFromUser = new employeeModel({
+        name: `${firstName} ${lastName}`,
+        email,
+        position: role,
+      });
+      await employeeFromUser.save();
+      res.status(200).json(employeeFromUser);
+    } catch (error) {
+      res.status(500).json({ message: "Error creating employee from user", error });
+    }
+  }
+  
+
+
   //lấy thông tin chi tiết của nhân viên theo id
       async getEmployeeById(req, res) {
         const { id } = req.params;

@@ -5,27 +5,31 @@ import {
   Button,
   Modal,
   Form,
+  Select,
   Row,
   Col,
   message,
 } from "antd";
 
+const { Option } = Select;
+
 const Employee = () => {
+  const [form] = Form.useForm();
   const [searchText, setSearchText] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [currentSupplier, setCurrentSupplier] = useState(null);
-  const [suppliers, setsuppliers] = useState([]);
-  const [form] = Form.useForm();
+  const [currentEmployees, setCurrentEmployees] = useState(null);
+  const [employee, setEmployee] = useState([]);
+
   // Hàm lấy danh sách người dùng từ API
   const fetchData = async () => {
     try {
-      const response = await fetch("http://localhost:3001/supplier/get-supplier");
+      const response = await fetch("http://localhost:3001/employee/get-employee");
       const data = await response.json();
-      setsuppliers(data);
+      setEmployee(data);
     } catch (error) {
-      console.error("Error fetching supplier:", error);
-      message.error("Failed to fetch supplier.");
+      console.error("Error fetching employees:", error);
+      message.error("Failed to fetch employees.");
     }
   };
 
@@ -34,15 +38,15 @@ const Employee = () => {
   }, []);
 
   useEffect(() => {
-    if (isEditMode && currentSupplier) {
-      form.setFieldsValue(currentSupplier);
+    if (isEditMode && currentEmployees) {
+      form.setFieldsValue(currentEmployees);
     } else {
       form.resetFields();
     }
-  }, [currentSupplier, isEditMode, form]);
+  }, [currentEmployees, isEditMode, form]);
 
-  const filteredData = suppliers.filter((supplier) =>
-    Object.values(supplier).some((value) =>
+  const filteredData = employee.filter((user) =>
+    Object.values(user).some((value) =>
       String(value).toLowerCase().includes(searchText.toLowerCase())
     )
   );
@@ -50,51 +54,68 @@ const Employee = () => {
   const showModal = () => {
     setIsModalVisible(true);
     setIsEditMode(false);
-    setCurrentSupplier(null);
-    form.resetFields()
+    setCurrentEmployees(null);
+    form.resetFields(); // Reset form when creating a new user
   };
 
   const handleOk = async (values) => {
-    const { name, phonenumber, address, email } = values;
+    const { email, password, firstName, lastName, role } = values;
 
     try {
       const response = isEditMode
         ? await fetch(
-            `http://localhost:3001/supplier/update-supplier/${currentSupplier._id}`,
+            `http://localhost:3001/user/update-user/${currentEmployees._id}`,
             {
               method: "PUT",
               headers: {
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify({ name, phonenumber, address, email }),
+              body: JSON.stringify({ email, firstName, lastName, role }),
             }
           )
-        : await fetch("http://localhost:3001/supplier/create-supplier", {
+        : await fetch("http://localhost:3001/user/create-user", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              name, 
-              phonenumber, 
-              address, 
-              email
+              email,
+              password,
+              firstName,
+              lastName,
+              role,
             }),
           });
 
       if (response.ok) {
         message.success(
-          `Supplier ${isEditMode ? "updated" : "created"} successfully!`
+          `User ${isEditMode ? "updated" : "created"} successfully!`
         );
-        fetchData(); // Fetch lại danh sách người dùng sau khi tạo mới hoặc cập nhật thành công
+
+        if (!isEditMode && role.toLowerCase() === "employee") {
+          await fetch("http://localhost:3001/employee/create-from-user", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email,
+              firstName,
+              lastName,
+              role,
+            }),
+          });
+        }
+
+        fetchData(); 
         setIsModalVisible(false);
       } else {
         const errorData = await response.json();
-        message.error(`Error: ${errorData.message || "Failed to save supplier."}`);
+        message.error(`Error: ${errorData.message || "Failed to save user."}`);
       }
     } catch (error) {
-      console.error("Error saving supplier:", error);
-      message.error("Failed to save supplier.");
+      console.error("Error saving user:", error);
+      message.error("Failed to save user.");
     }
   };
 
@@ -105,8 +126,8 @@ const Employee = () => {
     }
   };
 
-  const handleEdit = (supplier) => {
-    setCurrentSupplier(supplier);
+  const handleEdit = (user) => {
+    setCurrentEmployees(user);
     setIsEditMode(true);
     setIsModalVisible(true);
   };
@@ -114,41 +135,68 @@ const Employee = () => {
   const handleDelete = async (id) => {
     try {
       const response = await fetch(
-        `http://localhost:3001/supplier/delete-supplier/${id}`,
+        `http://localhost:3001/user/delete-user/${id}`,
         {
           method: "DELETE",
         }
       );
 
       if (response.ok) {
-        message.success("Suppiler deleted successfully!");
+        message.success("User deleted successfully!");
         fetchData(); // Fetch lại danh sách người dùng sau khi xóa thành công
       } else {
         const errorData = await response.json();
         message.error(
-          `Error: ${errorData.message || "Failed to delete supplier."}`
+          `Error: ${errorData.message || "Failed to delete user."}`
         );
       }
     } catch (error) {
-      console.error("Error deleting supplier:", error);
-      message.error("Failed to delete supplier.");
+      console.error("Error deleting user:", error);
+      message.error("Failed to delete user.");
     }
   };
 
-  
+  const handleChangeStatus = async (userId, status) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3001/user/change-status/${userId}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ accountStatus: status }),
+        }
+      );
+
+      if (response.ok) {
+        message.success("User status updated successfully!");
+        fetchData(); // Fetch lại danh sách người dùng sau khi cập nhật trạng thái thành công
+      } else {
+        const errorData = await response.json();
+        message.error(
+          `Error: ${errorData.message || "Failed to update status."}`
+        );
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
+      message.error("Failed to update status.");
+    }
+  };
+
   return (
     <div>
       <Row justify="space-between" style={{ marginBottom: 16 }}>
         <Col>
           <Input
-            placeholder="Search Suppliers"
+            placeholder="Search users"
             onChange={(e) => setSearchText(e.target.value)}
             style={{ width: 300 }}
           />
         </Col>
         <Col>
           <Button type="primary" onClick={showModal}>
-            Create New Supplier
+            Create New User
           </Button>
         </Col>
       </Row>
@@ -161,11 +209,6 @@ const Employee = () => {
             sorter: (a, b) => a.name.localeCompare(b.name),
           },
           {
-            title: "Phone Number",
-            dataIndex: "phonenumber",
-            sorter: (a, b) => a.phonenumber.localeCompare(b.phonenumber),
-          },
-          {
             title: "Address",
             dataIndex: "address",
             sorter: (a, b) => a.address.localeCompare(b.address),
@@ -174,6 +217,25 @@ const Employee = () => {
             title: "Email",
             dataIndex: "email",
             sorter: (a, b) => a.email.localeCompare(b.email),
+          },
+          {
+            title: "Position",
+            dataIndex: "position",
+            render: (value, record) => 
+              record.position.charAt(0).toUpperCase() + record.position.slice(1).toLowerCase()
+          },
+          {
+            title: "Status",
+            dataIndex: "accountStatus",
+            render: (text, record) => (
+              <Select
+                defaultValue={text}
+                onChange={(value) => handleChangeStatus(record._id, value)}
+              >
+                <Option value="working">Working</Option>
+                <Option value="on leave">On Leave</Option>
+              </Select>
+            ),
           },
           {
             title: "Actions",
@@ -196,7 +258,7 @@ const Employee = () => {
       />
 
       <Modal
-        title={isEditMode ? "Edit Supplier" : "Create New Supplier"}
+        title={isEditMode ? "Edit User" : "Create New User"}
         visible={isModalVisible}
         onCancel={handleCancel}
         footer={null}
@@ -205,34 +267,59 @@ const Employee = () => {
           <Form.Item
             name="email"
             label="Email"
-            rules={[{ required: true, message: "Please select a email!" }]}
+            rules={[{ required: true, message: "Please enter email!" }]}
           >
             <Input disabled={isEditMode} />
           </Form.Item>
 
           <Form.Item
-            name="name"
-            label="Name"
-            rules={[{ required: true, message: "Please enter name" }]}
+            name="firstName"
+            label="First Name"
+            rules={[{ required: true, message: "Please enter first name!" }]}
           >
             <Input />
           </Form.Item>
 
           <Form.Item
-            name="phonenumber"
-            label="Phone Number"
-            rules={[{ required: true, message: "Please enter first number phone" }]}
+            name="lastName"
+            label="Last Name"
+            rules={[{ required: true, message: "Please enter last name!" }]}
           >
             <Input />
           </Form.Item>
 
           <Form.Item
-            name="address"
-            label="Address"
-            rules={[{ required: true, message: "Please enter Address!" }]}
+            name="role"
+            label="Role"
+            rules={[{ required: true, message: "Please select a role!" }]}
           >
-            <Input />
+            <Select placeholder="Select role">
+              <Option value="admin">Admin</Option>
+              <Option value="employee">Employee</Option>
+              <Option value="client">Client</Option>
+            </Select>
           </Form.Item>
+
+          {!isEditMode && (
+            <Form.Item
+              name="password"
+              label="Password"
+              rules={[{ required: true, message: "Please enter password!" }]}
+            >
+              <Input.Password />
+            </Form.Item>
+          )}
+
+          {!isEditMode && (
+            <Form.Item
+              name="confirm"
+              label="Confirm Password"
+              rules={[{ required: true, message: "Please confirm password!" }]}
+            >
+              <Input.Password />
+            </Form.Item>
+          )}
+
           <Form.Item>
             <Button type="primary" htmlType="submit">
               Submit

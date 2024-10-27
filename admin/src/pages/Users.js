@@ -91,7 +91,23 @@ const Users = () => {
         message.success(
           `User ${isEditMode ? "updated" : "created"} successfully!`
         );
-        fetchData(); // Fetch lại danh sách người dùng sau khi tạo mới hoặc cập nhật thành công
+
+        if (!isEditMode && role === "employee") {
+          await fetch("http://localhost:3001/employee/create-from-user", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email,
+              firstName,
+              lastName,
+              role,
+            }),
+          });
+        }
+
+        fetchData(); 
         setIsModalVisible(false);
       } else {
         const errorData = await response.json();
@@ -205,6 +221,8 @@ const Users = () => {
           {
             title: "Role",
             dataIndex: "role",
+            render: (value, record) => 
+              record.role.charAt(0).toUpperCase() + record.role.slice(1).toLowerCase()
           },
           {
             title: "Status",

@@ -7,35 +7,29 @@ const employeeSchema = new mongoose.Schema({
   },
   address: {
     type: String,
-    required: true,
   },
   email: {
     type: String,
-    required: true,
     unique: true,
   },
   phonenumber: {
     type: String,
-    required: true,
-    unique: true,
   },
   position: {
     type: String,
-    enum: ["Manager", "Employee"],
+    enum: ["manager", "employee"],
     required: true,
   },
   basicSalary: {
     type: Number,
-    required: true,
   },
   entryDate: {
     type: Date,
-    required: true,
   },
   status: {
     type: String,
-    enum: ["Working", "On Leave"],
-    default: "Working",
+    enum: ["working", "on leave"],
+    default: "working",
   },
 }, {
   timestamps: true,
