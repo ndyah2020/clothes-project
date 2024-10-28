@@ -17,11 +17,12 @@ const employeeSchema = new mongoose.Schema({
   },
   position: {
     type: String,
-    enum: ["manager", "employee"],
+    enum: ["manager", "employee", "parking attendant"],
     required: true,
   },
   basicSalary: {
     type: Number,
+    required: true,
   },
   entryDate: {
     type: Date,

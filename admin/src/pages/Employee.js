@@ -9,6 +9,7 @@ import {
   Row,
   Col,
   message,
+  DatePicker,
 } from "antd";
 
 const { Option } = Select;
@@ -45,8 +46,8 @@ const Employee = () => {
     }
   }, [currentEmployees, isEditMode, form]);
 
-  const filteredData = employee.filter((user) =>
-    Object.values(user).some((value) =>
+  const filteredData = employee.filter((employee) =>
+    Object.values(employee).some((value) =>
       String(value).toLowerCase().includes(searchText.toLowerCase())
     )
   );
@@ -55,11 +56,17 @@ const Employee = () => {
     setIsModalVisible(true);
     setIsEditMode(false);
     setCurrentEmployees(null);
-    form.resetFields(); // Reset form when creating a new user
+    form.resetFields(); // Reset form when creating a new employee
   };
 
   const handleOk = async (values) => {
-    const { email, password, firstName, lastName, role } = values;
+    const { email,
+            name,
+            address,
+            phonenumber,
+            entryDate,
+            basicSalary,
+            position, } = values;
 
     try {
       const response = isEditMode
@@ -70,20 +77,22 @@ const Employee = () => {
               headers: {
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify({ email, firstName, lastName, role }),
+              body: JSON.stringify({ email,position }),
             }
           )
-        : await fetch("http://localhost:3001/user/create-user", {
+        : await fetch("http://localhost:3001/employee/create-employee", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
               email,
-              password,
-              firstName,
-              lastName,
-              role,
+              name,
+              address,
+              phonenumber,
+              entryDate,
+              basicSalary,
+              position,
             }),
           });
 
@@ -91,22 +100,6 @@ const Employee = () => {
         message.success(
           `User ${isEditMode ? "updated" : "created"} successfully!`
         );
-
-        if (!isEditMode && role.toLowerCase() === "employee") {
-          await fetch("http://localhost:3001/employee/create-from-user", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              email,
-              firstName,
-              lastName,
-              role,
-            }),
-          });
-        }
-
         fetchData(); 
         setIsModalVisible(false);
       } else {
@@ -156,47 +149,19 @@ const Employee = () => {
     }
   };
 
-  const handleChangeStatus = async (userId, status) => {
-    try {
-      const response = await fetch(
-        `http://localhost:3001/user/change-status/${userId}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ accountStatus: status }),
-        }
-      );
-
-      if (response.ok) {
-        message.success("User status updated successfully!");
-        fetchData(); // Fetch lại danh sách người dùng sau khi cập nhật trạng thái thành công
-      } else {
-        const errorData = await response.json();
-        message.error(
-          `Error: ${errorData.message || "Failed to update status."}`
-        );
-      }
-    } catch (error) {
-      console.error("Error updating status:", error);
-      message.error("Failed to update status.");
-    }
-  };
-
   return (
     <div>
       <Row justify="space-between" style={{ marginBottom: 16 }}>
         <Col>
           <Input
-            placeholder="Search users"
+            placeholder="Search employees"
             onChange={(e) => setSearchText(e.target.value)}
             style={{ width: 300 }}
           />
         </Col>
         <Col>
           <Button type="primary" onClick={showModal}>
-            Create New User
+            Create New Employee
           </Button>
         </Col>
       </Row>
@@ -219,6 +184,11 @@ const Employee = () => {
             sorter: (a, b) => a.email.localeCompare(b.email),
           },
           {
+            title: "Entry Date",
+            dataIndex: "entryDate",
+            sorter: (a, b) => a.entryDate.localeCompare(b.entryDate),
+          },
+          {
             title: "Position",
             dataIndex: "position",
             render: (value, record) => 
@@ -226,16 +196,10 @@ const Employee = () => {
           },
           {
             title: "Status",
-            dataIndex: "accountStatus",
-            render: (text, record) => (
-              <Select
-                defaultValue={text}
-                onChange={(value) => handleChangeStatus(record._id, value)}
-              >
-                <Option value="working">Working</Option>
-                <Option value="on leave">On Leave</Option>
-              </Select>
-            ),
+            dataIndex: "status",
+            sorter: (a, b) => a.status.localeCompare(b.status),
+            render: (value, record) => 
+              record.status.charAt(0).toUpperCase() + record.status.slice(1).toLowerCase()
           },
           {
             title: "Actions",
@@ -264,6 +228,7 @@ const Employee = () => {
         footer={null}
       >
         <Form form={form} layout="vertical" onFinish={handleOk}>
+
           <Form.Item
             name="email"
             label="Email"
@@ -273,53 +238,64 @@ const Employee = () => {
           </Form.Item>
 
           <Form.Item
-            name="firstName"
-            label="First Name"
-            rules={[{ required: true, message: "Please enter first name!" }]}
+            name="name"
+            label="Name"
+            rules={[{ required: true, message: "Please enter name!" }]}
+          >
+            <Input/>
+          </Form.Item>
+          
+          <Form.Item
+            name="address"
+            label="Address"
+            rules={[{ required: true, message: "Please enter first address!" }]}
           >
             <Input />
           </Form.Item>
 
           <Form.Item
-            name="lastName"
-            label="Last Name"
-            rules={[{ required: true, message: "Please enter last name!" }]}
+            name="phonenumber"
+            label="Phone Number"
+            rules={[{ required: true, message: "Please enter last phone number!" }]}
           >
             <Input />
           </Form.Item>
 
           <Form.Item
-            name="role"
-            label="Role"
-            rules={[{ required: true, message: "Please select a role!" }]}
+            name="entryDate"
+            label="Entry Date"
+            rules={[
+              { required: true, message: "Please enter the entry date!" },
+            ]}
           >
-            <Select placeholder="Select role">
-              <Option value="admin">Admin</Option>
-              <Option value="employee">Employee</Option>
-              <Option value="client">Client</Option>
+            <DatePicker
+              format="YYYY-MM-DD"
+              style={{ width: "100%" }}
+              placeholder="Select Entry Date"
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="basicSalary"
+            label="Basic Salary"
+            rules={[{ required: true, message: "Please enter last phone Basic Salary!" }]}
+          >
+            <Select placeholder="Select basic salary">
+              <Option value="23000"> 23.000 VNĐ/h </Option>
+              <Option value="30000"> 30.000 VNĐ/h </Option>
             </Select>
           </Form.Item>
 
-          {!isEditMode && (
-            <Form.Item
-              name="password"
-              label="Password"
-              rules={[{ required: true, message: "Please enter password!" }]}
-            >
-              <Input.Password />
-            </Form.Item>
-          )}
-
-          {!isEditMode && (
-            <Form.Item
-              name="confirm"
-              label="Confirm Password"
-              rules={[{ required: true, message: "Please confirm password!" }]}
-            >
-              <Input.Password />
-            </Form.Item>
-          )}
-
+          <Form.Item
+            name="position"
+            label="Position"
+            rules={[{ required: true, message: "Please select a status!" }]}
+          >
+            <Select placeholder="Select status">
+              <Option value="parking attendant">Parking attendant</Option>
+            </Select>
+          </Form.Item>
+          
           <Form.Item>
             <Button type="primary" htmlType="submit">
               Submit

@@ -20,7 +20,6 @@ const Users = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [users, setUsers] = useState([]);
-
   // Hàm lấy danh sách người dùng từ API
   const fetchData = async () => {
     try {
@@ -86,27 +85,20 @@ const Users = () => {
               role,
             }),
           });
-
+          
       if (response.ok) {
         message.success(
           `User ${isEditMode ? "updated" : "created"} successfully!`
         );
-
-        if (!isEditMode && role === "employee") {
-          await fetch("http://localhost:3001/employee/create-from-user", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              email,
-              firstName,
-              lastName,
-              role,
-            }),
-          });
+        const userData = await response.json()
+        const idUser = userData._id
+        if (isEditMode && role === "employee") {
+          await handleUpdateEmployee({ email, firstName, lastName, role, idUser });
         }
 
+        if (!isEditMode && role === "employee") {
+          await handleCreateEmployee({ email, firstName, lastName, role, idUser });
+        }
         fetchData(); 
         setIsModalVisible(false);
       } else {
@@ -116,6 +108,56 @@ const Users = () => {
     } catch (error) {
       console.error("Error saving user:", error);
       message.error("Failed to save user.");
+    }
+  };
+
+  const handleCreateEmployee = async ({ email, firstName, lastName, role, idUser }) => {
+    try {
+      const response = await fetch("http://localhost:3001/employee/create-from-user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          firstName,
+          lastName,
+          role,
+          idUser,
+        }),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        message.error(`Error creating employee: ${errorData.message || "Failed to create employee."}`);
+      }
+    } catch (error) {
+      console.error("Error creating employee:", error);
+      message.error("Failed to create employee.");
+    }
+  };
+
+  const handleUpdateEmployee = async ({ email, firstName, lastName, role, idUser }) => {
+    try {
+      const response = await fetch(`http://localhost:3001/employee/update-from-user/${idUser}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          firstName,
+          lastName,
+          role,
+        }),
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        message.error(`Error updating employee: ${errorData.message || "Failed to update employee."}`);
+      }
+    } catch (error) {
+      console.error("Error updating employee:", error);
+      message.error("Failed to update employee.");
     }
   };
 
