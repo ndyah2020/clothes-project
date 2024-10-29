@@ -11,7 +11,7 @@ import {
   message,
   DatePicker,
 } from "antd";
-
+import moment from "moment";
 const { Option } = Select;
 
 const Employee = () => {
@@ -40,7 +40,15 @@ const Employee = () => {
 
   useEffect(() => {
     if (isEditMode && currentEmployees) {
-      form.setFieldsValue(currentEmployees);
+      form.setFieldsValue({
+        email: currentEmployees.email,
+        name: currentEmployees.name,
+        address: currentEmployees.address,
+        phonenumber: currentEmployees.phonenumber,
+        entryDate: currentEmployees.entryDate ? moment(currentEmployees.entryDate) : null,
+        basicSalary: currentEmployees.basicSalary,
+        position: currentEmployees.position,
+      });
     } else {
       form.resetFields();
     }
@@ -71,13 +79,21 @@ const Employee = () => {
     try {
       const response = isEditMode
         ? await fetch(
-            `http://localhost:3001/user/update-user/${currentEmployees._id}`,
+            `http://localhost:3001/employee/update-employee/${currentEmployees._id}`,
             {
               method: "PUT",
               headers: {
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify({ email,position }),
+              body: JSON.stringify({ 
+                email,
+                name,
+                address,
+                phonenumber,
+                entryDate,
+                basicSalary,
+                position
+              }),
             }
           )
         : await fetch("http://localhost:3001/employee/create-employee", {
@@ -184,6 +200,11 @@ const Employee = () => {
             sorter: (a, b) => a.email.localeCompare(b.email),
           },
           {
+            title: "Phone number",
+            dataIndex: "phonenumber",
+            sorter: (a, b) => a.phonenumber.localeCompare(b.phonenumber),
+          },
+          {
             title: "Entry Date",
             dataIndex: "entryDate",
             sorter: (a, b) => a.entryDate.localeCompare(b.entryDate),
@@ -260,21 +281,19 @@ const Employee = () => {
           >
             <Input />
           </Form.Item>
-
           <Form.Item
-            name="entryDate"
-            label="Entry Date"
-            rules={[
-              { required: true, message: "Please enter the entry date!" },
-            ]}
-          >
-            <DatePicker
-              format="YYYY-MM-DD"
-              style={{ width: "100%" }}
-              placeholder="Select Entry Date"
-            />
-          </Form.Item>
-
+              name="entryDate"
+              label="Entry Date"
+              rules={[
+                { required: true, message: "Please enter the entry date!" },
+              ]}
+            >
+              <DatePicker
+                format="YYYY-MM-DD"
+                style={{ width: "100%" }}
+                placeholder="Select Entry Date"
+              />
+            </Form.Item>
           <Form.Item
             name="basicSalary"
             label="Basic Salary"

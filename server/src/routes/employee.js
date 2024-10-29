@@ -12,10 +12,11 @@ router.post("/create-from-user", employeeController.createEmployeeFromUser);
 // cập nhật nhân viên từ user
 router.put("/update-from-user/:id", employeeController.updateEmployeeFromUser);
 
+
 // Tạo mới nhân viên
 router.post("/create-employee", employeeController.createNewEmployee);
 
-// Cập nhật nhân viên
+// Cập nhật nhân viên 
 router.put("/update-employee/:id", employeeController.updateEmployee);
 
 

@@ -92,12 +92,17 @@ class EmployeeContronller {
   //update nhân viên
   async updateEmployee (req, res) {
     const { id } = req.params;
-    const { name, email } = req.body;
-
+    const { name, email, address, phonenumber, entryDate, basicSalary, position } = req.body;
+    if(phonenumber.length !== 10)
+      return res.status(403).json({ message: "Phone number must be 10 digits" });
     try {
+      const isPhone = await employeeModel.findOne({ phonenumber, _id: { $ne: id } });
+      if(isPhone)
+        return res.status(404).json({ message: "This phone number is already in use " });
+
       const updateEmployee = await employeeModel.findByIdAndUpdate (
         id, 
-        {name, email},
+        {name, email, address, phonenumber, entryDate, basicSalary, position},
         { new: true, runValidators: true },
       );
 
@@ -109,7 +114,6 @@ class EmployeeContronller {
       res.status(500).json({message: "Error updating employee"})
     }
   } 
-
 
   //lấy thông tin chi tiết của nhân viên theo id
       async getEmployeeById(req, res) {
@@ -140,5 +144,6 @@ class EmployeeContronller {
           res.status(500).json({message: "Error deleting employee"})
         }
       }
+      
 }
 module.exports = new EmployeeContronller();

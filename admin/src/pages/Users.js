@@ -59,7 +59,6 @@ const Users = () => {
 
   const handleOk = async (values) => {
     const { email, password, firstName, lastName, role } = values;
-
     try {
       const response = isEditMode
         ? await fetch(
@@ -92,7 +91,7 @@ const Users = () => {
         );
         const userData = await response.json()
         const idUser = userData._id
-        if (isEditMode && role === "employee") {
+        if (isEditMode) {
           await handleUpdateEmployee({ email, firstName, lastName, role, idUser });
         }
 
