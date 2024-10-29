@@ -203,19 +203,27 @@ const Products = () => {
     setLoading(false);
   };
   
-
-
   // Handle product deletion
-  const handleDelete = async (id) => {
-    setLoading(true);
-    try {
-      await axios.delete(`http://localhost:3001/product/delete-product/${id}`);
-      message.success("Product deleted successfully");
-      fetchProducts();
-    } catch (error) {
-      message.error("Failed to delete product");
-    }
-    setLoading(false);
+  const handleDelete = (id) => {
+    Modal.confirm({
+      title: "Bạn có chắc muốn xóa sản phẩm này?",
+      content: "Thao tác này sẽ không thể hoàn tác và mất toàn bộ dữ liệu về sản phẩm.",
+      okText: "Xóa",
+      okType: "danger",
+      cancelText: "Hủy",
+      onOk: async () => {
+        setLoading(true); // Bắt đầu trạng thái loading
+        try {
+          await axios.delete(`http://localhost:3001/product/delete-product/${id}`);
+          message.success("Xóa sản phẩm thành công!");
+          fetchProducts(); // Cập nhật lại danh sách sản phẩm sau khi xóa thành công
+        } catch (error) {
+          message.error("Xóa sản phẩm thất bại.");
+        } finally {
+          setLoading(false); // Kết thúc trạng thái loading, bất kể thành công hay thất bại
+        }
+      }
+    });
   };
 
   // Handle image upload with file list management
@@ -259,38 +267,46 @@ const Products = () => {
     }
   };
   //Xóa size
-  const handleDeleteSize = async (size, id, value) => {
-    //Kiểm tra size cuối cùng thì không được xóa
-    if(value.length === 1) 
-      return message.error("No sizes left. You can add new sizes.");
+  const handleDeleteSize =  (size, id, value) => {
+    Modal.confirm({
+      title: "Bạn có chắc muốn xóa size này?",
+      content: "Thao tác này sẽ không thể hoàn tác và mất toàn bộ dữ liệu về size.",
+      okText: "Xóa",
+      okType: "danger",
+      cancelText: "Hủy",
+    onOk: async () => {
+        if(value.length === 1) 
+          return message.error("No sizes left. You can add new sizes.");
 
-    const upperSize = size.toUpperCase();
-    try {
-      const response = await fetch(`http://localhost:3001/product/deletesize/${id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ size: upperSize }),
-      });
-      if (!response.ok) {
-        const result = await response.json();
-        return message.error(result.message);
+        const upperSize = size.toUpperCase();
+        try {
+          const response = await fetch(`http://localhost:3001/product/deletesize/${id}`, {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ size: upperSize }),
+          });
+          if (!response.ok) {
+            const result = await response.json();
+            return message.error(result.message);
+          }
+      
+          // Cập nhật lại dữ liệu sản phẩm sau khi xóa size thành công
+          const updatedProduct = await axios.get(
+            `http://localhost:3001/product/get-product/${id}`
+          );
+    
+          // Đặt lại giá trị form với dữ liệu mới
+          setEditingProduct(updatedProduct.data);
+          form.setFieldsValue(updatedProduct.data); 
+          fetchProducts();
+          message.success("Size deleted successfully");
+        } catch (error) {
+          message.error("Failed to delete size");
+        }
       }
-  
-      // Cập nhật lại dữ liệu sản phẩm sau khi xóa size thành công
-      const updatedProduct = await axios.get(
-        `http://localhost:3001/product/get-product/${id}`
-      );
-
-      // Đặt lại giá trị form với dữ liệu mới
-      setEditingProduct(updatedProduct.data);
-      form.setFieldsValue(updatedProduct.data); 
-      fetchProducts();
-      message.success("Size deleted successfully");
-    } catch (error) {
-      message.error("Failed to delete size");
-    }
+    })
   }
 
   const columns = [
@@ -466,7 +482,7 @@ const Products = () => {
       {/* modal detail */}
       <Modal
         title="Product Details"
-        visible={isDetailModalVisible}
+        open={isDetailModalVisible}
         onCancel={() => setIsDetailModalVisible(false)}
         footer={[
           <Button key="close" onClick={() => setIsDetailModalVisible(false)}>
@@ -506,7 +522,7 @@ const Products = () => {
       {/* eidt and add */}
       <Modal
         title={editingProduct ? "Edit Product" : "Add Product"}
-        visible={isModalVisible}
+        open={isModalVisible}
         onCancel={() => setIsModalVisible(false)}
         onOk={() => form.submit()}
       >

@@ -92,7 +92,7 @@ class EmployeeContronller {
   //update nhân viên
   async updateEmployee (req, res) {
     const { id } = req.params;
-    const { name, email, address, phonenumber, entryDate, basicSalary, position } = req.body;
+    const { name, email, address, phonenumber, entryDate, basicSalary, position, status } = req.body;
     if(phonenumber.length !== 10)
       return res.status(403).json({ message: "Phone number must be 10 digits" });
     try {
@@ -102,7 +102,7 @@ class EmployeeContronller {
 
       const updateEmployee = await employeeModel.findByIdAndUpdate (
         id, 
-        {name, email, address, phonenumber, entryDate, basicSalary, position},
+        {name, email, address, phonenumber, entryDate, basicSalary, position, status},
         { new: true, runValidators: true },
       );
 
@@ -130,7 +130,7 @@ class EmployeeContronller {
           res.status(500).json({ message: "Error retrieving employee", error });
         }
       }
-      
+
       //Xoa nhân viên
       async deleteEmployee (req, res) {
         const { id } = req.params
@@ -144,6 +144,5 @@ class EmployeeContronller {
           res.status(500).json({message: "Error deleting employee"})
         }
       }
-      
-}
+  }
 module.exports = new EmployeeContronller();

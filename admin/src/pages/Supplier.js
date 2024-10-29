@@ -17,6 +17,9 @@ const Supplier = () => {
   const [currentSupplier, setCurrentSupplier] = useState(null);
   const [suppliers, setsuppliers] = useState([]);
   const [form] = Form.useForm();
+
+  const [isDetailModalVisible, setIsDetailModalVisible] = useState(false); 
+  const [selectedSupplier, setSelectedSupplier] = useState(null);
   // Hàm lấy danh sách người dùng từ API
   const fetchData = async () => {
     try {
@@ -52,6 +55,11 @@ const Supplier = () => {
     setIsEditMode(false);
     setCurrentSupplier(null);
     form.resetFields()
+  };
+
+  const showDetailModal = (product) => {
+    setSelectedSupplier(product);
+    setIsDetailModalVisible(true);
   };
 
   const handleOk = async (values) => {
@@ -111,30 +119,35 @@ const Supplier = () => {
     setIsModalVisible(true);
   };
 
-  const handleDelete = async (id) => {
-    try {
-      const response = await fetch(
-        `http://localhost:3001/supplier/delete-supplier/${id}`,
-        {
-          method: "DELETE",
-        }
-      );
-
-      if (response.ok) {
-        message.success("Suppiler deleted successfully!");
-        fetchData(); // Fetch lại danh sách người dùng sau khi xóa thành công
-      } else {
-        const errorData = await response.json();
-        message.error(
-          `Error: ${errorData.message || "Failed to delete supplier."}`
-        );
-      }
-    } catch (error) {
-      console.error("Error deleting supplier:", error);
-      message.error("Failed to delete supplier.");
-    }
+  const handleDelete = (id) => {
+    Modal.confirm({
+        title: "Bạn có chắc muốn xóa người dùng này?",
+        content: "Thao tác này sẽ không thể hoàn tác.",
+        okText: "Xóa",
+        okType: "danger",
+        cancelText: "Hủy",
+    onOk: async () => {
+        try {
+            const response = await fetch(
+              `http://localhost:3001/supplier/delete-supplier/${id}`,
+              {
+                method: "DELETE",
+              });
+            if (response.ok) {
+              message.success("Suppiler deleted successfully!");
+              fetchData(); // Fetch lại danh sách người dùng sau khi xóa thành công
+            } else {
+              const errorData = await response.json();
+              message.error(
+                `Error: ${errorData.message || "Failed to delete supplier."}`
+              );
+            }
+          } catch (error) {
+            console.error("Error deleting supplier:", error);
+            message.error("Failed to delete supplier.");
+        }}})
   };
-
+  
   
   return (
     <div>
@@ -159,6 +172,11 @@ const Supplier = () => {
             title: "Name",
             dataIndex: "name",
             sorter: (a, b) => a.name.localeCompare(b.name),
+            render: (text) => (
+              <span style={{ maxWidth: 150, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "inline-block" }}>
+                {text}
+              </span>
+            ),
           },
           {
             title: "Phone Number",
@@ -169,6 +187,11 @@ const Supplier = () => {
             title: "Address",
             dataIndex: "address",
             sorter: (a, b) => a.address.localeCompare(b.address),
+            render: (text) => (
+              <span style={{ maxWidth: 200, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "inline-block" }}>
+                {text}
+              </span>
+            ),
           },
           {
             title: "Email",
@@ -179,14 +202,17 @@ const Supplier = () => {
             title: "Actions",
             render: (text, record) => (
               <div>
+                <Button onClick={() => showDetailModal(record)} type="link">
+                    Detail
+                </Button>
                 <Button onClick={() => handleEdit(record)}>Edit</Button>
-                <Button
+                {/* <Button
                   type="danger"
                   onClick={() => handleDelete(record._id)}
                   style={{ marginLeft: 8 }}
                 >
                   Delete
-                </Button>
+                </Button> */}
               </div>
             ),
           },
@@ -194,10 +220,31 @@ const Supplier = () => {
         dataSource={filteredData}
         pagination={{ pageSize: 5 }}
       />
+{/* modal seen detail */}
+      <Modal
+        title="Product Details"
+        open={isDetailModalVisible}
+        onCancel={() => setIsDetailModalVisible(false)}
+        footer={[
+          <Button key="close" onClick={() => setIsDetailModalVisible(false)}>
+            Close
+          </Button>,
+        ]}
+      >
+        {selectedSupplier && (
+          <div>
+            <p><strong>Email:</strong> {selectedSupplier.email}</p>
+            <p><strong>Name:</strong> {selectedSupplier.name}</p>
+            <p><strong>Phone number:</strong> {selectedSupplier.phonenumber}</p>
+            <p><strong>Address:</strong> {selectedSupplier.address}</p>
+          </div>
+        )}
+      </Modal>
 
+{/* modal add/edit */}
       <Modal
         title={isEditMode ? "Edit Supplier" : "Create New Supplier"}
-        visible={isModalVisible}
+        open={isModalVisible}
         onCancel={handleCancel}
         footer={null}
       >
@@ -207,7 +254,7 @@ const Supplier = () => {
             label="Email"
             rules={[{ required: true, message: "Please select a email!" }]}
           >
-            <Input disabled={isEditMode} />
+            <Input/>
           </Form.Item>
 
           <Form.Item

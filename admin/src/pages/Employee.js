@@ -74,7 +74,9 @@ const Employee = () => {
             phonenumber,
             entryDate,
             basicSalary,
-            position, } = values;
+            position, 
+            status,
+          } = values;
 
     try {
       const response = isEditMode
@@ -92,7 +94,8 @@ const Employee = () => {
                 phonenumber,
                 entryDate,
                 basicSalary,
-                position
+                position,
+                status,
               }),
             }
           )
@@ -141,29 +144,37 @@ const Employee = () => {
     setIsModalVisible(true);
   };
 
-  const handleDelete = async (id) => {
-    try {
-      const response = await fetch(
-        `http://localhost:3001/user/delete-user/${id}`,
-        {
-          method: "DELETE",
-        }
-      );
-
-      if (response.ok) {
-        message.success("employee deleted successfully!");
-        fetchData(); // Fetch lại danh sách người dùng sau khi xóa thành công
-      } else {
-        const errorData = await response.json();
-        message.error(
-          `Error: ${errorData.message || "Failed to delete employee."}`
-        );
-      }
-    } catch (error) {
-      console.error("Error deleting employee:", error);
-      message.error("Failed to delete employee.");
-    }
-  };
+  // const handleDelete =  (id) => {
+  //   Modal.confirm({
+  //     title: "Bạn có chắc muốn xóa sản phẩm này?",
+  //     content: "Thao tác này sẽ không thể hoàn tác và mất toàn bộ dữ liệu về nhân viên.",
+  //     okText: "Xóa",
+  //     okType: "danger",
+  //     cancelText: "Hủy",
+  //     onOk: async() => {
+  //       try {
+  //         const response = await fetch(
+  //           `http://localhost:3001/employee/delete-employee/${id}`,
+  //           {
+  //             method: "DELETE",
+  //           }
+  //         );
+  //         if (response.ok) {
+  //           message.success("employee deleted successfully!");
+  //           fetchData(); // Fetch lại danh sách người dùng sau khi xóa thành công
+  //         } else {
+  //           const errorData = await response.json();
+  //           message.error(
+  //             `Error: ${errorData.message || "Failed to delete employee."}`
+  //           );
+  //         }
+  //       } catch (error) {
+  //         console.error("Error deleting employee:", error);
+  //         message.error("Failed to delete employee.");
+  //       }
+  //     }
+  //   })
+  // }
 
   return (
     <div>
@@ -192,7 +203,6 @@ const Employee = () => {
           {
             title: "Address",
             dataIndex: "address",
-            sorter: (a, b) => a.address.localeCompare(b.address),
           },
           {
             title: "Email",
@@ -202,12 +212,11 @@ const Employee = () => {
           {
             title: "Phone number",
             dataIndex: "phonenumber",
-            sorter: (a, b) => a.phonenumber.localeCompare(b.phonenumber),
           },
           {
             title: "Entry Date",
             dataIndex: "entryDate",
-            sorter: (a, b) => a.entryDate.localeCompare(b.entryDate),
+            render: (text) => text ? moment(text).format("YYYY-MM-DD") : "",
           },
           {
             title: "Position",
@@ -227,13 +236,13 @@ const Employee = () => {
             render: (text, record) => (
               <div>
                 <Button onClick={() => handleEdit(record)}>Edit</Button>
-                <Button
+                {/* <Button
                   type="danger"
                   onClick={() => handleDelete(record._id)}
                   style={{ marginLeft: 8 }}
                 >
                   Delete
-                </Button>
+                </Button> */}
               </div>
             ),
           },
@@ -244,7 +253,7 @@ const Employee = () => {
 
       <Modal
         title={isEditMode ? "Edit Employee" : "Create New Employee"}
-        visible={isModalVisible}
+        open={isModalVisible}
         onCancel={handleCancel}
         footer={null}
       >
@@ -281,6 +290,18 @@ const Employee = () => {
           >
             <Input />
           </Form.Item>
+          {isEditMode && (
+            <Form.Item
+            name="status"
+            label="Status"
+            rules={[{ required: true, message: "Please select a status" }]}
+            >
+              <Select>
+                <Option value="working">Working</Option>
+                <Option value="on leave">On Leave</Option>
+              </Select>
+            </Form.Item>
+          )}
           <Form.Item
               name="entryDate"
               label="Entry Date"
@@ -304,16 +325,17 @@ const Employee = () => {
               <Option value="30000"> 30.000 VNĐ/h </Option>
             </Select>
           </Form.Item>
-
-          <Form.Item
+          {!isEditMode && (
+            <Form.Item
             name="position"
             label="Position"
             rules={[{ required: true, message: "Please select a status!" }]}
-          >
-            <Select placeholder="Select status">
-              <Option value="parking attendant">Parking attendant</Option>
-            </Select>
-          </Form.Item>
+            >
+              <Select placeholder="Select status">
+                <Option value="parking attendant">Parking attendant</Option>
+              </Select>
+            </Form.Item>
+          )}
           
           <Form.Item>
             <Button type="primary" htmlType="submit">
