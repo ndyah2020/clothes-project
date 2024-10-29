@@ -98,17 +98,17 @@ const Employee = () => {
 
       if (response.ok) {
         message.success(
-          `User ${isEditMode ? "updated" : "created"} successfully!`
+          `Employee ${isEditMode ? "updated" : "created"} successfully!`
         );
         fetchData(); 
         setIsModalVisible(false);
       } else {
         const errorData = await response.json();
-        message.error(`Error: ${errorData.message || "Failed to save user."}`);
+        message.error(`Error: ${errorData.message || "Failed to save employee."}`);
       }
     } catch (error) {
-      console.error("Error saving user:", error);
-      message.error("Failed to save user.");
+      console.error("Error saving employee:", error);
+      message.error("Failed to save employee.");
     }
   };
 
@@ -119,8 +119,8 @@ const Employee = () => {
     }
   };
 
-  const handleEdit = (user) => {
-    setCurrentEmployees(user);
+  const handleEdit = (employee) => {
+    setCurrentEmployees(employee);
     setIsEditMode(true);
     setIsModalVisible(true);
   };
@@ -135,17 +135,17 @@ const Employee = () => {
       );
 
       if (response.ok) {
-        message.success("User deleted successfully!");
+        message.success("employee deleted successfully!");
         fetchData(); // Fetch lại danh sách người dùng sau khi xóa thành công
       } else {
         const errorData = await response.json();
         message.error(
-          `Error: ${errorData.message || "Failed to delete user."}`
+          `Error: ${errorData.message || "Failed to delete employee."}`
         );
       }
     } catch (error) {
-      console.error("Error deleting user:", error);
-      message.error("Failed to delete user.");
+      console.error("Error deleting employee:", error);
+      message.error("Failed to delete employee.");
     }
   };
 
@@ -222,7 +222,7 @@ const Employee = () => {
       />
 
       <Modal
-        title={isEditMode ? "Edit User" : "Create New User"}
+        title={isEditMode ? "Edit Employee" : "Create New Employee"}
         visible={isModalVisible}
         onCancel={handleCancel}
         footer={null}
