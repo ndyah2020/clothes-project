@@ -1,6 +1,7 @@
 const UserModel = require("../model/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const User = require("../model/User");
 
 class UserController {
   // Lấy tất cả người dùng
@@ -70,6 +71,11 @@ class UserController {
     const { id } = req.params;
 
     try {
+      const userAdmin = await UserModel.findById(id)
+
+      if(userAdmin &&userAdmin.email ==='admin@gmail.com') 
+        return res.status(403).json({ message: "Can not deleting admin user" });
+
       const deletedUser = await UserModel.findByIdAndDelete(id);
 
       if (!deletedUser) {

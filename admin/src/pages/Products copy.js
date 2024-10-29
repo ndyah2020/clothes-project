@@ -143,18 +143,15 @@ const Products = () => {
     setSelectedProduct(product);
     setIsDetailModalVisible(true);
   };
-
-
   // Handle form submission to create or update product
   const handleSubmit = async (values) => {
     setLoading(true);
 
-    if (values.size) {
-      if (!validSizes.includes(values.size.toUpperCase())) {
-        return message.error("Valid size is S, M, L, XL, XXL");
-      }
+    const upperSize = values.size.toUpperCase();
+
+    if (!validSizes.includes(upperSize)) {
+      return message.error("Valid size is S, M, L, XL, XXL");
     }
-  
     try {
       const formData = new FormData();
       formData.append("sku", values.sku);
@@ -162,16 +159,12 @@ const Products = () => {
       formData.append("description", values.description);
       formData.append("category", values.category);
       formData.append("status", values.status);
-      formData.append("supplier", values.supplier);
-  
-      if (values.size && validSizes.includes(values.size.toUpperCase())) {
-        formData.append("size", values.size.toUpperCase());
-      }
-
-
+      formData.append("size", upperSize)
+      formData.append("supplier",values.supplier);
       if (imageFile) {
         formData.append("images", imageFile);
       }
+
       if (editingProduct) {
         await axios.put(
           `http://localhost:3001/product/update-product/${editingProduct._id}`,
@@ -195,6 +188,7 @@ const Products = () => {
         );
         message.success("Product created successfully");
       }
+
       fetchProducts();
       setIsModalVisible(false);
     } catch (error) {
@@ -202,8 +196,6 @@ const Products = () => {
     }
     setLoading(false);
   };
-  
-
 
   // Handle product deletion
   const handleDelete = async (id) => {
@@ -568,17 +560,17 @@ const Products = () => {
           >
             <Input />
           </Form.Item>
-            {!editingProduct && (
-                <Form.Item
-                  name="size"
-                  label="First size"
-                  rules={[
-                    { required: true, message: "Please input the product size" },
-                  ]}
-                  >
-                  <Input />
-                </Form.Item>
-            )}
+       
+              <Form.Item
+                name="size"
+                label="First size"
+                rules={[
+                  { required: true, message: "Please input the product size" },
+                ]}
+              >
+                <Input />
+              </Form.Item>
+       
           <Form.Item
             name="description"
             label="Description"

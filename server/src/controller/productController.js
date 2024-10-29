@@ -31,7 +31,7 @@ class ProductController {
   // Tạo mới sản phẩm
   async createProduct(req, res) {
     try {
-      const { sku, name, category, sizes, status, description } = req.body;
+      const { sku, name, category, size, status, description, supplier} = req.body;
 
       // Xử lý hình ảnh từ `req.files` (nếu có)
       const images = req.files?.map((file) => ({
@@ -42,10 +42,16 @@ class ProductController {
         sku,
         name,
         category,
-        sizes,
+        sizes: {
+          size,
+          quantity: 0,
+          price: 0,
+          type: "letter",
+        },
         status,
-        description, // Thêm trường description
-        images, // Lưu hình ảnh nếu có
+        description, 
+        supplier,
+        images,
       });
       await newProduct.save();
       res.status(201).json({
@@ -60,6 +66,7 @@ class ProductController {
   async addSize(req, res) {
     const { id } = req.params;
     const { size } = req.body;
+    
     const upperSize = size.toUpperCase();
     try {
       const product = await ProductModel.findById(id);
