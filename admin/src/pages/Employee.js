@@ -9,6 +9,7 @@ import {
   Row,
   Col,
   message,
+  Badge,
   DatePicker,
 } from "antd";
 import moment from "moment";
@@ -228,8 +229,15 @@ const Employee = () => {
             title: "Status",
             dataIndex: "status",
             sorter: (a, b) => a.status.localeCompare(b.status),
-            render: (value, record) => 
-              record.status.charAt(0).toUpperCase() + record.status.slice(1).toLowerCase()
+            render: (status) => {
+              const formattedStatus = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+              return (
+                <Badge
+                  color={status === "working" ? "green" : "red"}
+                  text={formattedStatus} 
+                />
+              );
+            },
           },
           {
             title: "Actions",
@@ -298,7 +306,7 @@ const Employee = () => {
             >
               <Select>
                 <Option value="working">Working</Option>
-                <Option value="on leave">On Leave</Option>
+                <Option value="quit">Quit</Option>
               </Select>
             </Form.Item>
           )}

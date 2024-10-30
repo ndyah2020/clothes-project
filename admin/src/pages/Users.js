@@ -7,6 +7,7 @@ import {
   Form,
   Select,
   Row,
+  Badge,
   Col,
   message,
 } from "antd";
@@ -279,15 +280,26 @@ const Users = () => {
           {
             title: "Status",
             dataIndex: "accountStatus",
-            render: (text, record) => (
-              <Select
-                defaultValue={text}
-                onChange={(value) => handleChangeStatus(record._id, value)}
-              >
-                <Option value="active">Active</Option>
-                <Option value="inactive">Inactive</Option>
-                <Option value="suspended">Suspended</Option>
-              </Select>
+            render: (status, record) => (
+              <div>
+                <Badge
+                  color={
+                    status === "active" ? "green" : 
+                    status === "inactive" ? "orange" : 
+                    status === "suspended" ? "red" : "white"
+                  }
+                  style={{ marginRight: 8 }} 
+                />
+                <Select
+                  defaultValue={status}
+                  onChange={(value) => handleChangeStatus(record._id, value)}
+                  style={{ width: 120}} // Adjust the width as needed
+                >
+                  <Option value="active">Active</Option>
+                  <Option value="inactive">Inactive</Option>
+                  <Option value="suspended">Suspended</Option>
+                </Select>
+              </div>
             ),
           },
           {

@@ -25,7 +25,6 @@ const Product = new Schema(
         contentType: { type: String, required: true },
       },
     ],
-    discount: { type: Number, default: 0 },
     status: {
       type: String,
       enum: ["in_stock", "out_of_stock", "restocking", "discontinued"],
