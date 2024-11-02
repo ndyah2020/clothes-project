@@ -1,7 +1,6 @@
 const UserModel = require("../model/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const User = require("../model/User");
 
 class UserController {
   // Lấy tất cả người dùng
@@ -132,9 +131,11 @@ class UserController {
     const { email, password, firstName, lastName, role, accountStatus } =
       req.body;
 
+      console.log(email, password, firstName, lastName, role, accountStatus);
     if (!email || !password || !firstName || !lastName) {
       return res.status(400).json({ message: "Missing required fields" });
     }
+    
 
     try {
       const existingUser = await UserModel.findOne({ email });

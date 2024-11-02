@@ -1,14 +1,16 @@
+const express = require('express');
+const router = express.Router();
+
 const userRouter = require("./user");
 const productRouter = require("./product");
 const supplierRouter = require("./supplier"); 
 const employeeRouter = require("./employee");
 const customerRouter = require("./customer")
-function route(app) {
-  app.use("/user", userRouter);
-  app.use("/product", productRouter);
-  app.use("/supplier", supplierRouter);
-  app.use("/employee", employeeRouter);
-  app.use("/customer", customerRouter)
-}
 
-module.exports = route;
+router.use('/user', userRouter)
+router.use('/product', productRouter)
+router.use('/supplier', supplierRouter)
+router.use('/employee', employeeRouter)
+router.use('/customer', customerRouter)
+
+module.exports = router;
