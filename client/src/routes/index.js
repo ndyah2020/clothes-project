@@ -1,4 +1,3 @@
-
 import CategoryPage from "../pages/CategoryPage/CategoryPage";
 import ContractPage from "../pages/ContractPage/ContractPage";
 import HomePage from "../pages/HomePage/HomePage";

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import {
   PageContainer,
   LeftSection,
@@ -18,13 +19,44 @@ const SignUpPage = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    console.log('Email:', email);
-    console.log('First Name:', firstName);
-    console.log('Last Name:', lastName);
-    console.log('Password:', password);
-    console.log('Confirm Password:', confirmPassword);
+
+    // Kiểm tra tính hợp lệ của dữ liệu
+    if (!email || !firstName || !lastName || !password || !confirmPassword) {
+      console.log("Vui lòng điền đầy đủ thông tin.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      console.log("Mật khẩu và xác nhận mật khẩu không khớp.");
+      return;
+    }
+
+    try {
+      // Gọi API đăng ký
+      const response = await axios.post('http://localhost:3000/user/register', {
+        email,
+        firstName,
+        lastName,
+        password,
+      });
+
+      // Kiểm tra phản hồi từ server
+      if (response.status === 200) {
+        console.log("Đăng ký thành công:", response.data);
+        alert("Đăng ký thành công!"); // Thông báo thành công
+        window.location.href = '/Signin'; // Chuyển hướng đến trang đăng nhập
+      }
+    } catch (error) {
+      // Xử lý lỗi từ server
+      const errorMsg =
+        error.response && error.response.data && error.response.data.message
+          ? error.response.data.message
+          : "Đăng ký thất bại. Vui lòng thử lại.";
+      console.error("Đăng ký thất bại:", errorMsg);
+      alert(errorMsg); // Hiển thị thông báo lỗi
+    }
   };
 
   return (
