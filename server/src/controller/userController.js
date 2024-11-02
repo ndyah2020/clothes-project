@@ -37,7 +37,7 @@ class UserController {
       res.status(201).json(newUser);
     } catch (error) {
       if (error.code === 11000) {
-        return res.status(400).json({ message: "Email already exists" });
+        return res.status(400).json({ message: "Email already exists or email is incorrect!" });
       }
       res.status(500).json({ message: "Error creating user", error });
     }
@@ -140,7 +140,7 @@ class UserController {
     try {
       const existingUser = await UserModel.findOne({ email });
       if (existingUser) {
-        return res.status(400).json({ message: "Email already exists" });
+        return res.status(400).json({ message: "Email already exists or email is incorrect!" });
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
