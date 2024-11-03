@@ -117,36 +117,37 @@ const Supplier = () => {
     setCurrentSupplier(supplier);
     setIsEditMode(true);
     setIsModalVisible(true);
+    form.setFieldsValue(supplier);
   };
 
-  const handleDelete = (id) => {
-    Modal.confirm({
-        title: "Bạn có chắc muốn xóa người dùng này?",
-        content: "Thao tác này sẽ không thể hoàn tác.",
-        okText: "Xóa",
-        okType: "danger",
-        cancelText: "Hủy",
-    onOk: async () => {
-        try {
-            const response = await fetch(
-              `http://localhost:3001/supplier/delete-supplier/${id}`,
-              {
-                method: "DELETE",
-              });
-            if (response.ok) {
-              message.success("Suppiler deleted successfully!");
-              fetchData(); // Fetch lại danh sách người dùng sau khi xóa thành công
-            } else {
-              const errorData = await response.json();
-              message.error(
-                `Error: ${errorData.message || "Failed to delete supplier."}`
-              );
-            }
-          } catch (error) {
-            console.error("Error deleting supplier:", error);
-            message.error("Failed to delete supplier.");
-        }}})
-  };
+  // const handleDelete = (id) => {
+  //   Modal.confirm({
+  //       title: "Bạn có chắc muốn xóa người dùng này?",
+  //       content: "Thao tác này sẽ không thể hoàn tác.",
+  //       okText: "Xóa",
+  //       okType: "danger",
+  //       cancelText: "Hủy",
+  //   onOk: async () => {
+  //       try {
+  //           const response = await fetch(
+  //             `http://localhost:3001/supplier/delete-supplier/${id}`,
+  //             {
+  //               method: "DELETE",
+  //             });
+  //           if (response.ok) {
+  //             message.success("Suppiler deleted successfully!");
+  //             fetchData(); // Fetch lại danh sách người dùng sau khi xóa thành công
+  //           } else {
+  //             const errorData = await response.json();
+  //             message.error(
+  //               `Error: ${errorData.message || "Failed to delete supplier."}`
+  //             );
+  //           }
+  //         } catch (error) {
+  //           console.error("Error deleting supplier:", error);
+  //           message.error("Failed to delete supplier.");
+  //       }}})
+  //   };
   
   
   return (

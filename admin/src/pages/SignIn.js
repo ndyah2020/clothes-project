@@ -175,7 +175,7 @@ export default class SignIn extends Component {
             <Menu.Item>Pricing</Menu.Item>
           </Menu>
           <p className="copyright">
-            Copyright © 2021 Muse by <a href="#pablo">Creative Tim</a>.
+            Copyright © 2024 Muse by <a href="#pablo">Creative Tim</a>.
           </p>
         </Footer>
       </Layout>

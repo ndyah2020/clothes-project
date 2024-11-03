@@ -15,6 +15,7 @@ import { UploadOutlined } from "@ant-design/icons";
 import axios from "axios";
 
 const { Option, OptGroup } = Select;
+
 const Products = () => {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -59,6 +60,7 @@ const Products = () => {
     }
     setLoading(false);
   };
+  
   const fetchSuppliers = async () => {
     try {
       const response = await fetch("http://localhost:3001/supplier/get-supplier");

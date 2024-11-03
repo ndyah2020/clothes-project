@@ -62,10 +62,10 @@ const Employee = () => {
   );
 
   const showModal = () => {
+    form.resetFields();
     setIsModalVisible(true);
     setIsEditMode(false);
     setCurrentEmployees(null);
-    form.resetFields(); // Reset form when creating a new employee
   };
 
   const handleOk = async (values) => {
@@ -143,6 +143,7 @@ const Employee = () => {
     setCurrentEmployees(employee);
     setIsEditMode(true);
     setIsModalVisible(true);
+    form.setFieldsValue(employee)
   };
 
   // const handleDelete =  (id) => {

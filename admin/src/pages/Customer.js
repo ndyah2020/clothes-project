@@ -15,7 +15,7 @@ const Customer = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [currentCustomer, setCurrentCustomer] = useState(null);
-  const [customers, setcustomers] = useState([]);
+  const [customers, setCustomers] = useState([]);
   const [form] = Form.useForm();
 
   // const [isDetailModalVisible, setIsDetailModalVisible] = useState(false); 
@@ -25,7 +25,7 @@ const Customer = () => {
     try {
       const response = await fetch("http://localhost:3001/customer/get-customer");
       const data = await response.json();
-      setcustomers(data);
+      setCustomers(data);
     } catch (error) {
       console.error("Error fetching customer:", error);
       message.error("Failed to fetch customer.");
@@ -51,10 +51,10 @@ const Customer = () => {
   );
 
   const showModal = () => {
+    form.resetFields()
     setIsModalVisible(true);
     setIsEditMode(false);
     setCurrentCustomer(null);
-    form.resetFields()
   };
 
   // const showDetailModal = (product) => {
@@ -89,7 +89,6 @@ const Customer = () => {
               email
             }),
           });
-
       if (response.ok) {
         message.success(
           `Customer ${isEditMode ? "updated" : "created"} successfully!`
@@ -117,36 +116,37 @@ const Customer = () => {
     setCurrentCustomer(customer);
     setIsEditMode(true);
     setIsModalVisible(true);
+    form.setFieldsValue(customer);
   };
 
-  // const handleDelete = (id) => {
-  //   Modal.confirm({
-  //       title: "Bạn có chắc muốn xóa người dùng này?",
-  //       content: "Thao tác này sẽ không thể hoàn tác.",
-  //       okText: "Xóa",
-  //       okType: "danger",
-  //       cancelText: "Hủy",
-  //   onOk: async () => {
-  //       try {
-  //           const response = await fetch(
-  //             `http://localhost:3001/customer/delete-customer/${id}`,
-  //             {
-  //               method: "DELETE",
-  //             });
-  //           if (response.ok) {
-  //             message.success("Suppiler deleted successfully!");
-  //             fetchData(); // Fetch lại danh sách người dùng sau khi xóa thành công
-  //           } else {
-  //             const errorData = await response.json();
-  //             message.error(
-  //               `Error: ${errorData.message || "Failed to delete customer."}`
-  //             );
-  //           }
-  //         } catch (error) {
-  //           console.error("Error deleting customer:", error);
-  //           message.error("Failed to delete customer.");
-  //       }}})
-  // };
+  const handleDelete = (id) => {
+    Modal.confirm({
+        title: "Bạn có chắc muốn xóa người dùng này?",
+        content: "Thao tác này sẽ không thể hoàn tác.",
+        okText: "Xóa",
+        okType: "danger",
+        cancelText: "Hủy",
+    onOk: async () => {
+        try {
+            const response = await fetch(
+              `http://localhost:3001/customer/delete-customer/${id}`,
+              {
+                method: "DELETE",
+              });
+            if (response.ok) {
+              message.success("Suppiler deleted successfully!");
+              fetchData(); // Fetch lại danh sách người dùng sau khi xóa thành công
+            } else {
+              const errorData = await response.json();
+              message.error(
+                `Error: ${errorData.message || "Failed to delete customer."}`
+              );
+            }
+          } catch (error) {
+            console.error("Error deleting customer:", error);
+            message.error("Failed to delete customer.");
+        }}})
+  };
   
   
   return (
@@ -189,16 +189,6 @@ const Customer = () => {
             sorter: (a, b) => a.point.localeCompare(b.point),
           },
           {
-            title: "Rank",
-            dataIndex: "rank",
-            sorter: (a, b) => a.rank.localeCompare(b.rank),
-          },
-          {
-            title: "Discount",
-            dataIndex: "discount",
-            sorter: (a, b) => a.discount.localeCompare(b.discount),
-          },
-          {
             title: "Actions",
             render: (text, record) => (
               <div>
@@ -206,13 +196,13 @@ const Customer = () => {
                     Detail
                 </Button> */}
                 <Button onClick={() => handleEdit(record)}>Edit</Button>
-                {/* <Button
+                <Button
                   type="danger"
                   onClick={() => handleDelete(record._id)}
                   style={{ marginLeft: 8 }}
                 >
                   Delete
-                </Button> */}
+                </Button>
               </div>
             ),
           },

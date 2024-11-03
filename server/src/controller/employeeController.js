@@ -93,19 +93,22 @@ class EmployeeContronller {
   async updateEmployee (req, res) {
     const { id } = req.params;
     const { name, email, address, phonenumber, entryDate, basicSalary, position, status } = req.body;
+
     if(phonenumber.length !== 10)
       return res.status(403).json({ message: "Phone number must be 10 digits" });
+
     try {
+      
       const isPhone = await employeeModel.findOne({ phonenumber, _id: { $ne: id } });
       if(isPhone)
         return res.status(404).json({ message: "This phone number is already in use " });
-
+  
       const updateEmployee = await employeeModel.findByIdAndUpdate (
         id, 
         {name, email, address, phonenumber, entryDate, basicSalary, position, status},
         { new: true, runValidators: true },
       );
-
+  
       if (!updateEmployee){
         return res.status(400).json({ message: "employee not found" });
       }

@@ -59,7 +59,7 @@ class CustomerContronller {
     //update khách hàng
       async updateCustomer (req, res) {
         const { id } = req.params;
-        const { name, phonenumber } = req.body;8
+        const { name, phonenumber } = req.body;
 
         if(phonenumber.length !== 10)
           return res.status(404).json({message: "Phone number must have 10 digits"})

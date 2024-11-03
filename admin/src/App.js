@@ -12,10 +12,13 @@ import "antd/dist/antd.css";
 import "./assets/styles/main.css";
 import "./assets/styles/responsive.css";
 
+
+
 import Customer from "./pages/Customer";
 import Products from "./pages/Products";
 import Supplier from "./pages/Supplier";
 import Employee from "./pages/Employee";
+import LoyaltyDiscount from "./pages/LoyaltyDiscount.js";
 
 
 function isTokenValid() {
@@ -61,6 +64,7 @@ function App() {
             <Route exact path="/employee" component={Employee} />
             <Route exact path="/customer" component={Customer} />
             <Route exact path="/products" component={Products} />
+            <Route exact path="/loyalty-discount" component={LoyaltyDiscount} />
             <Route exact path="/supplier" component={Supplier} />
             <Route exact path="/rtl" component={Rtl} />
             <Route exact path="/profile" component={Profile} />

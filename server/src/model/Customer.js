@@ -14,15 +14,6 @@ const customerSchema = new mongoose.Schema({
     type: String,
     default: 0
   },
-  rank: {
-    type: String,
-    enum: ["bronze", "silver", "gold", "platinum"],
-    default: 'bronze'
-  },
-  discount: {
-    type: String,
-    default: 'no discount'
-  },
   createdAt: {
     type: Date,
     default: Date.now,

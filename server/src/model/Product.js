@@ -40,6 +40,9 @@ const Product = new Schema(
       required: true, 
       unique: true
     },
+    discount: {
+      type: String,
+    }
   },
   {
     timestamps: true,

@@ -55,7 +55,7 @@ const Users = () => {
     setIsModalVisible(true);
     setIsEditMode(false);
     setCurrentUser(null);
-    form.resetFields(); // Reset form when creating a new user
+    form.resetFields(); 
   };
 
   const handleOk = async (values) => {
@@ -172,6 +172,7 @@ const Users = () => {
     setCurrentUser(user);
     setIsEditMode(true);
     setIsModalVisible(true);
+    form.setFieldsValue(user);
   };
 
   // const handleDelete = (id) => {
