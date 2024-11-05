@@ -1,17 +1,13 @@
 const PromotionModel = require('../models/Promotion')
 
 class PromotionController {
-
-     //Cập nhật trạng thái của khuyến mãi
-     async updatePromotionStatuses() {
-        const now = new Date(); 
-
+    // Hàm lấy danh sách khuyến mãi và tự động cập nhật trạng thái
+    async getPromotions(req, res) {
+        const now = new Date()
         try {
             const promotions = await PromotionModel.find();
-            
-            const updates = promotions.map(promotion => {
+            for (const promotion of promotions) {
                 let newStatus;
-                
                 if (now < new Date(promotion.startTime)) {
                     newStatus = "Not Applied";
                 } else if (now >= new Date(promotion.startTime) && now <= new Date(promotion.endTime)) {
@@ -20,27 +16,10 @@ class PromotionController {
                     newStatus = "Expired";
                 }
                 if (promotion.status !== newStatus) {
-                    return PromotionModel.updateOne(
-                        { _id: promotion._id },
-                        { status: newStatus }
-                    );
+                    await PromotionModel.updateOne({ _id: promotion._id }, { status: newStatus });
                 }
-            });
-            await Promise.all(updates);
-
-            console.log("Statuses updated successfully.");
-        } catch (error) {
-            console.error("Error updating statuses:", error);
-        }
-    }
-
-    // Hàm lấy danh sách khuyến mãi và tự động cập nhật trạng thái
-    async getPromotions(req, res) {
-        try {
-            // await this.updatePromotionStatuses();
-
-            const promotions = await PromotionModel.find();
-            res.json(promotions);
+            }
+            res.status(200).ston(promotions);
         } catch (error) {
             console.error("Error fetching promotions:", error);
             res.status(500).json({ message: "Error fetching promotions." });
