@@ -1,4 +1,4 @@
-const SupplierModel = require("../model/Supplier");
+const SupplierModel = require("../models/Supplier");
 
 
 class SupplierContronller {

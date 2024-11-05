@@ -1,46 +1,99 @@
-const PromotionModel = require('../model/Promotion')
+const PromotionModel = require('../models/Promotion')
 
 class PromotionController {
-    async getPromotion(req, res) {
-        try{
-            const promotion = await PromotionModel.find();
-            res.status(200).json(promotion);
-        }catch(error){
-            res.status(500).json({message: "Error retrieving promotion", error})
+
+     //Cập nhật trạng thái của khuyến mãi
+     async updatePromotionStatuses() {
+        const now = new Date(); 
+
+        try {
+            const promotions = await PromotionModel.find();
+            
+            const updates = promotions.map(promotion => {
+                let newStatus;
+                
+                if (now < new Date(promotion.startTime)) {
+                    newStatus = "Not Applied";
+                } else if (now >= new Date(promotion.startTime) && now <= new Date(promotion.endTime)) {
+                    newStatus = "Active";
+                } else {
+                    newStatus = "Expired";
+                }
+                if (promotion.status !== newStatus) {
+                    return PromotionModel.updateOne(
+                        { _id: promotion._id },
+                        { status: newStatus }
+                    );
+                }
+            });
+            await Promise.all(updates);
+
+            console.log("Statuses updated successfully.");
+        } catch (error) {
+            console.error("Error updating statuses:", error);
         }
     }
 
+    // Hàm lấy danh sách khuyến mãi và tự động cập nhật trạng thái
+    async getPromotions(req, res) {
+        try {
+            // await this.updatePromotionStatuses();
 
-    //tạo khuyến mãi cho khách hàng
+            const promotions = await PromotionModel.find();
+            res.json(promotions);
+        } catch (error) {
+            console.error("Error fetching promotions:", error);
+            res.status(500).json({ message: "Error fetching promotions." });
+        }
+    }
+    
     async createPromotion(req, res) {
-        const {name, startTime, endTime, discount} = req.body;
-
+        const { name, startTime, endTime, discount } = req.body;
+    
         const start = new Date(startTime);
         const end = new Date(endTime);
+        const now = new Date(); 
+    
         if (start >= end) {
             return res.status(400).json({ message: "The start time must be earlier than the end time" });
         }
-        if(!name || !discount){
-            return res.status(400).json({message: "Missing required fields"})
+    
+        if (!name || !discount) {
+            return res.status(400).json({ message: "Missing required fields" });
         }
-        const upperName = name.toUpperCase();   
-        try{
-            const existingName = await PromotionModel.findOne({name})
-            if(existingName){
-                return res.status(404).json({message: "Name already exists"})
+        let initialStatus;
+        if (now < start) {
+            initialStatus = "Not Applied";
+        } else if (now >= start && now <= end) {
+            initialStatus = "Active";
+        } else {
+            initialStatus = "Expired";
+        }
+    
+        const upperName = name.toUpperCase();
+        
+        try {
+            const existingName = await PromotionModel.findOne({ name: upperName });
+            if (existingName) {
+                return res.status(400).json({ message: "Name already exists" });
             }
+    
             const newPromotion = new PromotionModel({
                 name: upperName,
                 startTime: start,
                 endTime: end,
                 discount,
-            })
+                status: initialStatus, 
+            });
+    
             await newPromotion.save();
-            res.json(newPromotion)
+            res.json(newPromotion);
         } catch (error) {
-            res.status(500).json({message: "Error creating promotion"})
+            console.error("Error creating promotion:", error);
+            res.status(500).json({ message: "Error creating promotion" });
         }
     }
+    
 
     //cập nhật khuyến mãi
     async updatePromotion(req, res) {
@@ -90,6 +143,7 @@ class PromotionController {
             res.status(500).json({message: "Error deleting promotion"})
         }
     }
+   
 }
 
 module.exports = new PromotionController

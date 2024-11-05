@@ -1,4 +1,4 @@
-const ProductModel = require("../model/Product");
+const ProductModel = require("../models/Product");
 
 class ProductController {
   // Lấy tất cả sản phẩm

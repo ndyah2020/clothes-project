@@ -1,4 +1,4 @@
-const employeeModel = require("../model/Employee");
+const employeeModel = require("../models/Employee");
 
 
 class EmployeeContronller {

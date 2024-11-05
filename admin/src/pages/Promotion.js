@@ -8,7 +8,8 @@ import {
   Row,
   Col,
   message,
-  DatePicker
+  DatePicker,
+  Badge,
 } from "antd"
 
 import moment from "moment";
@@ -20,15 +21,15 @@ const Promotion = () => {
     const [promotions, setPromotions] = useState([]);
     const [form] = Form.useForm();
     
-    
+
     const fetchData = async () => {
         try{
             const response = await fetch("http://localhost:3001/promotion/get-promotion");
             const data = await response.json();
             setPromotions(data)
         }catch (error) {
-            console.error("Error fetching loytalty discount:", error);
-            message.error("Failed to fetch loytalty discount.");
+            console.error("Error fetching promotion:", error);
+            message.error("Failed to fetch promotion.");
         }
     }
 
@@ -190,6 +191,23 @@ const Promotion = () => {
               dataIndex: "discount",
               sorter: (a, b) => a.discount - b.discount,
               render: (data, record) => record.discount + `%`
+            },
+            {
+              title: "Status",
+              dataIndex: "status",
+              render: status => {
+                return(
+                  <Badge
+                  color={
+                    status === "Active" ? "green" : 
+                    status === "Not Applied" ? "orange" : 
+                    status === "Expired" ? "red" : "white"
+                  }
+                  text={status}
+                  style={{ marginRight: 8 }} 
+              />
+                ) 
+              }
             },
             {
               title: "Actions",

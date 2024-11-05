@@ -1,4 +1,4 @@
-const CustomerModel = require("../model/Customer");
+const CustomerModel = require("../models/Customer");
 
 
 class CustomerContronller {

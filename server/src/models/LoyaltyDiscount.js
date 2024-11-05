@@ -19,6 +19,9 @@ const LoyaltyDiscount = new Schema ({
         type: String,
         enum: ['active', 'paused'],
     }
+},
+{ 
+    timestamps: true,
 })
 
 module.exports = mongoose.model("LoyaltyDiscount", LoyaltyDiscount)

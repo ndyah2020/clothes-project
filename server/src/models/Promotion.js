@@ -21,8 +21,12 @@ const Promotion = new Schema ({
     },
     status: {
         type: String,
-        enum: ['Not Applied', 'Active', 'Expired']
+        enum: ['Not Applied', 'Active', 'Expired'],
+        default: 'Not Applied'
     }
+},
+{ 
+    timestamps: true,
 })
 
 module.exports = mongoose.model("Promotion", Promotion)

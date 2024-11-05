@@ -1,4 +1,4 @@
-const loyaltyDiscountModel = require("../model/LoyaltyDiscount")
+const loyaltyDiscountModel = require("../models/LoyaltyDiscount")
 
 class loyaltyDiscountController {
     async getLoyaltyDiscount(req, res) {
