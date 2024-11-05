@@ -82,3 +82,34 @@
     justify-content: flex-end;
   }
 }
+
+@media (max-width: 768px) {
+  .ant-table table,
+  .ant-table thead,
+  .ant-table tbody,
+  .ant-table th,
+  .ant-table td,
+  .ant-table tr {
+    display: block;
+  }
+  
+  .ant-table thead {
+    display: none;
+  }
+  
+  .ant-table td {
+    position: relative;
+    padding-left: 50%;
+    white-space: normal;
+    text-align: left;
+  }
+
+  .ant-table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 0;
+    width: 45%;
+    padding-left: 10px;
+    font-weight: bold;
+  }
+}

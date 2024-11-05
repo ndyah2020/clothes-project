@@ -172,7 +172,8 @@ const LoyaltyDiscount = () => {
             {
                 title: "Required Points",
                 dataIndex: "requiredPoints",
-                sorter: (a, b) => a.requiredPoints - b.requiredPoints            },
+                sorter: (a, b) => a.requiredPoints - b.requiredPoints            
+            },
             {
               title: "Discount",
               dataIndex: "discount",
@@ -200,9 +201,6 @@ const LoyaltyDiscount = () => {
               title: "Actions",
               render: (text, record) => (
                 <div>
-                  {/* <Button onClick={() => showDetailModal(record)} type="link">
-                      Detail
-                  </Button> */}
                   <Button onClick={() => handleEdit(record)}>Edit</Button>
                   {/* <Button
                     type="danger"

@@ -140,10 +140,12 @@ const Employee = () => {
   };
 
   const handleEdit = (employee) => {
-    setCurrentEmployees(employee);
+    setCurrentEmployees({
+      ...employee,
+      entryDate: employee.entryDate ? moment(employee.entryDate) : null,
+    });
     setIsEditMode(true);
     setIsModalVisible(true);
-    form.setFieldsValue(employee)
   };
 
   // const handleDelete =  (id) => {
@@ -311,7 +313,7 @@ const Employee = () => {
               </Select>
             </Form.Item>
           )}
-          <Form.Item
+            <Form.Item
               name="entryDate"
               label="Entry Date"
               rules={[

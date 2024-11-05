@@ -17,7 +17,7 @@ class CustomerContronller {
       async getCustomerById(req, res) {
         const { id } = req.params;
         try {
-          const customer = await customerModel.findById(id);
+          const customer = await CustomerModel.findById(id);
     
           if (!customer) {
             return res.status(404).json({ message: "customer not found" });
@@ -34,7 +34,7 @@ class CustomerContronller {
         const { name, phonenumber, } = req.body
 
         if(phonenumber.length !== 10)
-          return res.status(404).json({message: "Phone number must have 10 digits"})
+          return res.status(400).json({message: "Phone number must have 10 digits"})
 
         if(!name || !phonenumber) {
           return res.status(400).json({message: "Missing required fields"})
@@ -62,7 +62,7 @@ class CustomerContronller {
         const { name, phonenumber } = req.body;
 
         if(phonenumber.length !== 10)
-          return res.status(404).json({message: "Phone number must have 10 digits"})
+          return res.status(400).json({message: "Phone number must have 10 digits"})
 
         try {
           const updateCustomer = await CustomerModel.findByIdAndUpdate (
@@ -71,7 +71,7 @@ class CustomerContronller {
             { new: true, runValidators: true },
           );
           if (!updateCustomer){
-            return res.status(400).json({ message: "customer not found" });
+            return res.status(404).json({ message: "customer not found" });
           }
           res.status(200).json(updateCustomer);
         } catch {
@@ -85,7 +85,7 @@ class CustomerContronller {
         try {
           const deleteCustomer = await CustomerModel.findByIdAndDelete(id)
           if(!deleteCustomer){
-            return res.json(400).json({message: "customer not found"})
+            return res.json(404).json({message: "customer not found"})
           }
           res.status(200).json("Deleted")
         } catch {

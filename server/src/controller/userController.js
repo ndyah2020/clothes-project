@@ -1,7 +1,7 @@
 const UserModel = require("../model/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const User = require("../model/User");
+
 
 class UserController {
   // Lấy tất cả người dùng
