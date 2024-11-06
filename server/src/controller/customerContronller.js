@@ -1,5 +1,5 @@
 const CustomerModel = require("../models/Customer");
-
+const LoyaltyDiscountModel = require("../models/LoyaltyDiscount")
 
 class CustomerContronller {
   //lấy danh sách khách hàng
@@ -11,8 +11,34 @@ class CustomerContronller {
           res.status(500).json({ message: "Error retrieving customer", error });
         }
       }
-
-      
+  //Lấy thông tin khách hàng từ số điện thoại
+  async getCustomerByNumber(req, res) {
+    const { phonenumber } = req.body;
+    try {
+        const customer = await CustomerModel.findOne({ phonenumber });
+        if (!customer) {
+            return res.status(404).json({ message: "Customer does not exist", data: customer});
+        }
+        const loyaltyDiscounts = await LoyaltyDiscountModel.find({ status: 'active' });
+        if (!loyaltyDiscounts || loyaltyDiscounts.length === 0) {
+            return res.status(404).json({ message: "No active loyalty discounts available" });
+        }
+        let applicableDiscount = null;
+        for (const discount of loyaltyDiscounts) {
+            if (customer.point >= discount.requiredPoints) {
+                if (!applicableDiscount || discount.requiredPoints > applicableDiscount.requiredPoints) {
+                    applicableDiscount = discount;
+                }
+            }
+        }
+        res.status(200).json({
+            ...customer.toObject(),
+            user_discount: applicableDiscount.discount
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Error retrieving customer", error });
+    }
+}
   //lấy thông tin chi tiết của khách hàng theo id
       async getCustomerById(req, res) {
         const { id } = req.params;

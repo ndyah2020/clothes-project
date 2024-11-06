@@ -1,22 +1,23 @@
 const express = require('express')
 const router = express.Router()
 
-const customer = require("../controller/customerContronller");
+const customerContronller = require("../controller/customerContronller");
 
-// Lấy tất nhà cung cấp
-router.get("/get-customer", customer.getCustomer);
+// Lấy tất nhà khách hàng
+router.get("/get-customer", customerContronller.getCustomer);
+// Láy thông tin khách hàng từ số điện thoại
+router.get("/get-customer-by-phone",customerContronller.getCustomerByNumber)
+// Tạo mới nhà khách hàng
+router.post("/create-customer", customerContronller.createNewCustomer);
 
-// Tạo mới nhà cung cấp
-router.post("/create-customer", customer.createNewCustomer);
-
-// Cập nhật nhà cung cấp
-router.put("/update-customer/:id", customer.updateCustomer);
+// Cập nhật nhà khách hàng
+router.put("/update-customer/:id", customerContronller.updateCustomer);
 
 
-// Lấy thông tin nhà cung cấp theo ID
-router.get("/get-customer/:id", customer.getCustomerById);
+// Lấy thông tin nhà khách hàng theo ID
+router.get("/get-customer/:id", customerContronller.getCustomerById);
 
-//Xóa nhà cung cấp
-router.delete("/delete-customer/:id", customer.deleteCustomer);
+//Xóa nhà khách hàng
+router.delete("/delete-customer/:id", customerContronller.deleteCustomer);
 
 module.exports = router;

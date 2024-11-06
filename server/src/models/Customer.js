@@ -11,7 +11,7 @@ const customerSchema = new mongoose.Schema({
     unique: true,
   },
   point: {
-    type: String,
+    type: Number,
     default: 0
   },
   createdAt: {

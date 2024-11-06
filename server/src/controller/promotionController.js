@@ -19,7 +19,7 @@ class PromotionController {
                     await PromotionModel.updateOne({ _id: promotion._id }, { status: newStatus });
                 }
             }
-            res.status(200).ston(promotions);
+            res.status(200).json(promotions);
         } catch (error) {
             console.error("Error fetching promotions:", error);
             res.status(500).json({ message: "Error fetching promotions." });
@@ -72,8 +72,29 @@ class PromotionController {
             res.status(500).json({ message: "Error creating promotion" });
         }
     }
-    
+    //
+    async getPromotionByCode(req, res) {
+        const { name } = req.body;
+        const nameUpperCase = name.toUpperCase();
+        try {
+            const promotion = await PromotionModel.findOne({ name: nameUpperCase});
+            if (!promotion) {
 
+                return res.status(404).json({ message: "promotion does not exist" });
+            }
+            if(promotion.status === 'Not Applied') {
+                
+                return res.status(400).json({ message: 'Promotion not applicable' });
+            }else if(promotion.status === 'Expired'){
+
+                return  res.status(400).json({ message: 'Promotion Expired' });
+            }
+            res.status(200).json(promotion);
+        } catch (error) {
+            
+            res.status(500).json({ message: "Error retrieving promotion", error });
+        }
+      }
     //cập nhật khuyến mãi
     async updatePromotion(req, res) {
         const {id} = req.params
