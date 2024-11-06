@@ -20,6 +20,7 @@ import Supplier from "./pages/Supplier";
 import Employee from "./pages/Employee";
 import LoyaltyDiscount from "./pages/LoyaltyDiscount.js";
 import Promotion from "./pages/Promotion.js";
+import Other from "./pages/Other.js";
 
 
 function isTokenValid() {
@@ -61,6 +62,7 @@ function App() {
         {isAuthenticated ? (
           <Main>
             <Route exact path="/dashboard" component={Home} />
+            <Route exact path="/other" component={Other} />
             <Route exact path="/users" component={User} />
             <Route exact path="/employee" component={Employee} />
             <Route exact path="/customer" component={Customer} />
