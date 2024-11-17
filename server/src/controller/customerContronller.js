@@ -14,6 +14,7 @@ class CustomerContronller {
   //Lấy thông tin khách hàng từ số điện thoại
   async getCustomerByNumber(req, res) {
     const { phonenumber } = req.body;
+    
     try {
         const customer = await CustomerModel.findOne({ phonenumber });
         if (!customer) {
