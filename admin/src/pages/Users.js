@@ -260,41 +260,49 @@ const Users = () => {
           {
             title: "Email",
             dataIndex: "email",
+            key: "email", // This will ensure unique keys for each column
             sorter: (a, b) => a.email.localeCompare(b.email),
           },
           {
             title: "First Name",
             dataIndex: "firstName",
+            key: "firstName",
             sorter: (a, b) => a.firstName.localeCompare(b.firstName),
           },
           {
             title: "Last Name",
             dataIndex: "lastName",
+            key: "lastName",
             sorter: (a, b) => a.lastName.localeCompare(b.lastName),
           },
           {
             title: "Role",
             dataIndex: "role",
-            render: (value, record) => 
-              record.role.charAt(0).toUpperCase() + record.role.slice(1).toLowerCase()
+            key: "role",
+            render: (value, record) => record.role.charAt(0).toUpperCase() + record.role.slice(1).toLowerCase(),
           },
           {
             title: "Status",
             dataIndex: "accountStatus",
+            key: "accountStatus",
             render: (status, record) => (
               <div>
                 <Badge
                   color={
-                    status === "active" ? "green" : 
-                    status === "inactive" ? "orange" : 
-                    status === "suspended" ? "red" : "white"
+                    status === "active"
+                      ? "green"
+                      : status === "inactive"
+                      ? "orange"
+                      : status === "suspended"
+                      ? "red"
+                      : "white"
                   }
-                  style={{ marginRight: 8 }} 
+                  style={{ marginRight: 8 }}
                 />
                 <Select
                   defaultValue={status}
                   onChange={(value) => handleChangeStatus(record._id, value)}
-                  style={{ width: 120}} // Adjust the width as needed
+                  style={{ width: 120 }} // Adjust the width as needed
                 >
                   <Option value="active">Active</Option>
                   <Option value="inactive">Inactive</Option>
@@ -320,8 +328,10 @@ const Users = () => {
           },
         ]}
         dataSource={filteredData}
+        rowKey="_id"  // Ensure each row has a unique key, here we are using '_id'
         pagination={{ pageSize: 5 }}
       />
+
 
       <Modal
         title={isEditMode ? "Edit User" : "Create New User"}

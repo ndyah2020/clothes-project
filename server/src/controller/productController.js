@@ -113,6 +113,31 @@ class ProductController {
       res.status(500).json({ message: "Error deleting size", error });
     }
   }
+  
+  async changeSizePrice(req, res) {
+    const { id } = req.params;
+    const { price, size } = req.body; 
+    const upperSize = size.toUpperCase();
+    try {
+      const updatedProduct = await ProductModel.findByIdAndUpdate(
+        id,
+        {
+          $set: {
+            "sizes.$[elem].price": price  // Cập nhật price trong phần tử có size tương ứng
+          }
+        },
+        {
+          new: true,  
+          runValidators: true,  
+          arrayFilters: [{ "elem.size": upperSize }]  // Lọc phần tử trong mảng sizes có size trùng với giá trị size
+        }
+      );
+      res.status(200).json(updatedProduct);
+    } catch (error) {
+      res.status(500).json({ message: "Error updating size", error });
+    }
+  }
+  
 
   // Cập nhật thông tin sản phẩm theo ID
   async updateProduct(req, res) {

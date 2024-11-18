@@ -2,11 +2,9 @@ import React from "react";
 import { Switch, Route, Redirect } from "react-router-dom";
 import jwt from "jsonwebtoken";
 import Home from "./pages/Home";
-import Sales from "./pages/Sales.js"
 import User from "./pages/Users";
 import Rtl from "./pages/Rtl";
 import Profile from "./pages/Profile";
-import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
 import Main from "./components/layout/Main";
 import "antd/dist/antd.css";
@@ -21,11 +19,11 @@ import Supplier from "./pages/Supplier";
 import Employee from "./pages/Employee";
 import LoyaltyDiscount from "./pages/LoyaltyDiscount.js";
 import Promotion from "./pages/Promotion.js";
-import Other from "./pages/Other.js";
+import Sales from "./pages/Sales.js";
 import ImportForm from "./pages/ImportForm.js";
 
 
-function isTokenValid() {
+const isTokenValid = () => {
   const token = localStorage.getItem("token");
   if (!token) {
     return false;
@@ -50,22 +48,21 @@ function isTokenValid() {
   }
 }
 
+
 function App() {
   const isAuthenticated = isTokenValid();
 
   return (
     <div className="App">
       <Switch>
-        {/* Public Routes */}
-        <Route path="/sign-up" exact component={SignUp} />
-        <Route path="/sign-in" exact component={SignIn} />
+        {/* <Route path="/sign-up" exact component={SignUp} /> */}
+          <Route path="/sign-in" exact component={SignIn} />
 
         {/* Private Routes */}
         {isAuthenticated ? (
           <Main>
             <Route exact path="/dashboard" component={Home} />
             <Route exact path="/sales" component={Sales} />
-            <Route exact path="/other" component={Other} />
             <Route exact path="/users" component={User} />
             <Route exact path="/employee" component={Employee} />
             <Route exact path="/customer" component={Customer} />

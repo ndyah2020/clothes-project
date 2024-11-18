@@ -32,13 +32,10 @@ const Products = () => {
   const [newSizeByProduct, setNewSizeByProduct] = useState({});
   const [showSizes, setShowSize] = useState(0);
   const [suppliers, setSuppliers] = useState([]);
-
   const validSizes = ["S", "M", "L", "XL", "XXL"];
-
-
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false); 
   const [selectedProduct, setSelectedProduct] = useState(null);
-
+  const [newPrice, setNewPrice] = useState(null);
   
   // Fetch product list
   const fetchProducts = async () => {
@@ -197,8 +194,15 @@ const Products = () => {
         );
         message.success("Product created successfully");
       }
+
+      if(editingProduct){
+        handleUpdateSizePrice(editingProduct.sizes[showSizes].size)
+      }
+      
       fetchProducts();
       setIsModalVisible(false);
+     
+
     } catch (error) {
       message.error("Failed to save product");
     }
@@ -269,7 +273,7 @@ const Products = () => {
     }
   };
   //Xóa size
-  const handleDeleteSize =  (size, id, value) => {
+  const handleDeleteSize =  (size, id, value) => {  
     Modal.confirm({
       title: "Bạn có chắc muốn xóa size này?",
       content: "Thao tác này sẽ không thể hoàn tác và mất toàn bộ dữ liệu về size.",
@@ -309,6 +313,26 @@ const Products = () => {
         }
       }
     })
+  }
+  //Chỉnh sửa giá của size
+  const handleUpdateSizePrice = async (size) => {
+    const price = newPrice
+    try {
+      const response = await fetch(`http://localhost:3001/product/update-size-price/${editingProduct._id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ size, price}),
+      });
+      if (!response.ok) {
+        const result = await response.json();
+        return message.error(result.message);
+      }
+      fetchProducts();
+    } catch (error) {
+      message.error("Failed to change price");
+    }
   }
 
   const columns = [
@@ -626,10 +650,11 @@ const Products = () => {
 
               <Select
                 style={{ marginBottom: 10 }}
-                onChange={(value) => {
-                  setShowSize(value); 
+                onChange={(index) => {
+                  setShowSize(index); 
+                  setNewPrice(null)
                 }}
-                value={editingProduct.sizes[showSizes] ? editingProduct.sizes[showSizes].size : editingProduct.sizes[0].size} // Nếu không còn size, chọn size đầu tiên
+                value={editingProduct.sizes[showSizes] ? editingProduct.sizes[showSizes].size : editingProduct.sizes[0].size}
               >
                 {editingProduct.sizes.map((size, index) => (
                   <Option key={index} value={index}>
@@ -640,8 +665,8 @@ const Products = () => {
 
               <Form.Item label="Price" >
                 <Input
-                  value={editingProduct.sizes[showSizes].price}
-                  disabled = {editingProduct}
+                  onChange={(e) =>setNewPrice(e.target.value)}
+                  value={newPrice !== null ? newPrice : editingProduct.sizes[showSizes].price}
                 />
               </Form.Item>
 

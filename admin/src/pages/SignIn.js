@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { Link } from "react-router-dom";
 import {
   Layout,
   Menu,
@@ -9,14 +8,13 @@ import {
   Typography,
   Form,
   Input,
-  Switch,
   message,
 } from "antd";
 import signinbg from "../assets/images/img-signin.jpg";
 import axios from "axios"; // Import axios if using it
 
 const { Title } = Typography;
-const { Header, Footer, Content } = Layout;
+const { Footer, Content } = Layout;
 
 export default class SignIn extends Component {
   render() {
@@ -51,7 +49,7 @@ export default class SignIn extends Component {
 
     return (
       <Layout className="layout-default layout-signin">
-        <Header>
+        {/* <Header>
           <div className="header-col header-brand">
             <h5>Muse Dashboard</h5>
           </div>
@@ -82,7 +80,7 @@ export default class SignIn extends Component {
           <div className="header-col header-btn">
             <Button type="primary">FREE DOWNLOAD</Button>
           </div>
-        </Header>
+        </Header> */}
         <Content className="signin">
           <Row gutter={[24, 0]} justify="space-around">
             <Col
@@ -128,14 +126,14 @@ export default class SignIn extends Component {
                   <Input type="password" placeholder="Password" />
                 </Form.Item>
 
-                <Form.Item
+                {/* <Form.Item
                   name="remember"
                   className="aligin-center"
                   valuePropName="checked"
                 >
                   <Switch defaultChecked />
                   Remember me
-                </Form.Item>
+                </Form.Item> */}
 
                 <Form.Item>
                   <Button
@@ -146,12 +144,12 @@ export default class SignIn extends Component {
                     SIGN IN
                   </Button>
                 </Form.Item>
-                <p className="font-semibold text-muted">
+                {/* <p className="font-semibold text-muted">
                   Don't have an account?{" "}
                   <Link to="/sign-up" className="text-dark font-bold">
                     Sign Up
                   </Link>
-                </p>
+                </p> */}
               </Form>
             </Col>
             <Col

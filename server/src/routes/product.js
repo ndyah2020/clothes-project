@@ -44,5 +44,7 @@ router.get(
 router.patch("/addsize/:id", productController.addSize)
 // Xóa size 
 router.patch("/deletesize/:id", productController.deleteSize)
+//cập nhật giá của size
+router.patch("/update-size-price/:id", productController.changeSizePrice)
 
 module.exports = router;
