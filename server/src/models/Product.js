@@ -38,7 +38,6 @@ const Product = new Schema(
     supplier: { 
       type: String ,
       required: true, 
-      unique: true
     },
     discount: {
       type: String,

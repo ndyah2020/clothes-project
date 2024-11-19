@@ -32,6 +32,7 @@ const Products = () => {
   const [newSizeByProduct, setNewSizeByProduct] = useState({});
   const [showSizes, setShowSize] = useState(0);
   const [suppliers, setSuppliers] = useState([]);
+  const [getSupplierById, setGetSupplierById] = useState("")
   const validSizes = ["S", "M", "L", "XL", "XXL"];
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false); 
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -70,8 +71,8 @@ const Products = () => {
   };
 
   useEffect(() => {
-    fetchSuppliers();
     fetchProducts();
+    fetchSuppliers();
   }, []);
 
   const handleCategoryChange = (value) => {
@@ -138,11 +139,25 @@ const Products = () => {
     }
   };
 
+
   const showDetailModal = (product) => {
     setSelectedProduct(product);
     setIsDetailModalVisible(true);
+    handleGetSupplierById(product)
   };
 
+
+   const handleGetSupplierById = async (product) => {
+    console.log(product.supplier)
+      try{
+        const response = await fetch(`http://localhost:3001/supplier/get-supplier/${product.supplier}`)
+        const data = await response.json();
+        setGetSupplierById(data)
+      }catch(error){
+          console.error("Error fetching supplier:", error);
+          message.error("Failed to fetch supplier.");
+      }
+  }
 
   // Handle form submission to create or update product
   const handleSubmit = async (values) => {
@@ -242,7 +257,7 @@ const Products = () => {
     reader.readAsDataURL(file);
     return false; // Prevent automatic upload
   };
-
+ 
   //Thêm size khi ấn enter
   const handleAddSize = async (size, id) => {
     const upperSize = size.toUpperCase();
@@ -348,7 +363,7 @@ const Products = () => {
       key: "price",
       render: (sizes, record) => {
         const defaultSize = record.selectedSize !== undefined ? record.selectedSize : 0;
-        return sizes.length > 0 ? `${sizes[defaultSize].price.toFixed(2)} VNĐ` : "No Data";
+        return  `${sizes[defaultSize].price.toLocaleString('it-IT', {style : 'currency', currency : 'VND'})} `;
       },
     },
     {
@@ -521,7 +536,7 @@ const Products = () => {
             <p><strong>SKU:</strong> {selectedProduct.sku}</p>
             <p><strong>Name:</strong> {selectedProduct.name}</p>
             <p><strong>Category:</strong> {selectedProduct.category}</p>
-            <p><strong>Supplier:</strong> {selectedProduct.supplier}</p>
+            <p><strong>Supplier:</strong> {getSupplierById.name}</p>
             <p><strong>Description:</strong> {selectedProduct.description}</p>
             <p><strong>Status:</strong> {selectedProduct.status}</p>
             <p><strong>Sizes:</strong></p>
@@ -595,7 +610,7 @@ const Products = () => {
             >
               <Select>
                 {suppliers.map((supplier, index) => (
-                  <Option key={index} value={supplier.name}>
+                  <Option key={supplier._id} value={supplier._id}>
                     {supplier.name}
                   </Option>
                 ))}

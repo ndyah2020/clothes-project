@@ -159,13 +159,14 @@ const menu = (
     itemLayout="horizontal"
     dataSource={data}
     renderItem={(item) => (
-      <List.Item>
-        <List.Item.Meta
-          avatar={<Avatar shape="square" src={item.avatar} />}
-          title={item.title}
-          description={item.description}
-        />
-      </List.Item>
+      <List.Item key={item.title}> {/* Use unique key from data */}
+      <List.Item.Meta
+        avatar={<Avatar shape="square" src={item.avatar} />}
+        title={item.title}
+        description={item.description}
+      />
+    </List.Item>
+    
     )}
   />
 );
@@ -420,8 +421,8 @@ function Header({
             </div>
           </Drawer>
           <div onClick={logOut}>
-            {logOutIcon}
             <span style={{ cursor: 'pointer' }}>Log out</span>
+            {logOutIcon}
           </div>
           <Input
             className="header-search"

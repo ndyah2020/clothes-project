@@ -6,7 +6,7 @@ const customerContronller = require("../controller/customerContronller");
 // Lấy tất nhà khách hàng
 router.get("/get-customer", customerContronller.getCustomer);
 // Láy thông tin khách hàng từ số điện thoại
-router.get("/get-customer-by-phone",customerContronller.getCustomerByNumber)
+router.get("/get-customer-by-phone/:phonenumber",customerContronller.getCustomerByNumber)
 // Tạo mới nhà khách hàng
 router.post("/create-customer", customerContronller.createNewCustomer);
 

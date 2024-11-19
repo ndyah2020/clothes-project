@@ -15,6 +15,7 @@ class PromotionController {
                 } else {
                     newStatus = "Expired";
                 }
+
                 if (promotion.status !== newStatus) {
                     await PromotionModel.updateOne({ _id: promotion._id }, { status: newStatus });
                 }
@@ -25,7 +26,9 @@ class PromotionController {
             res.status(500).json({ message: "Error fetching promotions." });
         }
     }
+
     
+
     async createPromotion(req, res) {
         const { name, startTime, endTime, discount } = req.body;
     

@@ -63,7 +63,7 @@ const Customer = () => {
   // };
 
   const handleOk = async (values) => {
-    const { name, phonenumber, address, email } = values;
+    const { name, phonenumber } = values;
 
     try {
       const response = isEditMode
@@ -74,7 +74,7 @@ const Customer = () => {
               headers: {
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify({ name, phonenumber, address, email }),
+              body: JSON.stringify({ name, phonenumber}),
             }
           )
         : await fetch("http://localhost:3001/customer/create-customer", {
@@ -85,8 +85,6 @@ const Customer = () => {
             body: JSON.stringify({
               name, 
               phonenumber, 
-              address, 
-              email
             }),
           });
       if (response.ok) {

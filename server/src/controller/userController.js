@@ -160,6 +160,8 @@ class UserController {
       res.status(500).json({ message: "Error creating user", error });
     }
   }
+
+
   async login(req, res) {
     const { email, password } = req.body;
 
@@ -180,7 +182,11 @@ class UserController {
 
       // Create and sign JWT
       const token = jwt.sign(
-        { userId: user._id, role: user.role },
+        { 
+          userId: user._id, 
+          role: user.role,
+          status: user.accountStatus, 
+        },
         "duyanh",
         { expiresIn: "1d" }
       );

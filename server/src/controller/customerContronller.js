@@ -13,12 +13,11 @@ class CustomerContronller {
       }
   //Lấy thông tin khách hàng từ số điện thoại
   async getCustomerByNumber(req, res) {
-    const { phonenumber } = req.body;
-    
+    const { phonenumber } = req.params;
     try {
         const customer = await CustomerModel.findOne({ phonenumber });
         if (!customer) {
-            return res.status(404).json({ message: "Customer does not exist", data: customer});
+            return res.status(404).json({ message: "Customer not found", data: customer});
         }
         const loyaltyDiscounts = await LoyaltyDiscountModel.find({ status: 'active' });
         if (!loyaltyDiscounts || loyaltyDiscounts.length === 0) {
@@ -39,7 +38,8 @@ class CustomerContronller {
     } catch (error) {
         res.status(500).json({ message: "Error retrieving customer", error });
     }
-}
+  }
+  
   //lấy thông tin chi tiết của khách hàng theo id
       async getCustomerById(req, res) {
         const { id } = req.params;
@@ -83,6 +83,7 @@ class CustomerContronller {
             res.status(500).json({message: "Error creating customer", error})
         }
       }
+      
     //update khách hàng
       async updateCustomer (req, res) {
         const { id } = req.params;

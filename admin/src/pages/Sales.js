@@ -13,6 +13,7 @@ import {
 } from "antd";
 import axios from "axios";
 
+
 const { Option } = Select;
 
 const Sales = () => {
@@ -27,7 +28,7 @@ const Sales = () => {
   const [orderType, setOrderType] = useState("shop"); // Default is "Mua tại shop"
   const [shippingAddress, setShippingAddress] = useState("");
   const [shippingFee, setShippingFee] = useState(0);
-
+  const [isExistCustomer, setIsExistCustomer] = useState(false)
   // Fetch product list
   const fetchProducts = async () => {
     setLoading(true);
@@ -108,7 +109,7 @@ const Sales = () => {
   // Apply discount based on promo code
   const applyDiscount = () => {
     if (promoCode === "DISCOUNT10") {
-      setDiscount(calculateTotal() * 0.1); // 10% discount
+      setDiscount(calculateTotal() * 0.1); 
     } else if (promoCode === "SAVE50") {
       setDiscount(50); // 50 VNĐ discount
     } else {
@@ -119,20 +120,71 @@ const Sales = () => {
 
   // Check customer by phone number
   const checkCustomer = async () => {
+    if (!customerPhone) {
+      message.error("Please enter the customer's phone number");
+      return;
+    }
+  
     try {
       const response = await axios.get(
-        `http://localhost:3001/customer/get-customer?phone=${customerPhone}`
+        `http://localhost:3001/customer/get-customer-by-phone/${customerPhone}`,
+        {
+          validateStatus: (status) => status < 500, 
+        }
       );
-      if (response.data) {
+  
+      if (response.status === 200 && response.data) {
+        setIsExistCustomer(true);
         setCustomerName(response.data.name);
+        message.success("Customer found");
+      } else if (response.status === 404) {
+        setIsExistCustomer(false);
+        message.info("Customer not found. Please create a new customer.");
       } else {
-        message.info("Customer not found");
+        message.error(`Error: ${response.status} - ${response.statusText}`);
       }
+
     } catch (error) {
       console.error("Error fetching customer data:", error);
+      message.error("An error occurred while fetching customer data.");
+      setIsExistCustomer(false);
     }
   };
+  
+  
 
+  const handleCreateCustomerByPhone = async () => {
+    if (!customerName || !customerPhone) {
+      message.error("Please enter both customer name and phone number.");
+      return;
+    }
+    if(customerPhone.length !== 10){
+      message.error("Phone number must have 10 digits.");
+      return;
+    }
+    try {
+      const response = await axios.post(
+        `http://localhost:3001/customer/create-customer`,
+        {
+          name: customerName,
+          phonenumber: customerPhone,
+        }
+      );
+  
+      if (response.data.message) {
+        message.error(response.data.message);
+      } else {
+        message.success("Created new customer successfully.");
+        setIsExistCustomer(true);
+      }
+
+    } catch (error) {
+      console.error("Error creating customer:", error);
+      message.error("An error occurred while creating the customer.");
+    }
+  };
+  
+  
   // Update shipping fee based on order type and address
   useEffect(() => {
     if (orderType === "online") {
@@ -197,7 +249,7 @@ const Sales = () => {
                 >
                   {product.sizes.map((size, index) => (
                     <Option key={index} value={index}>
-                      {size.size} - {size.price.toFixed(2)} VNĐ
+                      {size.size}
                     </Option>
                   ))}
                 </Select>
@@ -205,8 +257,7 @@ const Sales = () => {
                   Price:{" "}
                   {(
                     product.sizes[product.selectedSizeIndex].price || 0
-                  ).toFixed(2)}{" "}
-                  VNĐ
+                  ).toLocaleString('it-IT', {style : 'currency', currency : 'VND'})}{" "}
                 </div>
               </Card>
             </List.Item>
@@ -224,10 +275,12 @@ const Sales = () => {
               onChange={(e) => setCustomerPhone(e.target.value)}
             />
           </Col>
-          <Col span={8}>
+          <Col span={8} style={{display: 'flex'}}>
             <Button type="primary" onClick={checkCustomer}>
               Check
             </Button>
+
+
           </Col>
         </Row>
         <Input
@@ -283,7 +336,7 @@ const Sales = () => {
                 >
                   <Col span={6}>
                     <div>
-                      Unit Price: {item.selectedSize.price.toFixed(2)} VNĐ
+                      Unit Price: {item.selectedSize.price.toLocaleString('it-IT', {style : 'currency', currency : 'VND'})}
                     </div>
                   </Col>
                   <Col span={6}>
@@ -299,7 +352,7 @@ const Sales = () => {
                   <Col span={6}>
                     <div>
                       Total:{" "}
-                      {(item.quantity * item.selectedSize.price).toFixed(2)} VNĐ
+                      {(item.quantity * item.selectedSize.price).toLocaleString('it-IT', {style : 'currency', currency : 'VND'})}
                     </div>
                   </Col>
                   <Col span={4} style={{ textAlign: "right" }}>
@@ -320,13 +373,13 @@ const Sales = () => {
         <Row justify="space-between" style={{ marginBottom: 16 }}>
           <Col>Subtotal:</Col>
           <Col>
-            {(calculateTotal() - discount + shippingFee).toFixed(2)} VNĐ
+            {(calculateTotal() - discount + shippingFee).toLocaleString('it-IT', {style : 'currency', currency : 'VND'})}
           </Col>
         </Row>
         {orderType === "online" && (
           <Row justify="space-between" style={{ marginBottom: 16 }}>
             <Col>Shipping Fee:</Col>
-            <Col>{shippingFee.toFixed(2)} VNĐ</Col>
+            <Col>{shippingFee.toLocaleString('it-IT', {style : 'currency', currency : 'VND'})}</Col>
           </Row>
         )}
         <Input
@@ -338,7 +391,19 @@ const Sales = () => {
         <Button type="primary" onClick={applyDiscount} block>
           Apply Discount
         </Button>
-        <Button type="primary" block style={{ marginTop: 16 }}>
+        <Button 
+          onClick={async () => {
+            if (isExistCustomer) {
+              console.log('Chuyển đến tạo hóa đơn')
+            } else {
+              await handleCreateCustomerByPhone();
+              console.log('Đã tạo khách hàng và chuyển đến tạo hóa đơn')
+            }
+          }} 
+          type="primary" 
+          block 
+          style={{ marginTop: 16 }}
+        >
           Pay Now
         </Button>
       </Col>

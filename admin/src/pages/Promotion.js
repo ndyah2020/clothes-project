@@ -89,16 +89,17 @@ const Promotion = () => {
                 endTime,
                 discount, 
               }),
-            });
+          });
+
         if (response.ok) {
           message.success(
             `Promotion ${isEditMode ? "updated" : "created"} successfully!`
           );
-          fetchData(); // Fetch lại danh sách người dùng sau khi tạo mới hoặc cập nhật thành công
+          fetchData();
           setIsModalVisible(false);
         } else {
-          const errorData = await response.json();
-          message.error(`Error: ${errorData.message || "Failed to save promotion."}`);
+        const errorData = await response.json();
+            message.error(`Error: ${errorData.message || "Failed to save promotion."}`);
         }
       } catch (error) {
         console.error("Error saving promotion:", error);

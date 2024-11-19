@@ -39,7 +39,7 @@ class loyaltyDiscountController {
         const {id} = req.params
         const {name, requiredPoints, discount, status} = req.body
 
-        if(!name || !requiredPoints || !discount){
+        if(!name){
             return res.status(400).json({message: "Missing required fields"})
         }
         const upperName = name.toUpperCase();

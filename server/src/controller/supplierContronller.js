@@ -15,7 +15,7 @@ class SupplierContronller {
       async getSupplierById(req, res) {
         const { id } = req.params;
         try {
-          const supplier = await supplierModel.findById(id);
+          const supplier = await SupplierModel.findById(id);
     
           if (!supplier) {
             return res.status(404).json({ message: "supplier not found" });
