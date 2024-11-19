@@ -77,27 +77,31 @@ class PromotionController {
     }
     //
     async getPromotionByCode(req, res) {
-        const { name } = req.body;
+
+        const { name } = req.params;
+        if(!name){
+            return res.status(400).json({ message: 'Promotion code has not been entered' });
+        }
+        console.log(name)
         const nameUpperCase = name.toUpperCase();
         try {
             const promotion = await PromotionModel.findOne({ name: nameUpperCase});
             if (!promotion) {
-
-                return res.status(404).json({ message: "promotion does not exist" });
+                return res.status(404).json({ message: "promotion does not exist", data: promotion});
             }
+          
             if(promotion.status === 'Not Applied') {
-                
                 return res.status(400).json({ message: 'Promotion not applicable' });
-            }else if(promotion.status === 'Expired'){
 
+            }else if(promotion.status === 'Expired'){
                 return  res.status(400).json({ message: 'Promotion Expired' });
             }
-            res.status(200).json(promotion);
+            res.status(200).json(promotion.toObject());
         } catch (error) {
-            
             res.status(500).json({ message: "Error retrieving promotion", error });
         }
       }
+
     //cập nhật khuyến mãi
     async updatePromotion(req, res) {
         const {id} = req.params

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   Input,
   Button,
@@ -29,6 +29,7 @@ const Sales = () => {
   const [shippingAddress, setShippingAddress] = useState("");
   const [shippingFee, setShippingFee] = useState(0);
   const [isExistCustomer, setIsExistCustomer] = useState(false)
+  const [totalPrice, setTotalPrice] = useState(null)
   // Fetch product list
   const fetchProducts = async () => {
     setLoading(true);
@@ -58,15 +59,20 @@ const Sales = () => {
     fetchProducts();
   }, []);
 
+
+  
   // Add product to cart
   const addToCart = (product) => {
     const selectedSize = product.sizes[product.selectedSizeIndex];
-    const cartItemKey = `${product.id}-${selectedSize.size}-${product.name}`;
+
+    const cartItemKey = `${product._id}-${selectedSize.size}`;
+    const image = product.image
 
     const existingProduct = cart.find(
       (item) => item.cartItemKey === cartItemKey
     );
-
+   
+   
     if (existingProduct) {
       setCart(
         cart.map((item) =>
@@ -78,7 +84,7 @@ const Sales = () => {
     } else {
       setCart([
         ...cart,
-        { ...product, quantity: 1, selectedSize, cartItemKey },
+        { image, quantity: 1, selectedSize, cartItemKey },
       ]);
     }
   };
@@ -100,24 +106,47 @@ const Sales = () => {
   };
 
   // Calculate total price
-  const calculateTotal = () =>
-    cart.reduce(
-      (total, item) => total + (item.selectedSize.price || 0) * item.quantity,
-      0
-    );
+  const calculateTotal = useCallback(() => {
+    return cart.reduce((total, item) => {
+      // Kiểm tra xem item có selectedSize và price không
+      if (item.selectedSize && item.selectedSize.price) {
+        return total + item.selectedSize.price * item.quantity;
+      }
+      return total;
+    }, 0);
+  }, [cart]);
 
   // Apply discount based on promo code
-  const applyDiscount = () => {
-    if (promoCode === "DISCOUNT10") {
-      setDiscount(calculateTotal() * 0.1); 
-    } else if (promoCode === "SAVE50") {
-      setDiscount(50); // 50 VNĐ discount
-    } else {
-      message.error("Invalid promo code");
-      setDiscount(0);
+
+  useEffect(() => {
+    setTotalPrice(calculateTotal() - discount + shippingFee);
+  }, [cart, discount, shippingFee, calculateTotal]);
+
+
+  const applyDiscount =  async () => {
+    if(!promoCode){
+      return  message.error("Invalid promo code");
+    }
+    try{
+      const response = await axios.get(
+        `http://localhost:3001/promotion/get-promotion-by-code/${promoCode}`,
+        {
+          validateStatus: (status) => status < 500, 
+        }
+      )
+      
+      if (response.status === 200 && response.data) {
+        message.success("Code applied");
+        setDiscount(calculateTotal()*response.data.discount*0.01)
+      } else if (response.status === 404) {
+        message.info("Code not found");
+      } else{
+        message.error(response.data.message);
+      }
+    }catch(error){
+      console.error("Error apply code:", error);
     }
   };
-
   // Check customer by phone number
   const checkCustomer = async () => {
     if (!customerPhone) {
@@ -151,7 +180,28 @@ const Sales = () => {
     }
   };
   
-  
+  const createInvoiceWithDetails = async () =>{
+    const invoice = {
+      customerPhone,
+      orderType,
+      promoCode,
+      shippingAddress,
+      shippingFee,
+      cart,
+      totalPrice
+    }
+    console.log(invoice)
+    try{
+      const response = await axios.post(
+        `api`,
+        {
+        
+        }
+      )
+    }catch(error){
+      console.error()
+    }
+  }
 
   const handleCreateCustomerByPhone = async () => {
     if (!customerName || !customerPhone) {
@@ -183,8 +233,7 @@ const Sales = () => {
       message.error("An error occurred while creating the customer.");
     }
   };
-  
-  
+
   // Update shipping fee based on order type and address
   useEffect(() => {
     if (orderType === "online") {
@@ -314,7 +363,7 @@ const Sales = () => {
             <List.Item>
               <div style={{ width: "100%" }}>
                 <Row align="middle">
-                  <Col span={6}>
+                  <Col span={4}>
                     <img
                       src={item.image}
                       alt="product"
@@ -334,22 +383,27 @@ const Sales = () => {
                   }}
                   align="middle"
                 >
-                  <Col span={6}>
+                  <Col span={4}>
                     <div>
                       Unit Price: {item.selectedSize.price.toLocaleString('it-IT', {style : 'currency', currency : 'VND'})}
                     </div>
                   </Col>
-                  <Col span={6}>
+                  <Col span={4}>
                     <InputNumber
                       min={1}
                       value={item.quantity}
                       onChange={(value) =>
                         updateQuantity(item.cartItemKey, value)
                       }
-                      style={{ width: "100%" }}
+                      style={{ width: "80%" }}
                     />
                   </Col>
-                  <Col span={6}>
+                  <Col span={4}>
+                    <div>
+                      Size: {item.selectedSize.size}
+                    </div>
+                  </Col>
+                  <Col span={4}>
                     <div>
                       Total:{" "}
                       {(item.quantity * item.selectedSize.price).toLocaleString('it-IT', {style : 'currency', currency : 'VND'})}
@@ -373,7 +427,7 @@ const Sales = () => {
         <Row justify="space-between" style={{ marginBottom: 16 }}>
           <Col>Subtotal:</Col>
           <Col>
-            {(calculateTotal() - discount + shippingFee).toLocaleString('it-IT', {style : 'currency', currency : 'VND'})}
+            {totalPrice ? totalPrice.toLocaleString('it-IT', {style : 'currency', currency : 'VND'}) : 0}
           </Col>
         </Row>
         {orderType === "online" && (
@@ -382,22 +436,24 @@ const Sales = () => {
             <Col>{shippingFee.toLocaleString('it-IT', {style : 'currency', currency : 'VND'})}</Col>
           </Row>
         )}
-        <Input
-          placeholder="Promo Code"
-          value={promoCode}
-          onChange={(e) => setPromoCode(e.target.value)}
-          style={{ marginBottom: 8 }}
-        />
-        <Button type="primary" onClick={applyDiscount} block>
-          Apply Discount
-        </Button>
+        <Col style={{display: 'flex'}}>
+          <Input
+            placeholder="Promo Code"
+            value={promoCode}
+            onChange={(e) => setPromoCode(e.target.value)}
+            style={{flex: 2, marginRight: 8}}
+          />
+          <Button style={{flex: 1}} type="primary" onClick={applyDiscount} block>
+            Apply Discount
+          </Button>
+        </Col>
         <Button 
           onClick={async () => {
             if (isExistCustomer) {
-              console.log('Chuyển đến tạo hóa đơn')
+              createInvoiceWithDetails()
             } else {
               await handleCreateCustomerByPhone();
-              console.log('Đã tạo khách hàng và chuyển đến tạo hóa đơn')
+              createInvoiceWithDetails()
             }
           }} 
           type="primary" 

@@ -5,7 +5,7 @@ const promotionController = require('../controller/promotionController')
 //lấy danh sách khuyến mãi của khách hàng
 router.get('/get-promotion', promotionController.getPromotions)
 //Lấy thông tin  khuyến mãi từ name
-router.get('/get-promotion-by-code', promotionController.getPromotionByCode)
+router.get('/get-promotion-by-code/:name', promotionController.getPromotionByCode)
 //tạo khuyến mãi mơi
 router.post('/create-promotion', promotionController.createPromotion)
 //cập nhật khuyến mãi
