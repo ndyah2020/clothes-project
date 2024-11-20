@@ -29,7 +29,7 @@ const Sales = () => {
   const [shippingAddress, setShippingAddress] = useState("");
   const [shippingFee, setShippingFee] = useState(0);
   const [isExistCustomer, setIsExistCustomer] = useState(false)
-  const [totalPrice, setTotalPrice] = useState(null)
+  const [totalPrice, setTotalPrice] = useState(0)
   // Fetch product list
   const fetchProducts = async () => {
     setLoading(true);
@@ -66,13 +66,11 @@ const Sales = () => {
     const selectedSize = product.sizes[product.selectedSizeIndex];
 
     const cartItemKey = `${product._id}-${selectedSize.size}`;
-    const image = product.image
-
     const existingProduct = cart.find(
       (item) => item.cartItemKey === cartItemKey
     );
-   
-   
+
+    cart.forEach(item => console.log(item))
     if (existingProduct) {
       setCart(
         cart.map((item) =>
@@ -84,7 +82,7 @@ const Sales = () => {
     } else {
       setCart([
         ...cart,
-        { image, quantity: 1, selectedSize, cartItemKey },
+        { ...product, quantity: 1, selectedSize, cartItemKey },
       ]);
     }
   };
@@ -180,29 +178,46 @@ const Sales = () => {
     }
   };
   
-  const createInvoiceWithDetails = async () =>{
-    const invoice = {
+  const createInvoiceWithDetails = async () => {
+    const invoiceData = {
       customerPhone,
       orderType,
       promoCode,
       shippingAddress,
       shippingFee,
       cart,
-      totalPrice
-    }
-    console.log(invoice)
-    try{
-      const response = await axios.post(
-        `api`,
-        {
-        
-        }
-      )
-    }catch(error){
-      console.error()
-    }
-  }
+      totalPrice,
+    };
 
+    try {
+      const response = await axios.post(
+        "http://localhost:3001/invoice/create-invoice",
+        invoiceData
+      );
+  
+      if (response.status === 201) {
+        console.log("Invoice created:", response.data);
+        message.success("Invoice created successfully!");
+        setCustomerPhone("")
+        setCustomerName("")
+        setOrderType("shop")
+        setPromoCode("")
+        setShippingAddress(0)
+        setTotalPrice(0)
+        setCart([])
+        
+      } else {
+        console.error("Error:", response.data.message || "Unknown error");
+        message.error(response.data.message || "Failed to create invoice.");
+      }
+    } catch (error) {
+      console.error("Error creating invoice:", error.response?.data || error);
+      message.error(
+        error.response?.data?.message || "An error occurred while creating the invoice."
+      );
+    }
+  };
+  
   const handleCreateCustomerByPhone = async () => {
     if (!customerName || !customerPhone) {
       message.error("Please enter both customer name and phone number.");
