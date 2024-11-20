@@ -30,6 +30,8 @@ const Sales = () => {
   const [shippingFee, setShippingFee] = useState(0);
   const [isExistCustomer, setIsExistCustomer] = useState(false)
   const [totalPrice, setTotalPrice] = useState(0)
+  const [customerDiscount, setCustomerDiscount] = useState(0)
+  // const [isReset, setIsReset] = useState(false);
   // Fetch product list
   const fetchProducts = async () => {
     setLoading(true);
@@ -60,7 +62,6 @@ const Sales = () => {
   }, []);
 
 
-  
   // Add product to cart
   const addToCart = (product) => {
     const selectedSize = product.sizes[product.selectedSizeIndex];
@@ -115,15 +116,20 @@ const Sales = () => {
   }, [cart]);
 
   // Apply discount based on promo code
-
-  useEffect(() => {
-    setTotalPrice(calculateTotal() - discount + shippingFee);
-  }, [cart, discount, shippingFee, calculateTotal]);
+  
+  useEffect(() => {  
+    let calculatedTotal;
+    customerDiscount ===  0 
+      ?calculatedTotal = calculateTotal() - discount + shippingFee
+      :calculatedTotal = ((100-customerDiscount)*0.01)*(calculateTotal() - discount + shippingFee)
+  
+    setTotalPrice(Math.max(calculatedTotal, 0)); 
+  }, [cart, discount, shippingFee, customerDiscount,calculateTotal]);
 
 
   const applyDiscount =  async () => {
     if(!promoCode){
-      return  message.error("Invalid promo code");
+      return message.error("Invalid promo code");
     }
     try{
       const response = await axios.get(
@@ -161,11 +167,15 @@ const Sales = () => {
       );
   
       if (response.status === 200 && response.data) {
+        console.log(response.data.userDiscount)
+        setCustomerDiscount(response.data.userDiscount)
         setIsExistCustomer(true);
         setCustomerName(response.data.name);
+
         message.success("Customer found");
       } else if (response.status === 404) {
         setIsExistCustomer(false);
+        setCustomerDiscount(0)
         message.info("Customer not found. Please create a new customer.");
       } else {
         message.error(`Error: ${response.status} - ${response.statusText}`);
@@ -177,10 +187,35 @@ const Sales = () => {
       setIsExistCustomer(false);
     }
   };
+
+  const handleUpdateQuantityByInvoice = async () => {
+    console.log(cart)
+    try {
+      const response = await axios.patch(`http://localhost:3001/product/update-quatity-by-sales`, {cart}, {
+        validateStatus: (status) => status < 500,
+      });
+  
+      if (response.status === 200) {
+        message.success("Product quantities updated successfully!");
+        return true;
+      } else {
+        message.error(`Error: ${response.status} - ${response.statusText}`);
+        return false; 
+      }
+    } catch (error) {
+      console.error("Error updating product quantities:", error);
+      message.error("An error occurred while updating product quantities. Please try again later.");
+      return false;
+    }
+  };
+  
+  
   
   const createInvoiceWithDetails = async () => {
+   
     const invoiceData = {
       customerPhone,
+      customerDiscount,
       orderType,
       promoCode,
       shippingAddress,
@@ -188,7 +223,7 @@ const Sales = () => {
       cart,
       totalPrice,
     };
-
+ 
     try {
       const response = await axios.post(
         "http://localhost:3001/invoice/create-invoice",
@@ -196,16 +231,21 @@ const Sales = () => {
       );
   
       if (response.status === 201) {
+        const updateQuantity = await handleUpdateQuantityByInvoice()
+        if(!updateQuantity){
+          return;
+        }
         console.log("Invoice created:", response.data);
         message.success("Invoice created successfully!");
         setCustomerPhone("")
+        setCustomerDiscount(0)
         setCustomerName("")
         setOrderType("shop")
         setPromoCode("")
         setShippingAddress(0)
         setTotalPrice(0)
         setCart([])
-        
+        fetchProducts()
       } else {
         console.error("Error:", response.data.message || "Unknown error");
         message.error(response.data.message || "Failed to create invoice.");
@@ -297,7 +337,11 @@ const Sales = () => {
                   />
                 }
                 actions={[
-                  <Button type="primary" onClick={() => addToCart(product)}>
+                  <Button 
+                    type="primary"
+                    onClick={() => addToCart(product)}
+                    disabled={product.sizes[product.selectedSizeIndex].quantity === 0}
+                   >
                     Add to Cart
                   </Button>,
                 ]}
@@ -317,6 +361,9 @@ const Sales = () => {
                     </Option>
                   ))}
                 </Select>
+                <div style={{ marginTop: 8 }}>
+                  Quantity: {product.sizes[product.selectedSizeIndex].quantity || 0}
+                </div>
                 <div style={{ marginTop: 8 }}>
                   Price:{" "}
                   {(
@@ -442,7 +489,7 @@ const Sales = () => {
         <Row justify="space-between" style={{ marginBottom: 16 }}>
           <Col>Subtotal:</Col>
           <Col>
-            {totalPrice ? totalPrice.toLocaleString('it-IT', {style : 'currency', currency : 'VND'}) : 0}
+            {totalPrice ? totalPrice.toLocaleString('it-IT', {style : 'currency', currency : 'VND'}) : `0 VND`}
           </Col>
         </Row>
         {orderType === "online" && (

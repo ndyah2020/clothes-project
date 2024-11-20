@@ -25,8 +25,9 @@ const InvoiceSchema = new Schema({
     min: [0, 'Shipping fee must be positive'],
   },
   promoCode: {
-    type: String,
-    default: '',
+    type: Schema.Types.ObjectId,
+    ref: 'Promotion',
+    default: null,
   },
   discount: {
     type: Number,

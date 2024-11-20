@@ -123,13 +123,13 @@ class ProductController {
         id,
         {
           $set: {
-            "sizes.$[elem].price": price  // Cập nhật price trong phần tử có size tương ứng
+            "sizes.$[elem].price": price  
           }
         },
         {
           new: true,  
           runValidators: true,  
-          arrayFilters: [{ "elem.size": upperSize }]  // Lọc phần tử trong mảng sizes có size trùng với giá trị size
+          arrayFilters: [{ "elem.size": upperSize }]  
         }
       );
       res.status(200).json(updatedProduct);
@@ -137,7 +137,29 @@ class ProductController {
       res.status(500).json({ message: "Error updating size", error });
     }
   }
-  
+  async updateQuantityProduct(req, res) {
+    const { cart } = req.body; 
+    console.log(cart)
+    try {
+      for (const cartItem of cart) {
+        const product = await ProductModel.findById(cartItem._id);
+        if (!product) {
+          return res.status(404).json({
+            message: `Product with ID ${cartItem._id} not found`,
+          });
+        }
+    
+        product.sizes[cartItem.selectedSizeIndex].quantity -= cartItem.quantity;
+        await product.save();
+      }
+      res.status(200).json({ message: "Product quantities updated successfully" });
+    } catch (error) {
+        res.status(500).json({
+        message: "Error updating product quantities",
+        error: error.message,
+      });
+    }
+  }
 
   // Cập nhật thông tin sản phẩm theo ID
   async updateProduct(req, res) {
@@ -252,6 +274,19 @@ class ProductController {
       res
         .status(500)
         .json({ message: "Error fetching products by status", error });
+    }
+  }
+  //Lấy sản phẩm từ nhà cung cấp
+  async getProductsBySupplier(req, res) {
+    const { supplier } = req.params;
+
+    try {
+      const products = await ProductModel.find({ supplier });
+      res.status(200).json(products);
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: "Error fetching products by supplier", error });
     }
   }
 }

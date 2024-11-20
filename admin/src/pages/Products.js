@@ -210,9 +210,6 @@ const Products = () => {
         message.success("Product created successfully");
       }
 
-      if(editingProduct){
-        handleUpdateSizePrice(editingProduct.sizes[showSizes].size)
-      }
       
       fetchProducts();
       setIsModalVisible(false);
@@ -343,8 +340,14 @@ const Products = () => {
       if (!response.ok) {
         const result = await response.json();
         return message.error(result.message);
+      }else{
+        message.success("Price updated");
       }
-      fetchProducts();
+      const updatedProduct = await axios.get(
+        `http://localhost:3001/product/get-product/${editingProduct._id}`
+      );
+      setEditingProduct(updatedProduct.data);
+      form.setFieldsValue(updatedProduct.data); 
     } catch (error) {
       message.error("Failed to change price");
     }
@@ -678,19 +681,35 @@ const Products = () => {
                 ))}
               </Select>
 
-              <Form.Item label="Price" >
-                <Input
-                  onChange={(e) =>setNewPrice(e.target.value)}
-                  value={newPrice !== null ? newPrice : editingProduct.sizes[showSizes].price}
-                />
-              </Form.Item>
+        
+              <Form.Item label="Price">
+              <Row gutter={10} align="middle">
+                <Col span={18}>
+                  <Input
+                    onChange={(e) => setNewPrice(e.target.value)}
+                    value={newPrice !== null ? newPrice : editingProduct.sizes[showSizes].price}
+                  />
+                </Col>
+                <Col span={6}>
+                  <Button
+                    style={{ backgroundColor: "green", color: "white", width: "100%" }} // Nút chiếm toàn bộ chiều rộng cột
+                    onClick={() => handleUpdateSizePrice(editingProduct.sizes[showSizes].size)}
+                  >
+                    Update Price
+                  </Button>
+                </Col>
+              </Row>
+            </Form.Item>
 
+
+              
               <Form.Item label="Quantity">
                 <Input          
                   value={editingProduct.sizes[showSizes].quantity} 
                   disabled = {editingProduct}
                 />
               </Form.Item>
+           
             
               <Button 
                 style={{color: 'white', backgroundColor: 'red'}} 

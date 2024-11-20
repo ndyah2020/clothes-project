@@ -11,7 +11,8 @@ router.get("/get-products", productController.getProducts);
 
 // Lấy thông tin chi tiết của một sản phẩm theo ID
 router.get("/get-product/:id", productController.getProductById);
-
+// lấy sản phẩm từ nhà cung cấp
+router.get("/get-products/supplier/:supplier", productController.getProductsBySupplier)
 // Tạo mới sản phẩm
 router.post(
   "/create-product",
@@ -46,5 +47,7 @@ router.patch("/addsize/:id", productController.addSize)
 router.patch("/deletesize/:id", productController.deleteSize)
 //cập nhật giá của size
 router.patch("/update-size-price/:id", productController.changeSizePrice)
+//Cập nhật số lượng sản phẩm khi mua hàng
+router.patch("/update-quatity-by-sales", productController.updateQuantityProduct)
 
 module.exports = router;

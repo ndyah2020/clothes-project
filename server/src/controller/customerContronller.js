@@ -23,7 +23,7 @@ class CustomerContronller {
         if (!loyaltyDiscounts || loyaltyDiscounts.length === 0) {
             return res.status(404).json({ message: "No active loyalty discounts available" });
         }
-        let applicableDiscount = null;
+        let applicableDiscount = 0;
         for (const discount of loyaltyDiscounts) {
             if (customer.point >= discount.requiredPoints) {
                 if (!applicableDiscount || discount.requiredPoints > applicableDiscount.requiredPoints) {
@@ -33,7 +33,7 @@ class CustomerContronller {
         }
         res.status(200).json({
             ...customer.toObject(),
-            user_discount: applicableDiscount.discount
+            userDiscount: applicableDiscount!== 0 ? applicableDiscount.discount : 0
         });
     } catch (error) {
         res.status(500).json({ message: "Error retrieving customer", error });

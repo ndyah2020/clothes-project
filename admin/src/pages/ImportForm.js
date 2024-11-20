@@ -1,14 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import {
-  Select,
-  InputNumber,
-  Button,
-  Table,
-  Space,
-  Typography,
-  message,
-} from "antd";
+import { Select, InputNumber, Button, Table, Typography, message } from "antd";
 
 const { Option } = Select;
 const { Title } = Typography;
@@ -20,37 +12,36 @@ const ImportNote = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedSize, setSelectedSize] = useState("");
   const [productQuantity, setProductQuantity] = useState(1);
+  const [productPrice, setProductPrice] = useState(0);
   const [selectedProducts, setSelectedProducts] = useState([]);
+  const [loadingProducts, setLoadingProducts] = useState(false);
 
-  // Fetch suppliers
   useEffect(() => {
     axios
       .get("http://localhost:3001/supplier/get-supplier")
       .then((response) => setSuppliers(response.data))
-      .catch((error) => message.error("Lỗi khi tải danh sách nhà cung cấp"));
+      .catch(() => message.error("Lỗi khi tải danh sách nhà cung cấp"));
   }, []);
 
-  // Fetch products
-  useEffect(() => {
+  const fetchProductsBySupplier = (supplierId) => {
+    setLoadingProducts(true);
     axios
-      .get("http://localhost:3001/product/get-products")
+      .get(`http://localhost:3001/product/get-products/supplier/${supplierId}`)
       .then((response) => setProducts(response.data))
-      .catch((error) => message.error("Lỗi khi tải danh sách sản phẩm"));
-  }, []);
+      .catch(() => message.error("Lỗi khi tải danh sách sản phẩm"))
+      .finally(() => setLoadingProducts(false));
+  };
 
-  // Handle adding product to table
   const addProductToTable = () => {
-    if (!selectedProduct || !selectedSize || productQuantity <= 0) {
-      message.warning("Vui lòng chọn sản phẩm, kích cỡ và số lượng hợp lệ");
-      return;
-    }
-
-    const sizeInfo = selectedProduct.sizes.find(
-      (size) => size.size === selectedSize
-    );
-
-    if (!sizeInfo) {
-      message.error("Kích cỡ không hợp lệ");
+    if (
+      !selectedProduct ||
+      !selectedSize ||
+      productQuantity <= 0 ||
+      productPrice <= 0
+    ) {
+      message.warning(
+        "Vui lòng chọn sản phẩm, kích cỡ, số lượng và giá nhập hợp lệ"
+      );
       return;
     }
 
@@ -63,7 +54,12 @@ const ImportNote = () => {
       setSelectedProducts((prev) =>
         prev.map((product) =>
           product.id === selectedProduct._id && product.size === selectedSize
-            ? { ...product, quantity: product.quantity + productQuantity }
+            ? {
+                ...product,
+                quantity: product.quantity + productQuantity,
+                price: productPrice,
+                total: (product.quantity + productQuantity) * productPrice,
+              }
             : product
         )
       );
@@ -74,8 +70,9 @@ const ImportNote = () => {
           id: selectedProduct._id,
           name: selectedProduct.name,
           size: selectedSize,
-          price: sizeInfo.price,
+          price: productPrice,
           quantity: productQuantity,
+          total: productQuantity * productPrice,
         },
       ]);
     }
@@ -83,10 +80,10 @@ const ImportNote = () => {
     setSelectedProduct(null);
     setSelectedSize("");
     setProductQuantity(1);
+    setProductPrice(0);
     message.success("Đã thêm sản phẩm vào danh sách");
   };
 
-  // Handle removing a product from table
   const removeProduct = (productId, size) => {
     setSelectedProducts((prev) =>
       prev.filter(
@@ -96,7 +93,6 @@ const ImportNote = () => {
     message.success("Đã xóa sản phẩm khỏi danh sách");
   };
 
-  // Handle creating import note
   const createImportNote = () => {
     if (!selectedSupplier) {
       message.warning("Vui lòng chọn nhà cung cấp");
@@ -112,7 +108,6 @@ const ImportNote = () => {
     };
     console.log("Phiếu nhập:", noteData);
     message.success("Phiếu nhập đã được tạo thành công!");
-    // Add your API call here to save the import note
   };
 
   const columns = [
@@ -132,16 +127,16 @@ const ImportNote = () => {
       key: "quantity",
     },
     {
-      title: "Giá",
+      title: "Giá nhập",
       dataIndex: "price",
       key: "price",
       render: (price) => `${price.toLocaleString()} VNĐ`,
     },
     {
       title: "Thành tiền",
+      dataIndex: "total",
       key: "total",
-      render: (text, record) =>
-        `${(record.quantity * record.price).toLocaleString()} VNĐ`,
+      render: (total) => `${total.toLocaleString()} VNĐ`,
     },
     {
       title: "Hành động",
@@ -157,85 +152,130 @@ const ImportNote = () => {
   return (
     <div style={{ padding: "20px" }}>
       <Title level={3}>Phiếu Nhập</Title>
-      <Space direction="vertical" size="large" style={{ width: "100%" }}>
-        {/* Select Supplier */}
-        <Space>
-          <span>Chọn nhà cung cấp:</span>
-          <Select
-            placeholder="Chọn nhà cung cấp"
-            style={{ width: 300 }}
-            value={selectedSupplier}
-            onChange={(value) => setSelectedSupplier(value)}
-          >
-            {suppliers.map((supplier) => (
-              <Option key={supplier._id} value={supplier._id}>
-                {supplier.name}
-              </Option>
-            ))}
-          </Select>
-        </Space>
-
-        {/* Select Product */}
-        <Space>
-          <span>Chọn sản phẩm:</span>
-          <Select
-            placeholder="Chọn sản phẩm"
-            style={{ width: 300 }}
-            value={selectedProduct ? selectedProduct._id : null}
-            onChange={(value) =>
-              setSelectedProduct(
-                products.find((product) => product._id === value)
-              )
-            }
-          >
-            {products.map((product) => (
-              <Option key={product._id} value={product._id}>
-                {product.name}
-              </Option>
-            ))}
-          </Select>
-          <Select
-            placeholder="Chọn kích cỡ"
-            style={{ width: 150 }}
-            value={selectedSize}
-            onChange={(value) => setSelectedSize(value)}
-            disabled={!selectedProduct}
-          >
-            {selectedProduct &&
-              selectedProduct.sizes.map((size) => (
-                <Option key={size.size} value={size.size}>
-                  {size.size} - {size.price.toLocaleString()} VNĐ
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: "20px",
+          marginBottom: "20px",
+        }}
+      >
+        {/* Left Column */}
+        <div>
+          <div style={{ marginBottom: "15px" }}>
+            <span style={{ fontWeight: "bold" }}>Chọn nhà cung cấp:</span>
+            <Select
+              placeholder="Chọn nhà cung cấp"
+              style={{ width: "100%", marginTop: "5px" }}
+              value={selectedSupplier}
+              onChange={(value) => {
+                setSelectedSupplier(value);
+                setProducts([]);
+                setSelectedProduct(null);
+                fetchProductsBySupplier(value);
+              }}
+            >
+              {suppliers.map((supplier) => (
+                <Option key={supplier._id} value={supplier._id}>
+                  {supplier.name}
                 </Option>
               ))}
-          </Select>
-          <InputNumber
-            min={1}
-            value={productQuantity}
-            onChange={(value) => setProductQuantity(value)}
-          />
-          <Button type="primary" onClick={addProductToTable}>
-            Thêm vào danh sách
-          </Button>
-        </Space>
+            </Select>
+          </div>
 
-        {/* Table */}
-        <Table
-          dataSource={selectedProducts}
-          columns={columns}
-          rowKey={(record) => `${record.id}-${record.size}`}
-          pagination={false}
-          style={{ marginTop: "20px" }}
-        />
+          <div style={{ marginBottom: "15px" }}>
+            <span style={{ fontWeight: "bold" }}>Chọn sản phẩm:</span>
+            <Select
+              placeholder="Chọn sản phẩm"
+              style={{ width: "100%", marginTop: "5px" }}
+              value={selectedProduct ? selectedProduct._id : null}
+              onChange={(value) =>
+                setSelectedProduct(
+                  products.find((product) => product._id === value)
+                )
+              }
+              disabled={!selectedSupplier || loadingProducts}
+            >
+              {products.map((product) => (
+                <Option key={product._id} value={product._id}>
+                  {product.name}
+                </Option>
+              ))}
+            </Select>
+          </div>
+        </div>
 
-        {/* Create Import Note */}
-        <Button
-          type="primary"
-          disabled={!selectedSupplier || selectedProducts.length === 0}
-          onClick={createImportNote}
-        >
-          Tạo phiếu
-        </Button>
-      </Space>
+        {/* Right Column */}
+        <div>
+          <div style={{ marginBottom: "15px" }}>
+            <span style={{ fontWeight: "bold" }}>Kích cỡ:</span>
+            <Select
+              placeholder="Chọn kích cỡ"
+              style={{ width: "100%", marginTop: "5px" }}
+              value={selectedSize}
+              onChange={(value) => setSelectedSize(value)}
+              disabled={!selectedProduct}
+            >
+              {selectedProduct &&
+                selectedProduct.sizes.map((size) => (
+                  <Option key={size.size} value={size.size}>
+                    {size.size}
+                  </Option>
+                ))}
+            </Select>
+          </div>
+
+          <div style={{ marginBottom: "15px" }}>
+            <span style={{ fontWeight: "bold" }}>Số lượng:</span>
+            <InputNumber
+              placeholder="Nhập số lượng"
+              min={1}
+              style={{ width: "100%", marginTop: "5px" }}
+              value={productQuantity}
+              onChange={(value) => setProductQuantity(value)}
+            />
+          </div>
+
+          <div style={{ marginBottom: "15px" }}>
+            <span style={{ fontWeight: "bold" }}>Giá nhập (VNĐ):</span>
+            <InputNumber
+              placeholder="Nhập giá tiền"
+              min={0}
+              style={{ width: "100%", marginTop: "5px" }}
+              formatter={(value) =>
+                `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " VNĐ"
+              }
+              parser={(value) => value.replace(/\s?|(,*)/g, "")}
+              value={productPrice}
+              onChange={(value) => setProductPrice(value)}
+            />
+          </div>
+        </div>
+      </div>
+
+      <Button
+        type="primary"
+        onClick={addProductToTable}
+        style={{ marginBottom: "20px" }}
+      >
+        Thêm vào danh sách
+      </Button>
+
+      <Table
+        dataSource={selectedProducts}
+        columns={columns}
+        rowKey={(record) => `${record.id}-${record.size}`}
+        pagination={false}
+      />
+
+      <Button
+        type="primary"
+        disabled={!selectedSupplier || selectedProducts.length === 0}
+        onClick={createImportNote}
+        style={{ marginTop: "20px" }}
+      >
+        Tạo phiếu
+      </Button>
     </div>
   );
 };

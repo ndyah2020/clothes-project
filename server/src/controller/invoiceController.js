@@ -2,7 +2,7 @@ const InvoiceModel = require('../models/Invoice');
 const InvoiceDetailModel = require('../models/InvoiceDetail');
 const CustomerModel = require('../models/Customer');
 const ProductModel = require('../models/Product');
-const promotion = require('../models/Promotion')
+const PromotionModel = require('../models/Promotion')
 const mongoose = require("mongoose");
 
 class InvoiceController {
@@ -14,28 +14,36 @@ class InvoiceController {
             shippingAddress,
             shippingFee,
             promoCode,
-            discount,
+            customerDiscount,
             totalPrice,
             cart, 
           } = req.body;
-
+          console.log(customerDiscount)
           if (!customerPhone || !orderType || !totalPrice || !Array.isArray(cart) || cart.length === 0) {
             return res.status(400).json({message: 'Missing required fields or empty cart',});
           }
+
         try{
             //Customer này đã được tạo khi ấn xác nhận đơn hàng. Đã được kiểm tra 
             const customer = await CustomerModel.findOne({phonenumber: customerPhone})
-            console.log(customer)
             if(!customer){
                 return res.status(400).json({message: 'custommer ',});
             }
+            let validPromo = null
+            if(promoCode){
+                validPromo = await PromotionModel.findOne({name: promoCode.toUpperCase()});
+                if (!validPromo) {
+                    return res.status(400).json({ message: 'Promo code not found' });
+                }
+            }
+            
             const newInvoice = new InvoiceModel({
                 customer : customer._id,
                 orderType,
                 shippingAddress: orderType === 'online' ? shippingAddress : '',
                 shippingFee,
-                promoCode,
-                discount,
+                promoCode: validPromo ? new mongoose.Types.ObjectId(validPromo._id) : null,
+                discount: customerDiscount,
                 totalPrice,
             });
             const savedInvoice =  await newInvoice.save()
