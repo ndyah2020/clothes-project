@@ -27,7 +27,7 @@ class InvoiceController {
             //Customer này đã được tạo khi ấn xác nhận đơn hàng. Đã được kiểm tra 
             const customer = await CustomerModel.findOne({phonenumber: customerPhone})
             if(!customer){
-                return res.status(400).json({message: 'custommer ',});
+                return res.status(400).json({message: 'Please click check'});
             }
             let validPromo = null
             if(promoCode){

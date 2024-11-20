@@ -70,9 +70,9 @@ class CustomerContronller {
           const existingCustomer = await CustomerModel.findOne({phonenumber});
 
           if (existingCustomer) {
-            return res.status(400).json({ message: "Phone number already exists" });
+            return res.status(400).json({ message: "Please click check" });
           }
-
+          
           const newCustomer = new CustomerModel({
             name,
             phonenumber,

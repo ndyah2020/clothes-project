@@ -155,9 +155,8 @@ const Sales = () => {
   const checkCustomer = async () => {
     if (!customerPhone) {
       message.error("Please enter the customer's phone number");
-      return;
+      return false;
     }
-  
     try {
       const response = await axios.get(
         `http://localhost:3001/customer/get-customer-by-phone/${customerPhone}`,
@@ -169,22 +168,22 @@ const Sales = () => {
       if (response.status === 200 && response.data) {
         console.log(response.data.userDiscount)
         setCustomerDiscount(response.data.userDiscount)
-        setIsExistCustomer(true);
         setCustomerName(response.data.name);
-
         message.success("Customer found");
+        setIsExistCustomer(true)
       } else if (response.status === 404) {
-        setIsExistCustomer(false);
         setCustomerDiscount(0)
         message.info("Customer not found. Please create a new customer.");
+        setIsExistCustomer(false)
       } else {
         message.error(`Error: ${response.status} - ${response.statusText}`);
+        setIsExistCustomer(false)
       }
 
     } catch (error) {
       console.error("Error fetching customer data:", error);
       message.error("An error occurred while fetching customer data.");
-      setIsExistCustomer(false);
+      setIsExistCustomer(false)
     }
   };
 
@@ -212,7 +211,7 @@ const Sales = () => {
   
   
   const createInvoiceWithDetails = async () => {
-   
+    
     const invoiceData = {
       customerPhone,
       customerDiscount,
@@ -225,6 +224,12 @@ const Sales = () => {
     };
  
     try {
+      if(cart.length !==0 &&  !isExistCustomer){
+        const checkCustomer = await handleCreateCustomerByPhone();
+        if(!checkCustomer){
+          return;
+        }
+      }
       const response = await axios.post(
         "http://localhost:3001/invoice/create-invoice",
         invoiceData
@@ -273,19 +278,27 @@ const Sales = () => {
         {
           name: customerName,
           phonenumber: customerPhone,
+        },
+        {
+          validateStatus: (status) => status < 500,
         }
       );
-  
-      if (response.data.message) {
+
+      if (response.status === 200) {
+        message.success("Created new customer successfully");
+        return true;
+      } else if(response.status === 400){
         message.error(response.data.message);
-      } else {
-        message.success("Created new customer successfully.");
-        setIsExistCustomer(true);
+        return false; 
+      }else{
+        message.error(`Error: ${response.status} - ${response.statusText}`);
+        return false; 
       }
 
     } catch (error) {
       console.error("Error creating customer:", error);
       message.error("An error occurred while creating the customer.");
+      return false
     }
   };
 
@@ -510,14 +523,7 @@ const Sales = () => {
           </Button>
         </Col>
         <Button 
-          onClick={async () => {
-            if (isExistCustomer) {
-              createInvoiceWithDetails()
-            } else {
-              await handleCreateCustomerByPhone();
-              createInvoiceWithDetails()
-            }
-          }} 
+          onClick={() => createInvoiceWithDetails()} 
           type="primary" 
           block 
           style={{ marginTop: 16 }}
