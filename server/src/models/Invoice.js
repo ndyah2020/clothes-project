@@ -39,6 +39,14 @@ const InvoiceSchema = new Schema({
     required: true,
     min: [0, 'Total price must be positive'],
   },
+  status: {
+    type: String,
+    enum: ['Pending', 'Cancelled', 'Completed'], 
+    default: function() {
+      return this.orderType === 'online' ? 'Pending' : 'Completed';
+    }, 
+    required: true,
+  },
 }, { timestamps: true });
 
 
