@@ -3,8 +3,9 @@ const InvoiceDetailModel = require('../models/InvoiceDetail');
 const CustomerModel = require('../models/Customer');
 const ProductModel = require('../models/Product');
 const PromotionModel = require('../models/Promotion')
-const mongoose = require("mongoose");
+const MonetaryNormModel = require('../models/MonetaryNorm')
 
+const mongoose = require("mongoose");
 class InvoiceController {
 
     async CreateInvoiceWithDetails (req, res) {
@@ -57,10 +58,17 @@ class InvoiceController {
                 unitPrice: item.selectedSize.price,
                 total: item.quantity * item.selectedSize.price,
             }));
-
-            // Lưu chi tiết hóa đơn
             await InvoiceDetailModel.insertMany(invoiceDetails);
 
+            const monetaryNorm = await MonetaryNormModel.findOne()
+            if(!monetaryNorm){
+                return res.status(400).json({ message: 'Monetary norm not found' });
+            }
+
+            const newPointCustomer = Math.round(totalPrice / monetaryNorm.moneyPerPoint);
+            customer.point += newPointCustomer
+
+            await customer.save()
             res.status(201).json(savedInvoice);
 
         }catch(error){
