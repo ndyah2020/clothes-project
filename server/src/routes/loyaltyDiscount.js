@@ -10,4 +10,11 @@ router.post('/create-loyalty-discount', loyaltyDiscountController.createLoyaltyD
 router.put('/update-loyalty-discount/:id', loyaltyDiscountController.updateLoyaltyDiscount)
 //Xóa ưu đãi
 router.delete('/delete-loyalty-discount/:id', loyaltyDiscountController.deleteLoyaltyDiscount)
+
+// router.post('/create-money-loyalty-discount', loyaltyDiscountController.createMoneyLoyaltyDiscount)
+
+//Chỉnh sửa mức tiền quy đổi điểm
+router.put('/update-monetary-norm/:id', loyaltyDiscountController.updateMonetaryNorm)
+//lấy bản ghi lên
+router.get('/get-monetary-norm',loyaltyDiscountController.getMonetaryNorm)
 module.exports = router;

@@ -1,5 +1,5 @@
 const loyaltyDiscountModel = require("../models/LoyaltyDiscount")
-
+const MonetaryNormModel = require("../models/MonetaryNorm")
 class loyaltyDiscountController {
     async getLoyaltyDiscount(req, res) {
         try{
@@ -9,6 +9,44 @@ class loyaltyDiscountController {
             res.status(500).json({message: "Error retrieving loyalty discount", error})
         }
     }
+
+    async getMonetaryNorm(req, res) {
+        try {
+            const monetaryNorm = await MonetaryNormModel.findOne(); 
+    
+            if (!monetaryNorm) {
+                return res.status(404).json({ message: "No monetary norm found" });
+            }
+            res.status(200).json({
+                message: "Monetary norm retrieved successfully",
+                data: monetaryNorm,
+            });
+        } catch (error) {
+            console.error("Error retrieving monetary norm:", error);
+    
+            res.status(500).json({
+                message: "Failed to retrieve monetary norm data",
+                error: error.message,
+            });
+        }
+    }
+    
+
+    //tạo mức tiền yêu quy đổi 1 điểm đầu tiên
+    async createMonetaryNorm(req, res) {
+        const {moneyPerPoint} = req.body;
+
+        try{
+            const newLoyaltyDiscount = new MonetaryNormModel({
+                moneyPerPoint
+            })
+            await newLoyaltyDiscount.save();
+            res.json(newLoyaltyDiscount)
+        } catch (error) {
+            res.status(500).json({message: "Error creating loyalty discount"})
+        }
+    }
+
     //tạo ưu đãi cho khách hàng
     async createLoyaltyDiscount(req, res) {
         const {name, requiredPoints, discount} = req.body;
@@ -63,6 +101,25 @@ class loyaltyDiscountController {
             res.status(500).json({message: "Error updating loyalty discount"})
         }
     }
+    async updateMonetaryNorm(req, res) {
+        const {id} = req.params
+        const {moneyPerPoint} = req.body
+
+        if(!moneyPerPoint){
+            return res.status(400).json({message: "Missing required fields"})
+        }
+        try {
+            const updateMoney = await MonetaryNormModel.findByIdAndUpdate(
+                id,
+                {moneyPerPoint},
+                { new: true, runValidators: true }
+            )
+            res.status(200).json(updateMoney)
+        } catch(error){
+            res.status(500).json({message: "Error updating money discount"})
+        }
+    }
+
     //xóa ưu đãi
     async deleteLoyaltyDiscount(req, res) {
         const {id} = req.params;

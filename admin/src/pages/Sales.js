@@ -25,7 +25,7 @@ const Sales = () => {
   const [customerPhone, setCustomerPhone] = useState("");
   const [promoCode, setPromoCode] = useState("");
   const [discount, setDiscount] = useState(0);
-  const [orderType, setOrderType] = useState("shop"); // Default is "Mua tại shop"
+  const [orderType, setOrderType] = useState("shop"); 
   const [shippingAddress, setShippingAddress] = useState("");
   const [shippingFee, setShippingFee] = useState(0);
   const [isExistCustomer, setIsExistCustomer] = useState(false)

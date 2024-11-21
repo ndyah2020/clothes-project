@@ -12,6 +12,9 @@ class CustomerContronller {
         }
       }
   //Lấy thông tin khách hàng từ số điện thoại
+  async updatePointCustomerByInvoice(req, res){
+    
+  }
   async getCustomerByNumber(req, res) {
     const { phonenumber } = req.params;
     try {
@@ -72,7 +75,7 @@ class CustomerContronller {
           if (existingCustomer) {
             return res.status(400).json({ message: "Please click check" });
           }
-          
+
           const newCustomer = new CustomerModel({
             name,
             phonenumber,

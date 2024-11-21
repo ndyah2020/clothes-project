@@ -10,6 +10,7 @@ import {
   message,
   Select,
   Badge,
+  InputNumber,
 } from "antd";
 const { Option } = Select;
 
@@ -19,6 +20,8 @@ const LoyaltyDiscount = () => {
     const [isEditMode, setIsEditMode] = useState(false);
     const [currentLoyaltyDiscount, setCurrentLoyaltyDiscount] = useState(null);
     const [loyaltyDiscounts, setLoyaltyDiscounts] = useState([]);
+    const [monetaryNormData, setMonetaryNormData] = useState({})
+    const [monetaryNorm, setMonetaryNorm] = useState("")
     const [form] = Form.useForm();
     
     
@@ -32,10 +35,21 @@ const LoyaltyDiscount = () => {
             message.error("Failed to fetch loytalty discount.");
         }
     }
+    const fetchMonetaryNorm = async () => {
+      try {
+          const response = await fetch("http://localhost:3001/loyalty-discount/get-monetary-norm");
+          const data = await response.json();
+          setMonetaryNormData(data.data);
+      } catch (error) {
+          console.error("Error fetching monetarynorm:", error);
+          message.error("Failed to fetch monetarynorm. Please try again later.");
+      };
+    }
 
 
     useEffect(() => {
-      fetchData(); // Gọi hàm fetchData khi component được mount
+      fetchData();
+      fetchMonetaryNorm();
     }, []);
     
     useEffect(() => {
@@ -59,6 +73,33 @@ const LoyaltyDiscount = () => {
       setCurrentLoyaltyDiscount(null);
     };
     
+    const handleUpdateMonetaryNorm = async () => {
+      console.log(monetaryNormData._id)
+      try {
+          const response = await fetch(
+              `http://localhost:3001/loyalty-discount/update-monetary-norm/${monetaryNormData._id}`,
+              {
+                  method: "PUT",
+                  headers: {
+                      "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({ moneyPerPoint: monetaryNorm }),
+              }
+          );
+
+          if (!response.ok) {
+              message.success(response.data.message);
+          }
+          fetchMonetaryNorm()
+          const updatedData = await response.json();
+          console.log("Monetary norm updated successfully:", updatedData);
+          message.success("Monetary norm updated successfully.");
+      } catch (error) {
+          console.error("Error updating monetary norm:", error);
+          message.error("Failed to update monetary norm. Please try again.");
+      }
+  };
+  
     
     const handleOk = async (values) => {
       const { name, requiredPoints, discount, status} = values;
@@ -156,10 +197,25 @@ const LoyaltyDiscount = () => {
             />
           </Col>
           <Col>
-            <Button type="primary" onClick={showModal}>
+            <Button 
+              type="primary" 
+              onClick={handleUpdateMonetaryNorm} 
+              style={{marginLeft: 450, marginRight: 4}}>
+              Change Money Per Point
+            </Button>
+            Monetary Norm:
+            <InputNumber
+              onChange={(value) => setMonetaryNorm(value)}
+              style={{marginLeft: 8, padding: 4}}
+              value={monetaryNormData.moneyPerPoint}
+            />
+          </Col>
+          <Col>
+            <Button type="primary" onClick={showModal} st>
               Create New Loyalty Discount
             </Button>
           </Col>
+          
         </Row>
     
         <Table
