@@ -33,10 +33,11 @@ const InvoiceList = () => {
                 pointCustomer: invoice.customer?.point || 0,
                 discount: invoice.discount,
 
-                employeeName: invoice.employee?.name || 'Admin',
-                employeeEmail: invoice.employee?.email || "Admin",
-                employeePhone: invoice.employee?.phoneNumber || "N/A",
-                employeeAddress: invoice.employee?.address || "N/A",
+                employeeName: invoice.employeeGetByUser
+                    ? `${invoice.employeeGetByUser.firstName} ${invoice.employeeGetByUser.lastName}`
+                    : "N/A",
+                employeeEmail: invoice.employeeGetByUser?.email || "N/A",
+                employeeStatus: invoice.employeeGetByUser.accountStatus,
 
                 orderType: invoice.orderType,
                 shippingAddress: invoice?.shippingAddress || "N/A",
@@ -114,19 +115,18 @@ const InvoiceList = () => {
                 ? {
                     name: selectedInvoiceData.employeeName || "Unknown",
                     email: selectedInvoiceData.employeeEmail || "N/A",
-                    phoneNumber: selectedInvoiceData.employeePhone || "N/A",
-                    address: selectedInvoiceData.employeeAddress || "N/A",
+                    status:selectedInvoiceData.employeeStatus ||  "N/A",
                 }
                 : {
                     name: "Unknown",
-                    phoneNumber: "N/A",
-                    shippingAddress: "N/A",
+                    email: "N/A",
+                    status: "N/A",
                 };
         })()
         : {
             name: "Unknown",
-            phoneNumber: "N/A",
-            shippingAddress: "N/A",
+            email: "N/A",
+            status: "N/A",
         };
 
     const PromoInFor = selectedInvoice && invoiceList.length > 0
@@ -252,7 +252,7 @@ const InvoiceList = () => {
                     {employeeInfor && (
                         <Col span={8}>
                             <Card
-                                title="Employee"
+                                title="Invoice Creator"
                                 bordered={false}
                                 style={{
                                     height: "100%",
@@ -261,9 +261,8 @@ const InvoiceList = () => {
                                 }}
                             >
                                 <p><strong>Name:</strong> {employeeInfor.name}</p>
-                                <p><strong>Phone Number:</strong> {employeeInfor.phoneNumber}</p>
                                 <p><strong>Email:</strong> {employeeInfor.email}</p>
-                                <p><strong>Address:</strong> {employeeInfor.address}</p>
+                                <p><strong>Status:</strong> {employeeInfor.status}</p>
                             </Card>
                         </Col>
                     )}
@@ -348,7 +347,7 @@ const InvoiceList = () => {
                         }
                         
                         const grandTotal = calculateGrandTotal(currentDetails);
-                        
+
                         const discountAmount = grandTotal * (selectedInvoiceData.discount / 100);
                         const promoDiscountAmount = grandTotal * (selectedInvoiceData.promoDiscout / 100);
                         const priceAfterDiscount = grandTotal - discountAmount - promoDiscountAmount;

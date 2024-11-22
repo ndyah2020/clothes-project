@@ -7,9 +7,9 @@ const InvoiceSchema = new Schema({
     ref: 'Customer', 
     required: true,
   },
-  employee: {
+  employeeGetByUser: {
     type: Schema.Types.ObjectId,
-    ref: 'Employee',
+    ref: 'User',
     default: null,
   },
   orderType: {

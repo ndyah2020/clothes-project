@@ -14,7 +14,7 @@ class InvoiceController {
             const invoices = await InvoiceModel.find()
                 .populate('customer', 'name phonenumber point')
                 .populate('promoCode', 'name discount startTime endTime')
-                .populate('employee', 'name email phonenumber address')
+                .populate('employeeGetByUser', 'firstName lastName email accountStatus')
                 .populate({
                     path: 'invoiceDetails',
                     populate: {
@@ -35,7 +35,8 @@ class InvoiceController {
         try {
             const invoices = await InvoiceModel.findById(id)
                 .populate('customer', 'name phonenumber')
-                .populate('employee', 'name email phonenumber')
+                .populate('promoCode', 'name discount startTime endTime')
+                .populate('employeeGetByUser', 'firstName lastName email')
                 .populate({
                     path: 'invoiceDetails',
                     select: 'selectedSize quantity total',
@@ -84,13 +85,7 @@ class InvoiceController {
             if (!user) {
                 return res.status(400).json({ message: 'User not found. Please check again.' });
             }
-            let employee = null
-            if (user.role !== 'admin') {
-                employee = await EmployeModel.findOne({ email: user.email })
-                if (!employee) {
-                    return res.status(400).json({ message: 'Employee not found. Please check again.' });
-                }
-            }
+
             let validPromo = null;
             if (promoCode) {
                 validPromo = await PromotionModel.findOne({ name: promoCode.toUpperCase() });
@@ -101,7 +96,7 @@ class InvoiceController {
             // Tạo hóa đơn
             const newInvoice = new InvoiceModel({
                 customer: customer._id,
-                employee: employee ? employee._id : null,
+                employeeGetByUser: user._id,
                 orderType,
                 shippingAddress: orderType === 'online' ? shippingAddress : '',
                 shippingFee,
