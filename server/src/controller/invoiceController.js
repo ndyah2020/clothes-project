@@ -13,11 +13,12 @@ class InvoiceController {
         try {
             const invoices = await InvoiceModel.find()
                 .populate('customer', 'name phonenumber point') 
+                .populate('promoCode', 'name discount startTime endTime')
                 .populate({
                     path: 'invoiceDetails',
                     populate: {
                         path: 'product', 
-                        select: 'name price', 
+                        select: 'name sku', 
                     },
                 });
 

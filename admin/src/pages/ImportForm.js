@@ -55,11 +55,11 @@ const ImportNote = () => {
         prev.map((product) =>
           product.id === selectedProduct._id && product.size === selectedSize
             ? {
-                ...product,
-                quantity: product.quantity + productQuantity,
-                price: productPrice,
-                total: (product.quantity + productQuantity) * productPrice,
-              }
+              ...product,
+              quantity: product.quantity + productQuantity,
+              price: productPrice,
+              total: (product.quantity + productQuantity) * productPrice,
+            }
             : product
         )
       );

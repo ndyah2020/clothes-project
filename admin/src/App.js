@@ -21,6 +21,7 @@ import LoyaltyDiscount from "./pages/LoyaltyDiscount.js";
 import Promotion from "./pages/Promotion.js";
 import Sales from "./pages/Sales.js";
 import ImportForm from "./pages/ImportForm.js";
+import InvoiceList from "./pages/InvoiceList.js";
 
 
 const isTokenValid = () => {
@@ -63,6 +64,7 @@ function App() {
           <Main>
             <Route exact path="/dashboard" component={Home} />
             <Route exact path="/sales" component={Sales} />
+            <Route exact path="/invoice-list" component={InvoiceList} />
             <Route exact path="/users" component={User} />
             <Route exact path="/employee" component={Employee} />
             <Route exact path="/customer" component={Customer} />

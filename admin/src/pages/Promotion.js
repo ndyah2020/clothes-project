@@ -124,34 +124,34 @@ const Promotion = () => {
       setIsModalVisible(true);
     };
     
-    const handleDelete = (id) => {
-      Modal.confirm({
-          title: "Bạn có chắc muốn xóa người dùng này?",
-          content: "Thao tác này sẽ không thể hoàn tác.",
-          okText: "Xóa",
-          okType: "danger",
-          cancelText: "Hủy",
-      onOk: async () => {
-          try {
-              const response = await fetch(
-                `http://localhost:3001/promotion/delete-promotion/${id}`,
-                {
-                  method: "DELETE",
-                });
-              if (response.ok) {
-                message.success("Suppiler deleted successfully!");
-                fetchData(); // Fetch lại danh sách người dùng sau khi xóa thành công
-              } else {
-                const errorData = await response.json();
-                message.error(
-                  `Error: ${errorData.message || "Failed to delete promotion."}`
-                );
-              }
-            } catch (error) {
-              console.error("Error deleting promotion:", error);
-              message.error("Failed to delete promotion.");
-          }}})
-    };
+    // const handleDelete = (id) => {
+    //   Modal.confirm({
+    //       title: "Bạn có chắc muốn xóa người dùng này?",
+    //       content: "Thao tác này sẽ không thể hoàn tác.",
+    //       okText: "Xóa",
+    //       okType: "danger",
+    //       cancelText: "Hủy",
+    //   onOk: async () => {
+    //       try {
+    //           const response = await fetch(
+    //             `http://localhost:3001/promotion/delete-promotion/${id}`,
+    //             {
+    //               method: "DELETE",
+    //             });
+    //           if (response.ok) {
+    //             message.success("Suppiler deleted successfully!");
+    //             fetchData(); // Fetch lại danh sách người dùng sau khi xóa thành công
+    //           } else {
+    //             const errorData = await response.json();
+    //             message.error(
+    //               `Error: ${errorData.message || "Failed to delete promotion."}`
+    //             );
+    //           }
+    //         } catch (error) {
+    //           console.error("Error deleting promotion:", error);
+    //           message.error("Failed to delete promotion.");
+    //       }}})
+    // };
     
     return (
       <div>
@@ -215,13 +215,13 @@ const Promotion = () => {
               render: (text, record) => (
                 <div>
                   <Button onClick={() => handleEdit(record)}>Edit</Button>
-                  <Button
+                  {/* <Button
                     type="danger"
                     onClick={() => handleDelete(record._id)}
                     style={{ marginLeft: 8 }}
                   >
                     Delete
-                  </Button>
+                  </Button> */}
                 </div>
               ),
             }

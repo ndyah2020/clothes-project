@@ -50,12 +50,7 @@ const Customer = () => {
     )
   );
 
-  const showModal = () => {
-    form.resetFields()
-    setIsModalVisible(true);
-    setIsEditMode(false);
-    setCurrentCustomer(null);
-  };
+
 
   // const showDetailModal = (product) => {
   //   setSelectedCustomer(product);
@@ -68,25 +63,25 @@ const Customer = () => {
     try {
       const response = isEditMode
         ? await fetch(
-            `http://localhost:3001/customer/update-customer/${currentCustomer._id}`,
-            {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ name, phonenumber}),
-            }
-          )
-        : await fetch("http://localhost:3001/customer/create-customer", {
-            method: "POST",
+          `http://localhost:3001/customer/update-customer/${currentCustomer._id}`,
+          {
+            method: "PUT",
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({
-              name, 
-              phonenumber, 
-            }),
-          });
+            body: JSON.stringify({ name, phonenumber }),
+          }
+        )
+        : await fetch("http://localhost:3001/customer/create-customer", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name,
+            phonenumber,
+          }),
+        });
       if (response.ok) {
         message.success(
           `Customer ${isEditMode ? "updated" : "created"} successfully!`
@@ -105,7 +100,7 @@ const Customer = () => {
 
   const handleCancel = () => {
     setIsModalVisible(false);
-    if(!isEditMode){
+    if (!isEditMode) {
       form.resetFields();
     }
   };
@@ -119,34 +114,36 @@ const Customer = () => {
 
   const handleDelete = (id) => {
     Modal.confirm({
-        title: "Bạn có chắc muốn xóa người dùng này?",
-        content: "Thao tác này sẽ không thể hoàn tác.",
-        okText: "Xóa",
-        okType: "danger",
-        cancelText: "Hủy",
-    onOk: async () => {
+      title: "Bạn có chắc muốn xóa người dùng này?",
+      content: "Thao tác này sẽ không thể hoàn tác.",
+      okText: "Xóa",
+      okType: "danger",
+      cancelText: "Hủy",
+      onOk: async () => {
         try {
-            const response = await fetch(
-              `http://localhost:3001/customer/delete-customer/${id}`,
-              {
-                method: "DELETE",
-              });
-            if (response.ok) {
-              message.success("Suppiler deleted successfully!");
-              fetchData(); // Fetch lại danh sách người dùng sau khi xóa thành công
-            } else {
-              const errorData = await response.json();
-              message.error(
-                `Error: ${errorData.message || "Failed to delete customer."}`
-              );
-            }
-          } catch (error) {
-            console.error("Error deleting customer:", error);
-            message.error("Failed to delete customer.");
-        }}})
+          const response = await fetch(
+            `http://localhost:3001/customer/delete-customer/${id}`,
+            {
+              method: "DELETE",
+            });
+          if (response.ok) {
+            message.success("Suppiler deleted successfully!");
+            fetchData(); // Fetch lại danh sách người dùng sau khi xóa thành công
+          } else {
+            const errorData = await response.json();
+            message.error(
+              `Error: ${errorData.message || "Failed to delete customer."}`
+            );
+          }
+        } catch (error) {
+          console.error("Error deleting customer:", error);
+          message.error("Failed to delete customer.");
+        }
+      }
+    })
   };
-  
-  
+
+
   return (
     <div>
       <Row justify="space-between" style={{ marginBottom: 16 }}>
@@ -157,11 +154,11 @@ const Customer = () => {
             style={{ width: 300 }}
           />
         </Col>
-        <Col>
+        {/* <Col>
           <Button type="primary" onClick={showModal}>
             Create New Customer
           </Button>
-        </Col>
+        </Col> */}
       </Row>
 
       <Table
@@ -208,7 +205,7 @@ const Customer = () => {
         dataSource={filteredData}
         pagination={{ pageSize: 5 }}
       />
-{/* modal seen detail */}
+      {/* modal seen detail */}
       {/* <Modal
         title="Product Details"
         open={isDetailModalVisible}
@@ -226,7 +223,7 @@ const Customer = () => {
           </div>
         )}
       </Modal> */}
-{/* modal add/edit */}
+      {/* modal add/edit */}
       <Modal
         title={isEditMode ? "Edit Customer" : "Create New Customer"}
         open={isModalVisible}
