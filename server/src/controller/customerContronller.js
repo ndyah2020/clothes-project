@@ -81,7 +81,10 @@ class CustomerContronller {
             phonenumber,
           })
           await newCustomer.save()
-          res.json(newCustomer)
+          res.status(200).json({
+            message: "Customer created successfully",
+            customer: newCustomer,
+          });
         } catch(error) {
             res.status(500).json({message: "Error creating customer", error})
         }

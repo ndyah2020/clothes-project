@@ -12,7 +12,7 @@ import {
   InputNumber,
 } from "antd";
 import axios from "axios";
-
+import jwt from "jsonwebtoken"
 
 const { Option } = Select;
 
@@ -25,7 +25,7 @@ const Sales = () => {
   const [customerPhone, setCustomerPhone] = useState("");
   const [promoCode, setPromoCode] = useState("");
   const [discount, setDiscount] = useState(0);
-  const [orderType, setOrderType] = useState("shop"); 
+  const [orderType, setOrderType] = useState("shop");
   const [shippingAddress, setShippingAddress] = useState("");
   const [shippingFee, setShippingFee] = useState(0);
   const [isExistCustomer, setIsExistCustomer] = useState(false)
@@ -60,6 +60,7 @@ const Sales = () => {
   useEffect(() => {
     fetchProducts();
   }, []);
+
 
 
   // Add product to cart
@@ -116,38 +117,38 @@ const Sales = () => {
   }, [cart]);
 
   // Apply discount based on promo code
-  
-  useEffect(() => {  
+
+  useEffect(() => {
     let calculatedTotal;
-    customerDiscount ===  0 
-      ?calculatedTotal = calculateTotal() - discount + shippingFee
-      :calculatedTotal = ((100-customerDiscount)*0.01)*(calculateTotal() - discount + shippingFee)
-  
-    setTotalPrice(Math.max(calculatedTotal, 0)); 
-  }, [cart, discount, shippingFee, customerDiscount,calculateTotal]);
+    customerDiscount === 0
+      ? calculatedTotal = calculateTotal() - discount + shippingFee
+      : calculatedTotal = ((100 - customerDiscount) * 0.01) * (calculateTotal() - discount + shippingFee)
+
+    setTotalPrice(Math.max(calculatedTotal, 0));
+  }, [cart, discount, shippingFee, customerDiscount, calculateTotal]);
 
 
-  const applyDiscount =  async () => {
-    if(!promoCode){
+  const applyDiscount = async () => {
+    if (!promoCode) {
       return message.error("Invalid promo code");
     }
-    try{
+    try {
       const response = await axios.get(
         `http://localhost:3001/promotion/get-promotion-by-code/${promoCode}`,
         {
-          validateStatus: (status) => status < 500, 
+          validateStatus: (status) => status < 500,
         }
       )
-      
+
       if (response.status === 200 && response.data) {
         message.success("Code applied");
-        setDiscount(calculateTotal()*response.data.discount*0.01)
+        setDiscount(calculateTotal() * response.data.discount * 0.01)
       } else if (response.status === 404) {
         message.info("Code not found");
-      } else{
+      } else {
         message.error(response.data.message);
       }
-    }catch(error){
+    } catch (error) {
       console.error("Error apply code:", error);
     }
   };
@@ -161,10 +162,10 @@ const Sales = () => {
       const response = await axios.get(
         `http://localhost:3001/customer/get-customer-by-phone/${customerPhone}`,
         {
-          validateStatus: (status) => status < 500, 
+          validateStatus: (status) => status < 500,
         }
       );
-  
+
       if (response.status === 200 && response.data) {
         console.log(response.data.userDiscount)
         setCustomerDiscount(response.data.userDiscount)
@@ -190,16 +191,16 @@ const Sales = () => {
   const handleUpdateQuantityByInvoice = async () => {
     console.log(cart)
     try {
-      const response = await axios.patch(`http://localhost:3001/product/update-quatity-by-sales`, {cart}, {
+      const response = await axios.patch(`http://localhost:3001/product/update-quatity-by-sales`, { cart }, {
         validateStatus: (status) => status < 500,
       });
-  
+
       if (response.status === 200) {
-        message.success("Product quantities updated successfully!");
+        // message.success("Product quantities updated successfully!");
         return true;
       } else {
         message.error(`Error: ${response.status} - ${response.statusText}`);
-        return false; 
+        return false;
       }
     } catch (error) {
       console.error("Error updating product quantities:", error);
@@ -207,13 +208,16 @@ const Sales = () => {
       return false;
     }
   };
-  
-  
-  
+
+
+
   const createInvoiceWithDetails = async () => {
-    
+    const decoded = jwt.decode(localStorage.getItem("token"));
+    const userId = decoded.userId
+
     const invoiceData = {
       customerPhone,
+      userId,
       customerDiscount,
       orderType,
       promoCode,
@@ -222,11 +226,11 @@ const Sales = () => {
       cart,
       totalPrice,
     };
- 
+
     try {
-      if(cart.length !==0 &&  !isExistCustomer){
+      if (cart.length !== 0 && !isExistCustomer) {
         const checkCustomer = await handleCreateCustomerByPhone();
-        if(!checkCustomer){
+        if (!checkCustomer) {
           return;
         }
       }
@@ -234,10 +238,10 @@ const Sales = () => {
         "http://localhost:3001/invoice/create-invoice",
         invoiceData
       );
-  
+
       if (response.status === 201) {
         const updateQuantity = await handleUpdateQuantityByInvoice()
-        if(!updateQuantity){
+        if (!updateQuantity) {
           return;
         }
         console.log("Invoice created:", response.data);
@@ -262,13 +266,13 @@ const Sales = () => {
       );
     }
   };
-  
+
   const handleCreateCustomerByPhone = async () => {
     if (!customerName || !customerPhone) {
       message.error("Please enter both customer name and phone number.");
       return;
     }
-    if(customerPhone.length !== 10){
+    if (customerPhone.length !== 10) {
       message.error("Phone number must have 10 digits.");
       return;
     }
@@ -284,15 +288,15 @@ const Sales = () => {
         }
       );
 
-      if (response.status === 200) {
+      if (response.status === 200 || response.status === 201) {
         message.success("Created new customer successfully");
         return true;
-      } else if(response.status === 400){
+      } else if (response.status === 400) {
         message.error(response.data.message);
-        return false; 
-      }else{
+        return false;
+      } else {
         message.error(`Error: ${response.status} - ${response.statusText}`);
-        return false; 
+        return false;
       }
 
     } catch (error) {
@@ -350,11 +354,11 @@ const Sales = () => {
                   />
                 }
                 actions={[
-                  <Button 
+                  <Button
                     type="primary"
                     onClick={() => addToCart(product)}
                     disabled={product.sizes[product.selectedSizeIndex].quantity === 0}
-                   >
+                  >
                     Add to Cart
                   </Button>,
                 ]}
@@ -381,7 +385,7 @@ const Sales = () => {
                   Price:{" "}
                   {(
                     product.sizes[product.selectedSizeIndex].price || 0
-                  ).toLocaleString('it-IT', {style : 'currency', currency : 'VND'})}{" "}
+                  ).toLocaleString('it-IT', { style: 'currency', currency: 'VND' })}{" "}
                 </div>
               </Card>
             </List.Item>
@@ -399,7 +403,7 @@ const Sales = () => {
               onChange={(e) => setCustomerPhone(e.target.value)}
             />
           </Col>
-          <Col span={8} style={{display: 'flex'}}>
+          <Col span={8} style={{ display: 'flex' }}>
             <Button type="primary" onClick={checkCustomer}>
               Check
             </Button>
@@ -460,7 +464,7 @@ const Sales = () => {
                 >
                   <Col span={4}>
                     <div>
-                      Unit Price: {item.selectedSize.price.toLocaleString('it-IT', {style : 'currency', currency : 'VND'})}
+                      Unit Price: {item.selectedSize.price.toLocaleString('it-IT', { style: 'currency', currency: 'VND' })}
                     </div>
                   </Col>
                   <Col span={4}>
@@ -481,7 +485,7 @@ const Sales = () => {
                   <Col span={4}>
                     <div>
                       Total:{" "}
-                      {(item.quantity * item.selectedSize.price).toLocaleString('it-IT', {style : 'currency', currency : 'VND'})}
+                      {(item.quantity * item.selectedSize.price).toLocaleString('it-IT', { style: 'currency', currency: 'VND' })}
                     </div>
                   </Col>
                   <Col span={4} style={{ textAlign: "right" }}>
@@ -502,30 +506,30 @@ const Sales = () => {
         <Row justify="space-between" style={{ marginBottom: 16 }}>
           <Col>Subtotal:</Col>
           <Col>
-            {totalPrice ? totalPrice.toLocaleString('it-IT', {style : 'currency', currency : 'VND'}) : `0 VND`}
+            {totalPrice ? totalPrice.toLocaleString('it-IT', { style: 'currency', currency: 'VND' }) : `0 VND`}
           </Col>
         </Row>
         {orderType === "online" && (
           <Row justify="space-between" style={{ marginBottom: 16 }}>
             <Col>Shipping Fee:</Col>
-            <Col>{shippingFee.toLocaleString('it-IT', {style : 'currency', currency : 'VND'})}</Col>
+            <Col>{shippingFee.toLocaleString('it-IT', { style: 'currency', currency: 'VND' })}</Col>
           </Row>
         )}
-        <Col style={{display: 'flex'}}>
+        <Col style={{ display: 'flex' }}>
           <Input
             placeholder="Promo Code"
             value={promoCode}
             onChange={(e) => setPromoCode(e.target.value)}
-            style={{flex: 2, marginRight: 8}}
+            style={{ flex: 2, marginRight: 8 }}
           />
-          <Button style={{flex: 1}} type="primary" onClick={applyDiscount} block>
+          <Button style={{ flex: 1 }} type="primary" onClick={applyDiscount} block>
             Apply Discount
           </Button>
         </Col>
-        <Button 
-          onClick={() => createInvoiceWithDetails()} 
-          type="primary" 
-          block 
+        <Button
+          onClick={() => createInvoiceWithDetails()}
+          type="primary"
+          block
           style={{ marginTop: 16 }}
         >
           Pay Now

@@ -1,24 +1,25 @@
-const mongoose = require("mongoose");
 const InvoiceModel = require('../models/Invoice');
 const InvoiceDetailModel = require('../models/InvoiceDetail');
 const CustomerModel = require('../models/Customer');
-const ProductModel = require('../models/Product');
 const PromotionModel = require('../models/Promotion');
 const MonetaryNormModel = require('../models/MonetaryNorm');
+const UserModel = require('../models/User')
+const EmployeModel = require('../models/Employee')
 
 class InvoiceController {
     //Hiển thị thông tin hóa đơn
-    
+
     async getInvoices(req, res) {
         try {
             const invoices = await InvoiceModel.find()
-                .populate('customer', 'name phonenumber point') 
+                .populate('customer', 'name phonenumber point')
                 .populate('promoCode', 'name discount startTime endTime')
+                .populate('employee', 'name email phonenumber address')
                 .populate({
                     path: 'invoiceDetails',
                     populate: {
-                        path: 'product', 
-                        select: 'name sku', 
+                        path: 'product',
+                        select: 'name sku',
                     },
                 });
 
@@ -33,15 +34,16 @@ class InvoiceController {
         const { id } = req.params;
         try {
             const invoices = await InvoiceModel.findById(id)
-            .populate('customer', 'name phonenumber')
-            .populate({
-                path: 'invoiceDetails', 
-                select: 'selectedSize quantity total', 
-                populate: {
-                    path: 'product', 
-                    select: 'name sizes', 
-                },
-            });
+                .populate('customer', 'name phonenumber')
+                .populate('employee', 'name email phonenumber')
+                .populate({
+                    path: 'invoiceDetails',
+                    select: 'selectedSize quantity total',
+                    populate: {
+                        path: 'product',
+                        select: 'name sizes',
+                    },
+                });
 
             if (!invoices) {
                 return res.status(404).json({ message: 'Invoice not found' });
@@ -58,6 +60,7 @@ class InvoiceController {
     async CreateInvoiceWithDetails(req, res) {
         const {
             customerPhone,
+            userId,
             orderType,
             shippingAddress,
             shippingFee,
@@ -77,8 +80,17 @@ class InvoiceController {
             if (!customer) {
                 return res.status(400).json({ message: 'Customer not found. Please check again.' });
             }
-
-            // Kiểm tra mã giảm giá (nếu có)
+            const user = await UserModel.findById(userId)
+            if (!user) {
+                return res.status(400).json({ message: 'User not found. Please check again.' });
+            }
+            let employee = null
+            if (user.role !== 'admin') {
+                employee = await EmployeModel.findOne({ email: user.email })
+                if (!employee) {
+                    return res.status(400).json({ message: 'Employee not found. Please check again.' });
+                }
+            }
             let validPromo = null;
             if (promoCode) {
                 validPromo = await PromotionModel.findOne({ name: promoCode.toUpperCase() });
@@ -86,10 +98,10 @@ class InvoiceController {
                     return res.status(400).json({ message: 'Promo code not found' });
                 }
             }
-
             // Tạo hóa đơn
             const newInvoice = new InvoiceModel({
                 customer: customer._id,
+                employee: employee ? employee._id : null,
                 orderType,
                 shippingAddress: orderType === 'online' ? shippingAddress : '',
                 shippingFee,
@@ -137,7 +149,7 @@ class InvoiceController {
             const updateInvoice = await InvoiceModel.findByIdAndUpdate(
                 id,
                 { status: 'Completed' },
-                { new: true } 
+                { new: true }
             );
             if (!updateInvoice) {
                 return res.status(404).json({ message: 'Invoice not found' });
@@ -156,7 +168,7 @@ class InvoiceController {
     }
     async cancelInvoice(req, res) {
         const { id } = req.params;
-    
+
         try {
             const invoice = await InvoiceModel.findById(id)
                 .populate({
@@ -167,13 +179,13 @@ class InvoiceController {
                         select: 'name',
                     },
                 });
-            for(const detail of invoice.invoiceDetails){
+            for (const detail of invoice.invoiceDetails) {
                 console.log(detail.product._id) // vô id trong tìm size cộng size lại
             }
             if (!invoice) {
                 return res.status(404).json({ message: 'Invoice not found' });
             }
-    
+
             // Trả về thông tin hóa đơn
             res.status(200).json({
                 message: 'Invoice retrieved successfully',
@@ -184,8 +196,8 @@ class InvoiceController {
             res.status(500).json({ message: 'Error retrieving invoice', error });
         }
     }
-    
-    
+
+
 }
 
 module.exports = new InvoiceController();

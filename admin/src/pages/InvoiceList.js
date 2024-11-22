@@ -27,17 +27,27 @@ const InvoiceList = () => {
             const data = await response.json();
             const formattedData = data.map((invoice) => ({
                 key: invoice._id,
+
                 customer: invoice.customer?.name || "Unknown",
                 phoneNumber: invoice.customer?.phonenumber || "N/A",
                 pointCustomer: invoice.customer?.point || 0,
+                discount: invoice.discount,
+
+                employeeName: invoice.employee?.name || 'Admin',
+                employeeEmail: invoice.employee?.email || "Admin",
+                employeePhone: invoice.employee?.phoneNumber || "N/A",
+                employeeAddress: invoice.employee?.address || "N/A",
+
                 orderType: invoice.orderType,
-                shippingAddress: invoice.shippingAddress || "N/A",
+                shippingAddress: invoice?.shippingAddress || "N/A",
                 shippingFee: invoice.shippingFee,
+
                 promoCode: invoice.promoCode?.name || "N/A",
                 promoDiscout: invoice.promoCode?.discount || 0,
                 promoStartTime: invoice.promoCode?.startTime || null,
                 promoEndTime: invoice.promoCode?.endTime || null,
-                discount: invoice.discount,
+
+                
                 totalPrice: invoice.totalPrice,
                 status: invoice.status,
                 invoiceDetails: invoice.invoiceDetails.map((detail) => ({
@@ -83,20 +93,39 @@ const InvoiceList = () => {
                     name: selectedInvoiceData.customer || "Unknown",
                     discount: selectedInvoiceData.discount || 0,
                     phoneNumber: selectedInvoiceData.phoneNumber || "N/A",
-                    point: selectedInvoiceData.pointCustomer || 0,
-                    shippingAddress: selectedInvoiceData.shippingAddress || "N/A",
+                    email: selectedInvoiceData.shippingAddress || "N/A",
                 }
                 : {
                     name: "Unknown",
                     phoneNumber: "N/A",
-                    point: 0,
                     shippingAddress: "N/A",
                 };
         })()
         : {
             name: "Unknown",
             phoneNumber: "N/A",
-            point: 0,
+            shippingAddress: "N/A",
+        };
+
+    const employeeInfor = selectedInvoice && invoiceList.length > 0
+        ? (() => {
+            const selectedInvoiceData = invoiceList.find((invoice) => invoice.key === selectedInvoice);
+            return selectedInvoiceData
+                ? {
+                    name: selectedInvoiceData.employeeName || "Unknown",
+                    email: selectedInvoiceData.employeeEmail || "N/A",
+                    phoneNumber: selectedInvoiceData.employeePhone || "N/A",
+                    address: selectedInvoiceData.employeeAddress || "N/A",
+                }
+                : {
+                    name: "Unknown",
+                    phoneNumber: "N/A",
+                    shippingAddress: "N/A",
+                };
+        })()
+        : {
+            name: "Unknown",
+            phoneNumber: "N/A",
             shippingAddress: "N/A",
         };
 
@@ -218,9 +247,28 @@ const InvoiceList = () => {
                 footer={null}
                 width={900}
             >
+                {console.log(invoiceList)}
                 <Row gutter={[16, 16]} style={{ marginBottom: "20px" }}>
+                    {employeeInfor && (
+                        <Col span={8}>
+                            <Card
+                                title="Employee"
+                                bordered={false}
+                                style={{
+                                    height: "100%",
+                                    backgroundColor: "#f9f9f9",
+                                    borderRadius: "8px",
+                                }}
+                            >
+                                <p><strong>Name:</strong> {employeeInfor.name}</p>
+                                <p><strong>Phone Number:</strong> {employeeInfor.phoneNumber}</p>
+                                <p><strong>Email:</strong> {employeeInfor.email}</p>
+                                <p><strong>Address:</strong> {employeeInfor.address}</p>
+                            </Card>
+                        </Col>
+                    )}
                     {customerInfor && (
-                        <Col span={12}>
+                        <Col span={8}>
                             <Card
                                 title="Customer"
                                 bordered={false}
@@ -232,14 +280,13 @@ const InvoiceList = () => {
                             >
                                 <p><strong>Name:</strong> {customerInfor.name}</p>
                                 <p><strong>Phone Number:</strong> {customerInfor.phoneNumber}</p>
-                                <p><strong>Points:</strong> {customerInfor.point}</p>
                                 <p><strong>Discount:</strong> {customerInfor?.discount || 0}%</p>
-                                <p><strong>Shipping Address:</strong> {customerInfor.shippingAddress}</p>
+                                <p><strong>Shipping Address:</strong> {customerInfor.email}</p>
                             </Card>
                         </Col>
                     )}
                     {PromoInFor && (
-                        <Col span={12}>
+                        <Col span={8}>
                             <Card
                                 title="Promotion"
                                 bordered={false}
@@ -298,12 +345,12 @@ const InvoiceList = () => {
                         const selectedInvoiceData = invoiceList.find((invoice) => invoice.key === selectedInvoice);
 
                         if (!selectedInvoiceData) {
-                            return null; 
+                            return null;
                         }
 
                         const grandTotal = calculateGrandTotal(currentDetails);
                         const totalPrice = selectedInvoiceData?.totalPrice || 0;
-
+                        const shippingFee = selectedInvoiceData?.shippingFee || 0;
                         return (
                             <>
                                 <Table.Summary.Row>
@@ -312,6 +359,14 @@ const InvoiceList = () => {
                                     </Table.Summary.Cell>
                                     <Table.Summary.Cell>
                                         <strong>{`${grandTotal.toLocaleString()} VND`}</strong>
+                                    </Table.Summary.Cell>
+                                </Table.Summary.Row>
+                                <Table.Summary.Row>
+                                    <Table.Summary.Cell colSpan={4} style={{ textAlign: "right" }}>
+                                        <strong>Shipping Fee:</strong>
+                                    </Table.Summary.Cell>
+                                    <Table.Summary.Cell>
+                                        <strong>{`${shippingFee.toLocaleString()} VND`}</strong>
                                     </Table.Summary.Cell>
                                 </Table.Summary.Row>
                                 <Table.Summary.Row>

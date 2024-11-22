@@ -7,6 +7,11 @@ const InvoiceSchema = new Schema({
     ref: 'Customer', 
     required: true,
   },
+  employee: {
+    type: Schema.Types.ObjectId,
+    ref: 'Employee',
+    default: null,
+  },
   orderType: {
     type: String,
     enum: ['shop', 'online'],
