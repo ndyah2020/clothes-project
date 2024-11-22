@@ -26,4 +26,13 @@ router.post("/register", user.register);
 // Đăng nhập người dùng
 router.post("/login", user.login);
 
+// Kiểm tra email và tạo OTP
+router.post("/verify-email", user.verifyEmailAndGenerateOTP);
+
+// API xác thực OTP
+router.post("/verify-otp", user.verifyOTP);
+
+// API đặt lại mật khẩu
+router.post("/reset-password", user.resetPassword);
+
 module.exports = router;

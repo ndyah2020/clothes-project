@@ -11,8 +11,6 @@ import "antd/dist/antd.css";
 import "./assets/styles/main.css";
 import "./assets/styles/responsive.css";
 
-
-
 import Customer from "./pages/Customer";
 import Products from "./pages/Products";
 import Supplier from "./pages/Supplier";
@@ -22,7 +20,8 @@ import Promotion from "./pages/Promotion.js";
 import Sales from "./pages/Sales.js";
 import ImportForm from "./pages/ImportForm.js";
 import InvoiceList from "./pages/InvoiceList.js";
-
+import ForgotPassword from "./pages/ForgotPassword.js";
+import ResetPassword from "./pages/ResetPassword.js";
 
 const isTokenValid = () => {
   const token = localStorage.getItem("token");
@@ -47,8 +46,7 @@ const isTokenValid = () => {
     localStorage.removeItem("token");
     return false;
   }
-}
-
+};
 
 function App() {
   const isAuthenticated = isTokenValid();
@@ -56,8 +54,10 @@ function App() {
   return (
     <div className="App">
       <Switch>
-        {/* <Route path="/sign-up" exact component={SignUp} /> */}
-          <Route path="/sign-in" exact component={SignIn} />
+        {/* Public Routes */}
+        <Route path="/sign-in" exact component={SignIn} />
+        <Route path="/forgot-password" exact component={ForgotPassword} />
+        <Route path="/reset-password" exact component={ResetPassword} />
 
         {/* Private Routes */}
         {isAuthenticated ? (
