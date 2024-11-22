@@ -75,28 +75,59 @@ const InvoiceList = () => {
         return details.reduce((sum, item) => sum + item.unitPrice, 0);
     };
 
-    const customerInfor =
-        selectedInvoice >= 0
-            ? {
-                name: invoiceList[selectedInvoice]?.customer || "Unknown",
-                phoneNumber: invoiceList[selectedInvoice]?.phoneNumber || "N/A",
-                point: invoiceList[selectedInvoice]?.pointCustomer || 0,
-                shippingAddress: invoiceList[selectedInvoice]?.shippingAddress || "N/A",
-            }
-            : null;
-    const PromoInFor =
-        selectedInvoice >= 0
-            ? {
-                promoCode: invoiceList[selectedInvoice]?.promoCode || "Unknown",
-                discount: invoiceList[selectedInvoice]?.promoDiscout || "N/A",
-                startTime: invoiceList[selectedInvoice]?.promoStartTime
-                    ? moment(invoiceList[selectedInvoice].promoStartTime).format("YYYY-MM-DD")
-                    : "N/A",
-                endTime: invoiceList[selectedInvoice]?.promoEndTime 
-                    ? moment(invoiceList[selectedInvoice].promoEndTime).format("YYYY-MM-DD")
-                    : "N/A",
-            }
-            : null;
+    const customerInfor = selectedInvoice && invoiceList.length > 0
+        ? (() => {
+            const selectedInvoiceData = invoiceList.find((invoice) => invoice.key === selectedInvoice);
+            return selectedInvoiceData
+                ? {
+                    name: selectedInvoiceData.customer || "Unknown",
+                    discount: selectedInvoiceData.discount || 0,
+                    phoneNumber: selectedInvoiceData.phoneNumber || "N/A",
+                    point: selectedInvoiceData.pointCustomer || 0,
+                    shippingAddress: selectedInvoiceData.shippingAddress || "N/A",
+                }
+                : {
+                    name: "Unknown",
+                    phoneNumber: "N/A",
+                    point: 0,
+                    shippingAddress: "N/A",
+                };
+        })()
+        : {
+            name: "Unknown",
+            phoneNumber: "N/A",
+            point: 0,
+            shippingAddress: "N/A",
+        };
+
+    const PromoInFor = selectedInvoice && invoiceList.length > 0
+        ? (() => {
+            const selectedInvoiceData = invoiceList.find((invoice) => invoice.key === selectedInvoice);
+            return selectedInvoiceData
+                ? {
+                    promoCode: selectedInvoiceData.promoCode || "Unknown",
+                    discount: selectedInvoiceData.promoDiscout || "N/A",
+                    startTime: selectedInvoiceData.promoStartTime
+                        ? moment(selectedInvoiceData.promoStartTime).format("YYYY-MM-DD")
+                        : "N/A",
+                    endTime: selectedInvoiceData.promoEndTime
+                        ? moment(selectedInvoiceData.promoEndTime).format("YYYY-MM-DD")
+                        : "N/A",
+                }
+                : {
+                    promoCode: "Unknown",
+                    discount: "N/A",
+                    startTime: "N/A",
+                    endTime: "N/A",
+                };
+        })()
+        : {
+            promoCode: "Unknown",
+            discount: "N/A",
+            startTime: "N/A",
+            endTime: "N/A",
+        };
+
 
 
     return (
@@ -169,7 +200,7 @@ const InvoiceList = () => {
                             <div>
                                 <Button onClick={() => {
                                     showDetailsModal(record.invoiceDetails)
-                                    setSelectedInvoice(index)
+                                    setSelectedInvoice(record.key);
                                 }}>
                                     View Details
                                 </Button>
@@ -264,7 +295,15 @@ const InvoiceList = () => {
                     pagination={false}
                     scroll={{ x: "max-content" }}
                     summary={() => {
+                        const selectedInvoiceData = invoiceList.find((invoice) => invoice.key === selectedInvoice);
+
+                        if (!selectedInvoiceData) {
+                            return null; 
+                        }
+
                         const grandTotal = calculateGrandTotal(currentDetails);
+                        const totalPrice = selectedInvoiceData?.totalPrice || 0;
+
                         return (
                             <>
                                 <Table.Summary.Row>
@@ -277,15 +316,16 @@ const InvoiceList = () => {
                                 </Table.Summary.Row>
                                 <Table.Summary.Row>
                                     <Table.Summary.Cell colSpan={4} style={{ textAlign: "right" }}>
-                                        <strong>Total After Discount</strong>
+                                        <strong>Total After Discount:</strong>
                                     </Table.Summary.Cell>
                                     <Table.Summary.Cell>
-                                        <strong>{`${invoiceList[selectedInvoice].totalPrice.toLocaleString()} VND`}</strong>
+                                        <strong>{`${totalPrice.toLocaleString()} VND`}</strong>
                                     </Table.Summary.Cell>
                                 </Table.Summary.Row>
                             </>
                         );
                     }}
+
                 />
             </Modal>
 

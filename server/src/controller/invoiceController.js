@@ -168,7 +168,7 @@ class InvoiceController {
                     },
                 });
             for(const detail of invoice.invoiceDetails){
-                console.log(detail.product._id) // vô id tìm size cộng size lại
+                console.log(detail.product._id) // vô id trong tìm size cộng size lại
             }
             if (!invoice) {
                 return res.status(404).json({ message: 'Invoice not found' });
