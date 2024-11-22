@@ -149,6 +149,7 @@ class InvoiceController {
             if (!updateInvoice) {
                 return res.status(404).json({ message: 'Invoice not found' });
             }
+            await updateInvoice.save()
             res.status(200).json({
                 message: 'Invoice status updated to Completed successfully',
                 data: updateInvoice,

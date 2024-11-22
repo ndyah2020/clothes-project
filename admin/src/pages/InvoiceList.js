@@ -17,8 +17,7 @@ const InvoiceList = () => {
     const [invoiceList, setinvoiceList] = useState([]);
     const [detailsModalVisible, setDetailsModalVisible] = useState(false);
     const [currentDetails, setCurrentDetails] = useState([]);
-    const [selectedInvoice, setSelectedInvoice] = useState(-1)
-    const [priceAfterDiscount, setPriceAfterDiscount] = useState(0)
+    const [selectedInvoice, setSelectedInvoice] = useState("")
 
     // Hàm lấy danh sách hóa đơn từ API
     const fetchData = async () => {

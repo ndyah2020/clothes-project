@@ -10,5 +10,6 @@ router.post('/create-invoice', InvoiceController.CreateInvoiceWithDetails)
 //Xác nhận hóa đơn
 router.patch('/completed-invoice', InvoiceController.completeInvoice)
 //hủy hóa đơn
-router.get('/cancel-invoice/:id',InvoiceController.cancelInvoice)
+router.patch('/cancel-invoice/:id',InvoiceController.cancelInvoice)
+
 module.exports = router;

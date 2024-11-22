@@ -188,7 +188,7 @@ const Sales = () => {
         setIsExistCustomer(true)
       } else if (response.status === 404) {
         setCustomerDiscount(0)
-        message.info("Customer not found. Please create a new customer.");
+        message.info("Customer not found, please create a new invoice to create the customer.");
         setIsExistCustomer(false)
       } else {
         message.error(`Error: ${response.status} - ${response.statusText}`);
