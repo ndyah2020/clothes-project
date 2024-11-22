@@ -11,6 +11,7 @@ import {
     Card,
 } from "antd";
 import moment from "moment";
+import axios from "axios";
 
 const InvoiceList = () => {
     const [searchText, setSearchText] = useState("");
@@ -47,7 +48,7 @@ const InvoiceList = () => {
                 promoStartTime: invoice.promoCode?.startTime || null,
                 promoEndTime: invoice.promoCode?.endTime || null,
 
-                
+
                 totalPrice: invoice.totalPrice,
                 status: invoice.status,
                 invoiceDetails: invoice.invoiceDetails.map((detail) => ({
@@ -64,6 +65,54 @@ const InvoiceList = () => {
             console.error("Error fetching invoice:", error);
             message.error("Failed to fetch invoice.");
         }
+    };
+    const handleCompleteInvoice = async (idInvoice) => {
+        Modal.confirm({
+            title: "Are you sure you want to complete this action?",
+            content: "This action cannot be undone.",
+            okText: "Complete",
+            okType: "primary",
+            cancelText: "Cancel",
+            onOk: async () => {
+                try {
+                    const response = await axios.patch(`http://localhost:3001/invoice/completed-invoice/${idInvoice}`);
+
+                    if (response.status === 200) {
+                        message.success(response.data.message);
+                        fetchData()
+                    } else {
+                        message.success(response.data.message);
+                    }
+                } catch (error) {
+                    console.error('Error completing invoice:', error);
+                    message.error('Failed to complete the invoice. Please try again.');
+                }
+            }
+        })
+    };
+    const handleCancelInvoice = async (idInvoice) => {
+        Modal.confirm({
+            title: "Are you sure you want to cancel this action?",
+            content: "This action cannot be undone.",
+            okText: "Cancel",
+            okType: "delete",
+            cancelText: "Close",
+            onOk: async () => {
+                try {
+                    const response = await axios.patch(`http://localhost:3001/invoice/cancel-invoice/${idInvoice}`);
+
+                    if (response.status === 200) {
+                        message.success(response.data.message);
+                        fetchData()
+                    } else {
+                        message.success(response.data.message);
+                    }
+                } catch (error) {
+                    console.error('Error canceling invoice:', error);
+                    message.error('Failed to cancel the invoice. Please try again.');
+                }
+            }
+        })
     };
 
     useEffect(() => {
@@ -82,7 +131,7 @@ const InvoiceList = () => {
     };
 
     const calculateGrandTotal = (details) => {
-        return details.reduce((sum, item) => sum + (item.unitPrice*item.quantity), 0);
+        return details.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
     };
 
     const customerInfor = selectedInvoice && invoiceList.length > 0
@@ -114,7 +163,7 @@ const InvoiceList = () => {
                 ? {
                     name: selectedInvoiceData.employeeName || "Unknown",
                     email: selectedInvoiceData.employeeEmail || "N/A",
-                    status:selectedInvoiceData.employeeStatus ||  "N/A",
+                    status: selectedInvoiceData.employeeStatus || "N/A",
                 }
                 : {
                     name: "Unknown",
@@ -237,7 +286,7 @@ const InvoiceList = () => {
                     },
                 ]}
                 dataSource={filteredData}
-                pagination={{ pageSize: 5 }}
+                pagination={{ pageSize: 10 }}
             />
             <Modal
                 title="Invoice Details"
@@ -246,7 +295,34 @@ const InvoiceList = () => {
                 footer={null}
                 width={900}
             >
-                {console.log(invoiceList)}
+                <Row style={{ marginBottom: 20, display: "flex", justifyContent: "right" }}>
+                    {selectedInvoice && invoiceList.length > 0 &&
+                        (() => {
+                            const selectedInvoiceData = invoiceList.find(invoice => invoice.key === selectedInvoice);
+                            if (selectedInvoiceData && selectedInvoiceData.orderType === 'online' && selectedInvoiceData.status === 'Pending') {
+                                return (
+                                    <>
+                                        <Button
+                                            type="primary"
+                                            style={{ margin: "0 8px" }}
+                                            onClick={() => handleCompleteInvoice(selectedInvoice)}
+                                        >
+                                            Complete
+                                        </Button>
+                                        <Button
+                                            type="danger"
+                                            style={{ margin: "0 8px" }}
+                                            onClick={() => handleCancelInvoice(selectedInvoice)}
+                                        >
+                                            Cancel
+                                        </Button>
+                                    </>
+                                );
+                            }
+                            return null;
+                        })()
+                    }
+                </Row>
                 <Row gutter={[16, 16]} style={{ marginBottom: "20px" }}>
                     {employeeInfor && (
                         <Col span={8}>
@@ -344,7 +420,7 @@ const InvoiceList = () => {
                         if (!selectedInvoiceData) {
                             return null;
                         }
-                        
+
                         const grandTotal = calculateGrandTotal(currentDetails);
 
                         const discountAmount = grandTotal * (selectedInvoiceData.discount / 100);

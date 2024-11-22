@@ -4,8 +4,8 @@ const CustomerModel = require('../models/Customer');
 const PromotionModel = require('../models/Promotion');
 const MonetaryNormModel = require('../models/MonetaryNorm');
 const UserModel = require('../models/User')
-const EmployeModel = require('../models/Employee')
-
+const ProductModel = require('../models/Product')
+const mongoose = require('mongoose');
 class InvoiceController {
     //Hiển thị thông tin hóa đơn
 
@@ -149,7 +149,6 @@ class InvoiceController {
             if (!updateInvoice) {
                 return res.status(404).json({ message: 'Invoice not found' });
             }
-            await updateInvoice.save()
             res.status(200).json({
                 message: 'Invoice status updated to Completed successfully',
                 data: updateInvoice,
@@ -162,37 +161,98 @@ class InvoiceController {
             });
         }
     }
+    //Cái này duy anh viết 
+    // async cancelInvoice(req, res) {
+    //     const { id } = req.params;
+
+    //     try {
+    //         const invoice = await InvoiceModel.findById(id)
+    //             .populate({
+    //                 path: 'invoiceDetails',
+    //                 select: 'selectedSize quantity',
+    //                 populate: {
+    //                     path: 'product',
+    //                     select: 'name',
+    //                 },
+    //             });
+    //         const cancelInvoice = await InvoiceModel.findByIdAndUpdate(
+    //             id,
+    //             { status: 'Cancelled' },
+    //             { new: true }
+    //         )
+    //         for (const detail of invoice.invoiceDetails) {
+    //             const product = await ProductModel.findById(detail.product._id)
+    //             const indexSize = product.sizes.findIndex((size) => size.size === detail.selectedSize)
+    //             product.sizes[indexSize].quantity += detail.quantity
+    //             await product.save()
+    //         }
+    //         if (!invoice) {
+    //             return res.status(404).json({ message: 'Invoice not found' });
+    //         }
+
+    //         // Trả về thông tin hóa đơn
+    //         res.status(200).json({
+    //             message: 'Invoice retrieved successfully',
+    //             data: invoice,
+    //         });
+    //     } catch (error) {
+    //         console.error('Error retrieving invoice:', error);
+    //         res.status(500).json({ message: 'Error retrieving invoice', error });
+    //     }
+    // }
+
+    //chat GPT chỉnh
     async cancelInvoice(req, res) {
         const { id } = req.params;
-
         try {
-            const invoice = await InvoiceModel.findById(id)
-                .populate({
-                    path: 'invoiceDetails',
-                    select: 'selectedSize quantity',
-                    populate: {
-                        path: 'product',
-                        select: 'name',
-                    },
-                });
-            for (const detail of invoice.invoiceDetails) {
-                console.log(detail.product._id) // vô id trong tìm size cộng size lại
-            }
+            // Lấy thông tin hóa đơn kèm các chi tiết
+            const invoice = await InvoiceModel.findById(id).populate({
+                path: 'invoiceDetails',
+                select: 'selectedSize quantity',
+                populate: {
+                    path: 'product',
+                    select: 'sizes',
+                },
+            });
             if (!invoice) {
                 return res.status(404).json({ message: 'Invoice not found' });
             }
-
-            // Trả về thông tin hóa đơn
-            res.status(200).json({
-                message: 'Invoice retrieved successfully',
-                data: invoice,
-            });
+            const session = await mongoose.startSession();
+            session.startTransaction();
+            try {
+                await InvoiceModel.findByIdAndUpdate(
+                    id,
+                    { status: 'Cancelled' },
+                    { new: true, session }
+                );
+                const bulkOps = invoice.invoiceDetails.map((detail) => {
+                    const productId = detail.product._id;
+                    const size = detail.selectedSize;
+                    const quantity = detail.quantity;
+                    return {
+                        updateOne: {
+                            filter: { _id: productId, 'sizes.size': size },
+                            update: { $inc: { 'sizes.$.quantity': quantity } },
+                        },
+                    };
+                });
+                await ProductModel.bulkWrite(bulkOps, { session });
+                await session.commitTransaction();
+                session.endSession();
+                return res.status(200).json({
+                    message: 'Invoice cancelled successfully',
+                    data: invoice,
+                });
+            } catch (error) {
+                await session.abortTransaction();
+                session.endSession();
+                throw error;
+            }
         } catch (error) {
-            console.error('Error retrieving invoice:', error);
-            res.status(500).json({ message: 'Error retrieving invoice', error });
+            console.error('Error cancelling invoice:', error);
+            return res.status(500).json({ message: 'Error cancelling invoice', error });
         }
     }
-
 
 }
 
