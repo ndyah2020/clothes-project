@@ -31,6 +31,8 @@ const Sales = () => {
   const [isExistCustomer, setIsExistCustomer] = useState(false)
   const [totalPrice, setTotalPrice] = useState(0)
   const [customerDiscount, setCustomerDiscount] = useState(0)
+  const [subtotal, setSubtotal] = useState(0);
+  const [discountedTotal, setDiscountedTotal] = useState(0);
   // const [isReset, setIsReset] = useState(false);
   // Fetch product list
   const fetchProducts = async () => {
@@ -108,7 +110,6 @@ const Sales = () => {
   // Calculate total price
   const calculateTotal = useCallback(() => {
     return cart.reduce((total, item) => {
-      // Kiểm tra xem item có selectedSize và price không
       if (item.selectedSize && item.selectedSize.price) {
         return total + item.selectedSize.price * item.quantity;
       }
@@ -119,13 +120,25 @@ const Sales = () => {
   // Apply discount based on promo code
 
   useEffect(() => {
-    let calculatedTotal;
-    customerDiscount === 0
-      ? calculatedTotal = calculateTotal() - discount + shippingFee
-      : calculatedTotal = ((100 - customerDiscount) * 0.01) * (calculateTotal() - discount + shippingFee)
+    const calculatedSubtotal = calculateTotal();
+    setSubtotal(calculatedSubtotal);
 
-    setTotalPrice(Math.max(calculatedTotal, 0));
+    let calculatedDiscountedTotal;
+    if (customerDiscount === 0) {
+      calculatedDiscountedTotal = calculatedSubtotal - calculatedSubtotal * discount / 100;
+    } else {
+      let customerDiscountedTotal =  calculatedSubtotal * customerDiscount / 100 ;
+      let promoDiscountedTotal = calculatedSubtotal * discount / 100;
+
+        calculatedDiscountedTotal = calculatedSubtotal - promoDiscountedTotal - customerDiscountedTotal;
+    }
+    setDiscountedTotal(Math.max(calculatedDiscountedTotal, 0));
+
+    const calculatedFinalTotal = Math.max(calculatedDiscountedTotal + shippingFee, 0);
+    setTotalPrice(calculatedFinalTotal);
   }, [cart, discount, shippingFee, customerDiscount, calculateTotal]);
+
+
 
 
   const applyDiscount = async () => {
@@ -142,7 +155,8 @@ const Sales = () => {
 
       if (response.status === 200 && response.data) {
         message.success("Code applied");
-        setDiscount(calculateTotal() * response.data.discount * 0.01)
+        console.log(response.data.discount)
+        setDiscount(response.data.discount)
       } else if (response.status === 404) {
         message.info("Code not found");
       } else {
@@ -504,17 +518,31 @@ const Sales = () => {
         />
         <Divider />
         <Row justify="space-between" style={{ marginBottom: 16 }}>
-          <Col>Subtotal:</Col>
-          <Col>
-            {totalPrice ? totalPrice.toLocaleString('it-IT', { style: 'currency', currency: 'VND' }) : `0 VND`}
-          </Col>
+          <Col>Subtotal (Before Discount):</Col>
+          <Col>{subtotal.toLocaleString('it-IT', { style: 'currency', currency: 'VND' })}</Col>
         </Row>
+
+        <Row justify="space-between" style={{ marginBottom: 16 }}>
+
+          <Col>Discounted Total:</Col>
+          <Col>{discountedTotal.toLocaleString('it-IT', { style: 'currency', currency: 'VND' })}</Col>
+        </Row>
+
+
         {orderType === "online" && (
           <Row justify="space-between" style={{ marginBottom: 16 }}>
             <Col>Shipping Fee:</Col>
             <Col>{shippingFee.toLocaleString('it-IT', { style: 'currency', currency: 'VND' })}</Col>
           </Row>
         )}
+
+
+        <Row justify="space-between" style={{ marginBottom: 16 }}>
+          <Col>Total (After Discount + Shipping):</Col>
+          <Col>{totalPrice.toLocaleString('it-IT', { style: 'currency', currency: 'VND' })}</Col>
+        </Row>
+
+
         <Col style={{ display: 'flex' }}>
           <Input
             placeholder="Promo Code"

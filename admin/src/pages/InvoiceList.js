@@ -18,7 +18,7 @@ const InvoiceList = () => {
     const [detailsModalVisible, setDetailsModalVisible] = useState(false);
     const [currentDetails, setCurrentDetails] = useState([]);
     const [selectedInvoice, setSelectedInvoice] = useState(-1)
-
+    const [priceAfterDiscount, setPriceAfterDiscount] = useState(0)
 
     // Hàm lấy danh sách hóa đơn từ API
     const fetchData = async () => {
@@ -82,7 +82,7 @@ const InvoiceList = () => {
     };
 
     const calculateGrandTotal = (details) => {
-        return details.reduce((sum, item) => sum + item.unitPrice, 0);
+        return details.reduce((sum, item) => sum + (item.unitPrice*item.quantity), 0);
     };
 
     const customerInfor = selectedInvoice && invoiceList.length > 0
@@ -343,12 +343,16 @@ const InvoiceList = () => {
                     scroll={{ x: "max-content" }}
                     summary={() => {
                         const selectedInvoiceData = invoiceList.find((invoice) => invoice.key === selectedInvoice);
-
                         if (!selectedInvoiceData) {
                             return null;
                         }
-
+                        
                         const grandTotal = calculateGrandTotal(currentDetails);
+                        
+                        const discountAmount = grandTotal * (selectedInvoiceData.discount / 100);
+                        const promoDiscountAmount = grandTotal * (selectedInvoiceData.promoDiscout / 100);
+                        const priceAfterDiscount = grandTotal - discountAmount - promoDiscountAmount;
+
                         const totalPrice = selectedInvoiceData?.totalPrice || 0;
                         const shippingFee = selectedInvoiceData?.shippingFee || 0;
                         return (
@@ -363,6 +367,14 @@ const InvoiceList = () => {
                                 </Table.Summary.Row>
                                 <Table.Summary.Row>
                                     <Table.Summary.Cell colSpan={4} style={{ textAlign: "right" }}>
+                                        <strong>Price After Discount:</strong>
+                                    </Table.Summary.Cell>
+                                    <Table.Summary.Cell>
+                                        <strong>{`${priceAfterDiscount.toLocaleString()} VND`}</strong>
+                                    </Table.Summary.Cell>
+                                </Table.Summary.Row>
+                                <Table.Summary.Row>
+                                    <Table.Summary.Cell colSpan={4} style={{ textAlign: "right" }}>
                                         <strong>Shipping Fee:</strong>
                                     </Table.Summary.Cell>
                                     <Table.Summary.Cell>
@@ -371,7 +383,7 @@ const InvoiceList = () => {
                                 </Table.Summary.Row>
                                 <Table.Summary.Row>
                                     <Table.Summary.Cell colSpan={4} style={{ textAlign: "right" }}>
-                                        <strong>Total After Discount:</strong>
+                                        <strong>Total After Discount And Shipping Fee:</strong>
                                     </Table.Summary.Cell>
                                     <Table.Summary.Cell>
                                         <strong>{`${totalPrice.toLocaleString()} VND`}</strong>
