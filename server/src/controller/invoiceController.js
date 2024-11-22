@@ -28,11 +28,11 @@ class InvoiceController {
             res.status(500).json({ message: 'Error retrieving invoices', error });
         }
     }
-    
+    //Lấy thông tin hóa đơn theo id
     async getInvoiceById(req, res) {
         const { id } = req.params;
         try {
-            const invoices = await InvoiceModel.find()
+            const invoices = await InvoiceModel.findById(id)
             .populate('customer', 'name phonenumber')
             .populate({
                 path: 'invoiceDetails', 
@@ -43,7 +43,7 @@ class InvoiceController {
                 },
             });
 
-            if (!invoice) {
+            if (!invoices) {
                 return res.status(404).json({ message: 'Invoice not found' });
             }
 
@@ -53,6 +53,7 @@ class InvoiceController {
             res.status(500).json({ message: 'Error retrieving invoice', error });
         }
     }
+    //
     //Tạo hóa đơn và chi tiết hóa đơn
     async CreateInvoiceWithDetails(req, res) {
         const {
@@ -127,6 +128,64 @@ class InvoiceController {
             res.status(500).json({ message: "Error creating invoice", error: error.message });
         }
     }
+
+
+    //Xác nhận hóa đơn 
+    async completeInvoice(req, res) {
+        const { id } = req.params;
+        try {
+            const updateInvoice = await InvoiceModel.findByIdAndUpdate(
+                id,
+                { status: 'Completed' },
+                { new: true } 
+            );
+            if (!updateInvoice) {
+                return res.status(404).json({ message: 'Invoice not found' });
+            }
+            res.status(200).json({
+                message: 'Invoice status updated to Completed successfully',
+                data: updateInvoice,
+            });
+        } catch (error) {
+            console.error('Error updating invoice status:', error);
+            res.status(500).json({
+                message: 'Error updating invoice status',
+                error: error.message,
+            });
+        }
+    }
+    async cancelInvoice(req, res) {
+        const { id } = req.params;
+    
+        try {
+            const invoice = await InvoiceModel.findById(id)
+                .populate({
+                    path: 'invoiceDetails',
+                    select: 'selectedSize quantity',
+                    populate: {
+                        path: 'product',
+                        select: 'name',
+                    },
+                });
+            for(const detail of invoice.invoiceDetails){
+                console.log(detail.product._id) // vô id tìm size cộng size lại
+            }
+            if (!invoice) {
+                return res.status(404).json({ message: 'Invoice not found' });
+            }
+    
+            // Trả về thông tin hóa đơn
+            res.status(200).json({
+                message: 'Invoice retrieved successfully',
+                data: invoice,
+            });
+        } catch (error) {
+            console.error('Error retrieving invoice:', error);
+            res.status(500).json({ message: 'Error retrieving invoice', error });
+        }
+    }
+    
+    
 }
 
 module.exports = new InvoiceController();

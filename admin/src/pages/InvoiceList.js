@@ -277,7 +277,7 @@ const InvoiceList = () => {
                                 </Table.Summary.Row>
                                 <Table.Summary.Row>
                                     <Table.Summary.Cell colSpan={4} style={{ textAlign: "right" }}>
-                                        <strong>GTotal After Discount</strong>
+                                        <strong>Total After Discount</strong>
                                     </Table.Summary.Cell>
                                     <Table.Summary.Cell>
                                         <strong>{`${invoiceList[selectedInvoice].totalPrice.toLocaleString()} VND`}</strong>

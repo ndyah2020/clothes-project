@@ -172,7 +172,7 @@ const LoyaltyDiscount = () => {
                 });
               if (response.ok) {
                 message.success("Suppiler deleted successfully!");
-                fetchData(); // Fetch lại danh sách người dùng sau khi xóa thành công
+                fetchData(); 
               } else {
                 const errorData = await response.json();
                 message.error(

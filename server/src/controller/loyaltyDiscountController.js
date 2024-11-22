@@ -119,21 +119,25 @@ class loyaltyDiscountController {
             res.status(500).json({ message: "Error updating money discount" })
         }
     }
-    
+
     //xóa ưu đãi
     async deleteLoyaltyDiscount(req, res) {
         const { id } = req.params;
         try {
-            // const LoyaltyDiscounts = await loyaltyDiscountModel.find()
-            // if(LoyaltyDiscounts.length === 1)
-            const deleteLoyaltyDiscount = await loyaltyDiscountModel.findOneAndDelete(id)
-            if (!deleteLoyaltyDiscount) {
-                return res.json(400).json({ message: "Loyalty discount not found" })
+            const loyaltyDiscounts = await loyaltyDiscountModel.find();
+            if (loyaltyDiscounts.length === 1) {
+                return res.status(400).json({ message: "Cannot delete the only remaining loyalty discount" });
             }
-            res.status(200).json(deleteLoyaltyDiscount)
+            const deleteLoyaltyDiscount = await loyaltyDiscountModel.findByIdAndDelete(id);
+            if (!deleteLoyaltyDiscount) {
+                return res.status(404).json({ message: "Loyalty discount not found" });
+            }
+            res.status(200).json({ message: "Loyalty discount deleted successfully", data: deleteLoyaltyDiscount });
         } catch (error) {
-            res.status(500).json({ message: "Error deleting Loyalty discount" })
+            console.error("Error deleting loyalty discount:", error);
+            res.status(500).json({ message: "Error deleting loyalty discount", error });
         }
     }
+
 }
 module.exports = new loyaltyDiscountController();
