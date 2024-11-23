@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, useState } from "react";
 import {
   Layout,
   Menu,
@@ -10,14 +10,16 @@ import {
   Input,
   message,
 } from "antd";
+
 import axios from "axios";
 import signinbg from "../assets/images/img-signin.jpg";
-
+import { EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
 const { Title } = Typography;
 const { Footer, Content } = Layout;
 
 export default class SignIn extends Component {
   render() {
+
     const onFinish = async (values) => {
       try {
         const response = await axios.post("http://localhost:3001/user/login", {
@@ -91,7 +93,12 @@ export default class SignIn extends Component {
                     },
                   ]}
                 >
-                  <Input type="password" placeholder="Password" />
+                  <Input.Password
+                    placeholder="Password"
+                    iconRender={(visible) =>
+                      visible ? <EyeOutlined /> : <EyeInvisibleOutlined />
+                    }
+                  />
                 </Form.Item>
 
                 <Form.Item>

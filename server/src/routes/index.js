@@ -6,6 +6,7 @@ const customerRouter = require("./customer")
 const royaltyDiscountRouter = require("./loyaltyDiscount")
 const promotionRouter = require("./promotion")
 const invoiceRouter = require("./invoice")
+const importRouter = require("./import")
 
 function route(app) {
   app.use("/user", userRouter);
@@ -16,6 +17,7 @@ function route(app) {
   app.use("/loyalty-discount", royaltyDiscountRouter)
   app.use("/promotion", promotionRouter)
   app.use("/invoice",invoiceRouter)
+  app.use("/import",importRouter)
 }
 
 module.exports = route;

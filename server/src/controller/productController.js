@@ -101,6 +101,11 @@ class ProductController {
     const { size } = req.body;
     const upperSize = size.toUpperCase();
     try {
+      const product = await ProductModel.findById(id)
+      const  sizeCurrent = product.sizes.find(item => item.size === size)
+      if(sizeCurrent.quantity !== 0 ){
+        return res.status(400).json({message: 'Cannot delete sizes that already have quantity'})
+      }
       const deleteSizes = await ProductModel.findByIdAndUpdate(
         id,
         {

@@ -339,6 +339,7 @@ const Products = () => {
       });
       if (!response.ok) {
         const result = await response.json();
+        console.log(result)
         return message.error(result.message);
       }else{
         message.success("Price updated");
@@ -686,6 +687,7 @@ const Products = () => {
               <Row gutter={10} align="middle">
                 <Col span={18}>
                   <Input
+                    type="number"
                     onChange={(e) => setNewPrice(e.target.value)}
                     value={newPrice !== null ? newPrice : editingProduct.sizes[showSizes].price}
                   />
@@ -709,7 +711,7 @@ const Products = () => {
                   disabled = {editingProduct}
                 />
               </Form.Item>
-           
+  
             
               <Button 
                 style={{color: 'white', backgroundColor: 'red'}} 

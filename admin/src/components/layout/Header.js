@@ -420,19 +420,22 @@ function Header({
               </div>
             </div>
           </Drawer>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '16px' }}>
             <Button
+              type="text"
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                border: 'none',
+                gap: '8px',
+                color: '#f5222d',
+                fontWeight: '500',
                 fontSize: '14px',
                 cursor: 'pointer',
               }}
               onClick={logOut}
             >
               {logOutIcon}
-              <span style={{ marginLeft: '8px' }}>Log Out</span>
+              <span>Log Out</span>
             </Button>
           </div>
           <Input

@@ -16,20 +16,27 @@ const ImportNote = () => {
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
 
-  useEffect(() => {
-    axios
-      .get("http://localhost:3001/supplier/get-supplier")
-      .then((response) => setSuppliers(response.data))
-      .catch(() => message.error("Lỗi khi tải danh sách nhà cung cấp"));
-  }, []);
+  const fetchSuppliers = async () => {
+    try {
+      const response = await axios.get("http://localhost:3001/supplier/get-supplier");
+      setSuppliers(response.data);
+    } catch (error) {
+      console.error("Error loading supplier list:", error);
+      message.error("Error loading supplier list");
+    }
+  };
 
-  const fetchProductsBySupplier = (supplierId) => {
+  const fetchProductsBySupplier = async (supplierId) => {
     setLoadingProducts(true);
-    axios
-      .get(`http://localhost:3001/product/get-products/supplier/${supplierId}`)
-      .then((response) => setProducts(response.data))
-      .catch(() => message.error("Lỗi khi tải danh sách sản phẩm"))
-      .finally(() => setLoadingProducts(false));
+    try {
+      const response = await axios.get(`http://localhost:3001/product/get-products/supplier/${supplierId}`);
+      setProducts(response.data);
+    } catch (error) {
+      console.error("Error loading product list:", error);
+      message.error("Error loading product list");
+    } finally {
+      setLoadingProducts(false);
+    }
   };
 
   const addProductToTable = () => {
@@ -40,7 +47,7 @@ const ImportNote = () => {
       productPrice <= 0
     ) {
       message.warning(
-        "Vui lòng chọn sản phẩm, kích cỡ, số lượng và giá nhập hợp lệ"
+        "Please select a valid product, size, quantity, and price"
       );
       return;
     }
@@ -81,7 +88,7 @@ const ImportNote = () => {
     setSelectedSize("");
     setProductQuantity(1);
     setProductPrice(0);
-    message.success("Đã thêm sản phẩm vào danh sách");
+    message.success("Product added to the list");
   };
 
   const removeProduct = (productId, size) => {
@@ -90,60 +97,63 @@ const ImportNote = () => {
         (product) => !(product.id === productId && product.size === size)
       )
     );
-    message.success("Đã xóa sản phẩm khỏi danh sách");
+    message.success("Product removed from the list");
   };
 
   const createImportNote = () => {
     if (!selectedSupplier) {
-      message.warning("Vui lòng chọn nhà cung cấp");
+      message.warning("Please select a supplier");
       return;
     }
     if (selectedProducts.length === 0) {
-      message.warning("Vui lòng chọn ít nhất một sản phẩm");
+      message.warning("Please select at least one product");
       return;
     }
     const noteData = {
       supplierId: selectedSupplier,
       products: selectedProducts,
     };
-    console.log("Phiếu nhập:", noteData);
-    message.success("Phiếu nhập đã được tạo thành công!");
+    console.log("Import Note:", noteData);
+    message.success("Import note successfully created!");
   };
+  useEffect(() => {
+    fetchSuppliers();
+  }, []);
 
   const columns = [
     {
-      title: "Tên sản phẩm",
+      title: "Product Name",
       dataIndex: "name",
       key: "name",
     },
     {
-      title: "Kích cỡ",
+      title: "Size",
       dataIndex: "size",
       key: "size",
     },
     {
-      title: "Số lượng",
+      title: "Quantity",
       dataIndex: "quantity",
       key: "quantity",
     },
     {
-      title: "Giá nhập",
+      title: "Price",
       dataIndex: "price",
       key: "price",
-      render: (price) => `${price.toLocaleString()} VNĐ`,
+      render: (price) => `${price.toLocaleString()} VND`,
     },
     {
-      title: "Thành tiền",
+      title: "Total",
       dataIndex: "total",
       key: "total",
-      render: (total) => `${total.toLocaleString()} VNĐ`,
+      render: (total) => `${total.toLocaleString()} VND`,
     },
     {
-      title: "Hành động",
+      title: "Action",
       key: "action",
       render: (text, record) => (
         <Button danger onClick={() => removeProduct(record.id, record.size)}>
-          Xóa
+          Remove
         </Button>
       ),
     },
@@ -151,7 +161,7 @@ const ImportNote = () => {
 
   return (
     <div style={{ padding: "20px" }}>
-      <Title level={3}>Phiếu Nhập</Title>
+      <Title level={3}>Import Note</Title>
       <div
         style={{
           display: "grid",
@@ -163,9 +173,9 @@ const ImportNote = () => {
         {/* Left Column */}
         <div>
           <div style={{ marginBottom: "15px" }}>
-            <span style={{ fontWeight: "bold" }}>Chọn nhà cung cấp:</span>
+            <span style={{ fontWeight: "bold" }}>Select Supplier:</span>
             <Select
-              placeholder="Chọn nhà cung cấp"
+              placeholder="Select a supplier"
               style={{ width: "100%", marginTop: "5px" }}
               value={selectedSupplier}
               onChange={(value) => {
@@ -184,9 +194,9 @@ const ImportNote = () => {
           </div>
 
           <div style={{ marginBottom: "15px" }}>
-            <span style={{ fontWeight: "bold" }}>Chọn sản phẩm:</span>
+            <span style={{ fontWeight: "bold" }}>Select Product:</span>
             <Select
-              placeholder="Chọn sản phẩm"
+              placeholder="Select a product"
               style={{ width: "100%", marginTop: "5px" }}
               value={selectedProduct ? selectedProduct._id : null}
               onChange={(value) =>
@@ -208,9 +218,9 @@ const ImportNote = () => {
         {/* Right Column */}
         <div>
           <div style={{ marginBottom: "15px" }}>
-            <span style={{ fontWeight: "bold" }}>Kích cỡ:</span>
+            <span style={{ fontWeight: "bold" }}>Size:</span>
             <Select
-              placeholder="Chọn kích cỡ"
+              placeholder="Select size"
               style={{ width: "100%", marginTop: "5px" }}
               value={selectedSize}
               onChange={(value) => setSelectedSize(value)}
@@ -226,9 +236,9 @@ const ImportNote = () => {
           </div>
 
           <div style={{ marginBottom: "15px" }}>
-            <span style={{ fontWeight: "bold" }}>Số lượng:</span>
+            <span style={{ fontWeight: "bold" }}>Quantity:</span>
             <InputNumber
-              placeholder="Nhập số lượng"
+              placeholder="Enter quantity"
               min={1}
               style={{ width: "100%", marginTop: "5px" }}
               value={productQuantity}
@@ -237,13 +247,13 @@ const ImportNote = () => {
           </div>
 
           <div style={{ marginBottom: "15px" }}>
-            <span style={{ fontWeight: "bold" }}>Giá nhập (VNĐ):</span>
+            <span style={{ fontWeight: "bold" }}>Price (VND):</span>
             <InputNumber
-              placeholder="Nhập giá tiền"
+              placeholder="Enter price"
               min={0}
               style={{ width: "100%", marginTop: "5px" }}
               formatter={(value) =>
-                `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " VNĐ"
+                `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " VND"
               }
               parser={(value) => value.replace(/\s?|(,*)/g, "")}
               value={productPrice}
@@ -258,7 +268,7 @@ const ImportNote = () => {
         onClick={addProductToTable}
         style={{ marginBottom: "20px" }}
       >
-        Thêm vào danh sách
+        Add to List
       </Button>
 
       <Table
@@ -274,7 +284,7 @@ const ImportNote = () => {
         onClick={createImportNote}
         style={{ marginTop: "20px" }}
       >
-        Tạo phiếu
+        Create Import Note
       </Button>
     </div>
   );

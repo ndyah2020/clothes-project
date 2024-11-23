@@ -11,11 +11,36 @@
 */
 
 // import { useState } from "react";
+import {
+  ShoppingCartOutlined,
+  FileTextOutlined,
+  UserOutlined,
+  TeamOutlined,
+  SmileOutlined,
+  GiftOutlined,
+  TagOutlined,
+  SolutionOutlined,
+  AppstoreOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
+
 import { Menu } from "antd";
 import { NavLink, useLocation } from "react-router-dom";
 import logo from "../../assets/images/logo.png";
 
+
 function Sidenav({ color }) {
+  const sales = <ShoppingCartOutlined style={{ color }} />;
+  const invoiceList = <FileTextOutlined style={{ color }} />;
+  const users = <UserOutlined style={{ color }} />;
+  const employee = <TeamOutlined style={{ color }} />;
+  const customer = <SmileOutlined style={{ color }} />;
+  const loyaltyDiscount = <GiftOutlined style={{ color }} />;
+  const promotion = <TagOutlined style={{ color }} />;
+  const supplier = <SolutionOutlined style={{ color }} />;
+  const products = <AppstoreOutlined style={{ color }} />;
+  const importForm = <UploadOutlined style={{ color }} />;
+
   const { pathname } = useLocation();
   const page = pathname.replace("/", "");
 
@@ -171,172 +196,77 @@ function Sidenav({ color }) {
       <Menu theme="light" mode="inline">
         <Menu.Item key="1">
           <NavLink to="/dashboard">
-            <span
-              className="icon"
-              style={{
-                background: page === "dashboard" ? color : "",
-              }}
-            >
-              {dashboard}
-            </span>
+            <span className="icon">{dashboard}</span>
             <span className="label">Dashboard</span>
           </NavLink>
         </Menu.Item>
-
         <Menu.Item key="2">
           <NavLink to="/sales">
-            <span
-              className="icon"
-              style={{
-                background: page === "tables" ? color : "",
-              }}
-            >
-              {tables}
-            </span>
+            <span className="icon">{sales}</span>
             <span className="label">Sales</span>
           </NavLink>
         </Menu.Item>
-
         <Menu.Item key="3">
           <NavLink to="/invoice-list">
-            <span
-              className="icon"
-              style={{
-                background: page === "tables" ? color : "",
-              }}
-            >
-              {billing}
-            </span>
-            <span className="label">Invoce List</span>
+            <span className="icon">{invoiceList}</span>
+            <span className="label">Invoice List</span>
           </NavLink>
         </Menu.Item>
-
         <Menu.Item key="4">
           <NavLink to="/users">
-            <span
-              className="icon"
-              style={{
-                background: page === "tables" ? color : "",
-              }}
-            >
-              {tables}
-            </span>
+            <span className="icon">{users}</span>
             <span className="label">Users</span>
           </NavLink>
         </Menu.Item>
-
         <Menu.Item key="5">
           <NavLink to="/employee">
-            <span
-              className="icon"
-              style={{
-                background: page === "tables" ? color : "",
-              }}
-            >
-              {tables}
-            </span>
+            <span className="icon">{employee}</span>
             <span className="label">Employee</span>
           </NavLink>
         </Menu.Item>
-
         <Menu.Item key="6">
           <NavLink to="/customer">
-            <span
-              className="icon"
-              style={{
-                background: page === "tables" ? color : "",
-              }}
-            >
-              {tables}
-            </span>
+            <span className="icon">{customer}</span>
             <span className="label">Customer</span>
           </NavLink>
         </Menu.Item>
-
         <Menu.Item key="7">
           <NavLink to="/loyalty-discount">
-            <span
-              className="icon"
-              style={{
-                background: page === "tables" ? color : "",
-              }}
-            >
-              {tables}
-            </span>
+            <span className="icon">{loyaltyDiscount}</span>
             <span className="label">Loyalty Discount</span>
           </NavLink>
         </Menu.Item>
-
         <Menu.Item key="8">
           <NavLink to="/promotion">
-            <span
-              className="icon"
-              style={{
-                background: page === "tables" ? color : "",
-              }}
-            >
-              {tables}
-            </span>
+            <span className="icon">{promotion}</span>
             <span className="label">Promotion</span>
           </NavLink>
         </Menu.Item>
-
         <Menu.Item key="9">
           <NavLink to="/supplier">
-            <span
-              className="icon"
-              style={{
-                background: page === "tables" ? color : "",
-              }}
-            >
-              {tables}
-            </span>
+            <span className="icon">{supplier}</span>
             <span className="label">Supplier</span>
           </NavLink>
         </Menu.Item>
-
         <Menu.Item key="10">
           <NavLink to="/products">
-            <span
-              className="icon"
-              style={{
-                background: page === "products" ? color : "",
-              }}
-            >
-              {billing}
-            </span>
+            <span className="icon">{products}</span>
             <span className="label">Products</span>
           </NavLink>
         </Menu.Item>
-
-
         <Menu.Item key="11">
           <NavLink to="/import-form">
-            <span
-              className="icon"
-              style={{
-                background: page === "tables" ? color : "",
-              }}
-            >
-              {billing}
-            </span>
+            <span className="icon">{importForm}</span>
             <span className="label">Import</span>
           </NavLink>
         </Menu.Item>
-
         <Menu.Item key="12">
           <NavLink to="/rtl">
-            <span
-              className="icon"
-              style={{
-                background: page === "rtl" ? color : "",
-              }}
-            >
-              {rtl}
-            </span>
+            <span className="icon">{rtl}</span>
             <span className="label">RTL</span>
           </NavLink>
         </Menu.Item>
+
         {/* <Menu.Item className="menu-item-header" key="5">
           Account Pages
         </Menu.Item>
