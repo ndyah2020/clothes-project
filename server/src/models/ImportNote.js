@@ -37,10 +37,10 @@ const ImportNoteSchema = new Schema(
   }
 );
 
-ImportNoteSchema.virtual('ImportNoteDetail', {
+ImportNoteSchema.virtual('importNoteDetail', {
   ref: 'ImportNoteDetail',
-  localField: '_id',
-  foreignField: 'importNote',
+  localField: '_id', 
+  foreignField: 'importNoteId', 
 });
 
 ImportNoteSchema.set('toObject', { virtuals: true });

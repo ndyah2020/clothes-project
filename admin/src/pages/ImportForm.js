@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Select, InputNumber, Button, Table, Typography, message } from "antd";
+import jwt from "jsonwebtoken"
 
 const { Option } = Select;
 const { Title } = Typography;
-
 const ImportNote = () => {
   const [suppliers, setSuppliers] = useState([]);
   const [products, setProducts] = useState([]);
@@ -100,7 +100,7 @@ const ImportNote = () => {
     message.success("Product removed from the list");
   };
 
-  const createImportNote = () => {
+  const createImportNote = async () => {
     if (!selectedSupplier) {
       message.warning("Please select a supplier");
       return;
@@ -109,13 +109,46 @@ const ImportNote = () => {
       message.warning("Please select at least one product");
       return;
     }
+    const decoded = jwt.decode(localStorage.getItem("token"));
     const noteData = {
       supplierId: selectedSupplier,
+      userId: decoded.userId,
       products: selectedProducts,
     };
-    console.log("Import Note:", noteData);
-    message.success("Import note successfully created!");
+    console.log(noteData)
+    try {
+      const response = await axios.post(
+        "http://localhost:3001/import-note/create-import-note",
+        {noteData},
+        {
+          validateStatus: (status) => status >= 200 && status < 500,
+        }
+      );
+      console.log(response)
+      if (response.status === 200 && response.data) {
+        message.success("Import note successfully created!");
+        console.log(response.data.message);
+      
+        setSelectedSupplier("");
+        setSelectedProducts([]);
+        setProducts([]);
+        setSelectedProduct(null);
+        setSelectedSize("");
+        setProductQuantity(1);
+        setProductPrice(0);
+      } else if (response.status === 404) {
+        message.info(response.data.message);
+      } else {
+        message.error(response.data.message || "An error occurred");
+      }
+    } catch (error) {
+      console.error("Error creating import note:", error);
+      message.error("Failed to create import note. Please try again.");
+    }
   };
+  
+
+
   useEffect(() => {
     fetchSuppliers();
   }, []);
@@ -255,7 +288,7 @@ const ImportNote = () => {
               formatter={(value) =>
                 `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " VND"
               }
-              parser={(value) => value.replace(/\s?|(,*)/g, "")}
+              parser={(value) => value.replace(/\VND\s?|(,*)/g, "")}
               value={productPrice}
               onChange={(value) => setProductPrice(value)}
             />

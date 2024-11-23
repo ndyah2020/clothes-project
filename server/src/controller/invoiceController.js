@@ -128,8 +128,7 @@ class InvoiceController {
                 customer.point += newPointCustomer;
                 await customer.save();
             }
-
-            // Trả kết quả
+            
             res.status(201).json({ message: "Invoice created successfully", invoice: savedInvoice });
         } catch (error) {
             console.error("Error creating invoice:", error);
