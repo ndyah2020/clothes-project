@@ -243,80 +243,80 @@ class UserController {
     }
   }
 
-  async  verifyOTP(req, res) {
-  const { email, otp } = req.body;
+  async verifyOTP(req, res) {
+    const { email, otp } = req.body;
 
-  try {
-    const user = await UserModel.findOne({ email });
-    if (!user) {
-      return res.status(404).json({ message: "Email not found" });
+    try {
+      const user = await UserModel.findOne({ email });
+      if (!user) {
+        return res.status(404).json({ message: "Email not found" });
+      }
+
+      if (user.otp !== otp) {
+        return res.status(400).json({ message: "Invalid OTP" });
+      }
+
+      if (new Date() > new Date(user.otpExpiry)) {
+        return res.status(400).json({ message: "OTP has expired" });
+      }
+
+      // Tạo token chứa email và thời hạn OTP
+      const resetToken = jwt.sign(
+        { email, otpExpiry: user.otpExpiry },
+        "duyanh",
+        { expiresIn: "15m" } // Token có hiệu lực 15 phút
+      );
+
+      res.status(200).json({
+        message: "OTP verified successfully",
+        token: resetToken, // Trả về token
+      });
+
+      // Xóa OTP khỏi database để đảm bảo OTP không thể sử dụng lại
+      user.otp = null;
+      await user.save();
+    } catch (error) {
+      console.error("Error verifying OTP:", error);
+      res.status(500).json({ message: "Error verifying OTP", error });
     }
-
-    if (user.otp !== otp) {
-      return res.status(400).json({ message: "Invalid OTP" });
-    }
-
-    if (new Date() > new Date(user.otpExpiry)) {
-      return res.status(400).json({ message: "OTP has expired" });
-    }
-
-    // Tạo token chứa email và thời hạn OTP
-    const resetToken = jwt.sign(
-      { email, otpExpiry: user.otpExpiry },
-      "duyanh",
-      { expiresIn: "15m" } // Token có hiệu lực 15 phút
-    );
-
-    res.status(200).json({
-      message: "OTP verified successfully",
-      token: resetToken, // Trả về token
-    });
-
-    // Xóa OTP khỏi database để đảm bảo OTP không thể sử dụng lại
-    user.otp = null;
-    await user.save();
-  } catch (error) {
-    console.error("Error verifying OTP:", error);
-    res.status(500).json({ message: "Error verifying OTP", error });
   }
-}
 
   async resetPassword(req, res) {
-  const { token, password } = req.body;
+    const { token, password } = req.body;
 
-  try {
-    // Giải mã token
-    const decoded = jwt.verify(token, "duyanh");
+    try {
+      // Giải mã token
+      const decoded = jwt.verify(token, "duyanh");
 
-    // Kiểm tra thời hạn OTP
-    if (new Date() > new Date(decoded.otpExpiry)) {
-      return res.status(400).json({ message: "OTP has expired" });
+      // Kiểm tra thời hạn OTP
+      if (new Date() > new Date(decoded.otpExpiry)) {
+        return res.status(400).json({ message: "OTP has expired" });
+      }
+
+      // Tìm user bằng email từ token
+      const user = await UserModel.findOne({ email: decoded.email });
+      if (!user) {
+        return res.status(404).json({ message: "Email not found" });
+      }
+
+      // Mã hóa mật khẩu mới
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Cập nhật mật khẩu mới
+      user.password = hashedPassword;
+      await user.save();
+
+      res.status(200).json({ message: "Password reset successfully" });
+    } catch (error) {
+      console.error("Error resetting password:", error);
+
+      if (error.name === "TokenExpiredError") {
+        return res.status(400).json({ message: "Reset token has expired" });
+      }
+
+      res.status(500).json({ message: "Error resetting password", error });
     }
-
-    // Tìm user bằng email từ token
-    const user = await UserModel.findOne({ email: decoded.email });
-    if (!user) {
-      return res.status(404).json({ message: "Email not found" });
-    }
-
-    // Mã hóa mật khẩu mới
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Cập nhật mật khẩu mới
-    user.password = hashedPassword;
-    await user.save();
-
-    res.status(200).json({ message: "Password reset successfully" });
-  } catch (error) {
-    console.error("Error resetting password:", error);
-
-    if (error.name === "TokenExpiredError") {
-      return res.status(400).json({ message: "Reset token has expired" });
-    }
-
-    res.status(500).json({ message: "Error resetting password", error });
   }
-}
 }
 
 module.exports = new UserController();

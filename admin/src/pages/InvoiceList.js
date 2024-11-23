@@ -28,6 +28,7 @@ const InvoiceList = () => {
             const formattedData = data.map((invoice) => ({
                 key: invoice._id,
 
+                customerId: invoice.customer?._id || "N/A",
                 customer: invoice.customer?.name || "Unknown",
                 phoneNumber: invoice.customer?.phonenumber || "N/A",
                 pointCustomer: invoice.customer?.point || 0,
@@ -60,36 +61,15 @@ const InvoiceList = () => {
                 })),
                 createdAt: moment(invoice.createdAt).format("YYYY-MM-DD HH:mm:ss"),
             }));
+
             setinvoiceList(formattedData);
+
         } catch (error) {
             console.error("Error fetching invoice:", error);
             message.error("Failed to fetch invoice.");
         }
     };
-    const handleCompleteInvoice = async (idInvoice) => {
-        Modal.confirm({
-            title: "Are you sure you want to complete this action?",
-            content: "This action cannot be undone.",
-            okText: "Complete",
-            okType: "primary",
-            cancelText: "Cancel",
-            onOk: async () => {
-                try {
-                    const response = await axios.patch(`http://localhost:3001/invoice/completed-invoice/${idInvoice}`);
 
-                    if (response.status === 200) {
-                        message.success(response.data.message);
-                        fetchData()
-                    } else {
-                        message.success(response.data.message);
-                    }
-                } catch (error) {
-                    console.error('Error completing invoice:', error);
-                    message.error('Failed to complete the invoice. Please try again.');
-                }
-            }
-        })
-    };
     const handleCancelInvoice = async (idInvoice) => {
         Modal.confirm({
             title: "Are you sure you want to cancel this action?",
@@ -104,16 +84,84 @@ const InvoiceList = () => {
                     if (response.status === 200) {
                         message.success(response.data.message);
                         fetchData()
+                        return true
                     } else {
                         message.success(response.data.message);
+                        return false
                     }
                 } catch (error) {
                     console.error('Error canceling invoice:', error);
                     message.error('Failed to cancel the invoice. Please try again.');
+                    return false
                 }
             }
         })
     };
+
+
+
+    const handleCompleteInvoice = async () => {
+        try {
+            const response = await axios.patch(`http://localhost:3001/invoice/completed-invoice/${selectedInvoice}`);
+    
+            if (response.status === 200) {
+                message.success(response.data.message);
+                fetchData();
+                return true; 
+            } else {
+                message.error(response.data.message);
+                return false; 
+            }
+        } catch (error) {
+            console.error('Error completing invoice:', error);
+            message.error('Failed to complete the invoice. Please try again.');
+            return false;
+        }
+    };
+    
+
+    const confirmCompleteInvoice = (callback) => {
+        Modal.confirm({
+            title: "Are you sure you want to complete this action?",
+            content: "This action cannot be undone.",
+            okText: "Complete",
+            okType: "primary",
+            cancelText: "Cancel",
+            onOk: async () => {
+                const isCompleted = await handleCompleteInvoice();
+                if (isCompleted && callback) {
+                    callback(); 
+                }
+            },
+        });
+    };
+    
+
+    const handleUpdatePointCustomer = async (currentInvoice) => {
+        if (!currentInvoice?.customerId) {
+            message.error('Customer ID is missing in the invoice data.');
+            return;
+        }
+    
+        confirmCompleteInvoice(async () => {
+            const totalPriceAfterDiscount = currentInvoice.totalPrice - currentInvoice.shippingFee;
+            try {
+                const response = await axios.patch(
+                    `http://localhost:3001/customer/update-point-by-invoice/${currentInvoice.customerId}`,
+                    { totalPriceAfterDiscount }
+                );
+                if (response.status === 200) {
+                    message.success(response.data.message);
+                } else {
+                    message.error(response.data.message);
+                }
+            } catch (error) {
+                console.error('Error updating invoice:', error);
+                message.error('Failed to update customer points. Please try again.');
+            }
+        });
+    };
+    
 
     useEffect(() => {
         fetchData();
@@ -275,9 +323,9 @@ const InvoiceList = () => {
                         key: "actions",
                         render: (text, record, index) => (
                             <div>
-                                <Button onClick={() => {
+                                <Button onClick={async () => {
                                     showDetailsModal(record.invoiceDetails)
-                                    setSelectedInvoice(record.key);
+                                    await setSelectedInvoice(record.key);
                                 }}>
                                     View Details
                                 </Button>
@@ -286,7 +334,7 @@ const InvoiceList = () => {
                     },
                 ]}
                 dataSource={filteredData}
-                pagination={{ pageSize: 10 }}
+                pagination={{ pageSize:  6}}
             />
             <Modal
                 title="Invoice Details"
@@ -296,7 +344,7 @@ const InvoiceList = () => {
                 width={900}
             >
                 <Row style={{ marginBottom: 20, display: "flex", justifyContent: "right" }}>
-                    {selectedInvoice && invoiceList.length > 0 &&
+                    {selectedInvoice &&
                         (() => {
                             const selectedInvoiceData = invoiceList.find(invoice => invoice.key === selectedInvoice);
                             if (selectedInvoiceData && selectedInvoiceData.orderType === 'online' && selectedInvoiceData.status === 'Pending') {
@@ -305,17 +353,19 @@ const InvoiceList = () => {
                                         <Button
                                             type="primary"
                                             style={{ margin: "0 8px" }}
-                                            onClick={() => handleCompleteInvoice(selectedInvoice)}
+                                            onClick={() => {
+                                                handleUpdatePointCustomer(selectedInvoiceData)
+                                            }}
                                         >
-                                            Complete
+                                            Complete Invoice
                                         </Button>
                                         <Button
                                             type="danger"
                                             style={{ margin: "0 8px" }}
                                             onClick={() => handleCancelInvoice(selectedInvoice)}
                                         >
-                                            Cancel
-                                        </Button>
+                                            Cancel Invoice
+                                        </Button> 
                                     </>
                                 );
                             }

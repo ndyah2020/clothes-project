@@ -118,15 +118,16 @@ class InvoiceController {
             await InvoiceDetailModel.insertMany(invoiceDetails);
 
             // Lấy quy định điểm thưởng
-            const monetaryNorm = await MonetaryNormModel.findOne();
-            if (!monetaryNorm) {
-                return res.status(400).json({ message: 'Monetary norm not found' });
-            }
+            if(orderType === 'shop'){
+                const monetaryNorm = await MonetaryNormModel.findOne();
+                if (!monetaryNorm) {
+                    return res.status(400).json({ message: 'Monetary norm not found' });
+                }
 
-            // Tính điểm thưởng
-            const newPointCustomer = Math.round(totalPrice / monetaryNorm.moneyPerPoint);
-            customer.point += newPointCustomer;
-            await customer.save();
+                const newPointCustomer = Math.round((totalPrice- shippingFee) / monetaryNorm.moneyPerPoint);
+                customer.point += newPointCustomer;
+                await customer.save();
+            }
 
             // Trả kết quả
             res.status(201).json({ message: "Invoice created successfully", invoice: savedInvoice });

@@ -226,6 +226,14 @@ const Sales = () => {
 
 
   const createInvoiceWithDetails = async () => {
+    if(cart.length === 0){
+      message.error("Please add product");
+      return;
+    }
+    if(orderType === 'online' && !shippingAddress){
+      message.error("Please enter shipping address");
+      return;
+    }
     const decoded = jwt.decode(localStorage.getItem("token"));
     const userId = decoded.userId
 

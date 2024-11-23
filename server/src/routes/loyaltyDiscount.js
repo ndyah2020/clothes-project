@@ -15,6 +15,7 @@ router.delete('/delete-loyalty-discount/:id', loyaltyDiscountController.deleteLo
 
 //Chỉnh sửa mức tiền quy đổi điểm
 router.put('/update-monetary-norm/:id', loyaltyDiscountController.updateMonetaryNorm)
+
 //lấy bản ghi lên
 router.get('/get-monetary-norm',loyaltyDiscountController.getMonetaryNorm)
 module.exports = router;

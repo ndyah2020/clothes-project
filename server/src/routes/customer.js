@@ -20,4 +20,7 @@ router.get("/get-customer/:id", customerContronller.getCustomerById);
 //Xóa nhà khách hàng
 router.delete("/delete-customer/:id", customerContronller.deleteCustomer);
 
+//Cập nhật điểm khách hàng từ hóa đơn
+router.patch("/update-point-by-invoice/:id", customerContronller.updatePointCustomerByInvoice)
+
 module.exports = router;

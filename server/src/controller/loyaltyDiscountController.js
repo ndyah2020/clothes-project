@@ -108,6 +108,9 @@ class loyaltyDiscountController {
         if (!moneyPerPoint) {
             return res.status(400).json({ message: "Missing required fields" })
         }
+        if(moneyPerPoint < 10000){
+            return res.status(404).json({message: "The amount per point must be greater than 10000"})
+        }
         try {
             const updateMoney = await MonetaryNormModel.findByIdAndUpdate(
                 id,
