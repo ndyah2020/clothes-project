@@ -25,8 +25,8 @@ const ImportNoteSchema = new Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "approved", "rejected"],
-      default: "pending",
+      enum: ["Pending", "Cancelled", "Completed"],
+      default: "Pending",
     },
     notes: {
       type: String, 

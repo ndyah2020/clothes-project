@@ -2,13 +2,12 @@ const ImportNoteModel = require ('../models/ImportNote')
 const ImportNoteDetail = require('../models/ImportNoteDetail')
 
 class ImportNoteController {
-    async createImprotNodeWithImportNoteDetail(req, res) {
+    async createImprotNoteWithImportNoteDetail(req, res) {
         const { noteData } = req.body;
         // noteData chứa userId, supplierId, mảng obj products
         // Trong product có id (là id product), name, price, quantity, size, total
     
         try {
-            // Tính tổng tiền của tất cả sản phẩm
             const totalAmount = noteData.products.reduce((sum, product) => {
                 return sum + product.total;
             }, 0);
@@ -26,7 +25,7 @@ class ImportNoteController {
                 }
             }
     
-            const importNode = new ImportNoteModel({
+            const importNote = new ImportNoteModel({
                 supplierId: noteData.supplierId,
                 noteCode,
                 createdBy: noteData.userId,
@@ -34,9 +33,9 @@ class ImportNoteController {
             });
     
        
-            const saveImportNote = await importNode.save();
+            const saveImportNote = await importNote.save();
     
-            const importNodeDetails = noteData.products.map((product) => ({
+            const importNoteDetails = noteData.products.map((product) => ({
                 importNoteId: saveImportNote._id,
                 productId: product.id,
                 size: product.size,
@@ -45,12 +44,12 @@ class ImportNoteController {
                 total: product.total,
             }));
     
-            await ImportNoteDetail.insertMany(importNodeDetails);
+            await ImportNoteDetail.insertMany(importNoteDetails);
 
             res.status(200).json({
                 message: "Import note created successfully",
-                importNode: saveImportNote,
-                details: importNodeDetails,
+                importNote: saveImportNote,
+                details: importNoteDetails,
             });
         } catch (error) {
             console.error("Error creating import note:", error);

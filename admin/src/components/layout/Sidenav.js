@@ -30,7 +30,7 @@ function Sidenav({ color }) {
   const supplier = <SolutionOutlined style={{ color }} />;
   const products = <AppstoreOutlined style={{ color }} />;
   const importForm = <UploadOutlined style={{ color }} />;
-
+  const importNoteList = <FileTextOutlined style={{ color }} />
   const { pathname } = useLocation();
   // const page = pathname.replace("/", "");
 
@@ -250,7 +250,14 @@ function Sidenav({ color }) {
             <span className="label">Import</span>
           </NavLink>
         </Menu.Item>
+
         <Menu.Item key="12">
+          <NavLink to="/import-note-list">
+            <span className="icon">{importNoteList}</span>
+            <span className="label">Import List</span>
+          </NavLink>
+        </Menu.Item>
+        <Menu.Item key="13">
           <NavLink to="/rtl">
             <span className="icon">{rtl}</span>
             <span className="label">RTL</span>

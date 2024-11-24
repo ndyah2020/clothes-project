@@ -58,6 +58,7 @@ const InvoiceList = () => {
                     selectedSize: detail.selectedSize,
                     quantity: detail.quantity,
                     unitPrice: detail.unitPrice,
+                    totalPrice: detail.unitPrice * detail.quantity,
                 })),
                 createdAt: moment(invoice.createdAt).format("YYYY-MM-DD HH:mm:ss"),
             }));
@@ -323,9 +324,9 @@ const InvoiceList = () => {
                         key: "actions",
                         render: (text, record, index) => (
                             <div>
-                                <Button onClick={async () => {
+                                <Button onClick={ () => {
                                     showDetailsModal(record.invoiceDetails)
-                                    await setSelectedInvoice(record.key);
+                                    setSelectedInvoice(record.key);
                                 }}>
                                     View Details
                                 </Button>
@@ -457,6 +458,11 @@ const InvoiceList = () => {
                             dataIndex: "unitPrice",
                             key: "unitPrice",
                             render: (price) => `${price.toLocaleString()} VND`,
+                        },{
+                            title: "Total Price",
+                            dataIndex: "totalPrice",
+                            key: "totalPrice",
+                            render: (price) => `${price.toLocaleString()} VND`,
                         },
                     ]}
                     dataSource={currentDetails.map((detail, index) => ({
@@ -482,7 +488,7 @@ const InvoiceList = () => {
                         return (
                             <>
                                 <Table.Summary.Row>
-                                    <Table.Summary.Cell colSpan={4} style={{ textAlign: "right" }}>
+                                    <Table.Summary.Cell colSpan={5} style={{ textAlign: "right" }}>
                                         <strong>Grand Total:</strong>
                                     </Table.Summary.Cell>
                                     <Table.Summary.Cell>
@@ -490,7 +496,7 @@ const InvoiceList = () => {
                                     </Table.Summary.Cell>
                                 </Table.Summary.Row>
                                 <Table.Summary.Row>
-                                    <Table.Summary.Cell colSpan={4} style={{ textAlign: "right" }}>
+                                    <Table.Summary.Cell colSpan={5} style={{ textAlign: "right" }}>
                                         <strong>Price After Discount:</strong>
                                     </Table.Summary.Cell>
                                     <Table.Summary.Cell>
@@ -498,7 +504,7 @@ const InvoiceList = () => {
                                     </Table.Summary.Cell>
                                 </Table.Summary.Row>
                                 <Table.Summary.Row>
-                                    <Table.Summary.Cell colSpan={4} style={{ textAlign: "right" }}>
+                                    <Table.Summary.Cell colSpan={5} style={{ textAlign: "right" }}>
                                         <strong>Shipping Fee:</strong>
                                     </Table.Summary.Cell>
                                     <Table.Summary.Cell>
@@ -506,7 +512,7 @@ const InvoiceList = () => {
                                     </Table.Summary.Cell>
                                 </Table.Summary.Row>
                                 <Table.Summary.Row>
-                                    <Table.Summary.Cell colSpan={4} style={{ textAlign: "right" }}>
+                                    <Table.Summary.Cell colSpan={5} style={{ textAlign: "right" }}>
                                         <strong>Total After Discount And Shipping Fee:</strong>
                                     </Table.Summary.Cell>
                                     <Table.Summary.Cell>

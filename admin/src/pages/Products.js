@@ -222,27 +222,27 @@ const Products = () => {
   };
   
   // Handle product deletion
-  const handleDelete = (id) => {
-    Modal.confirm({
-      title: "Bạn có chắc muốn xóa sản phẩm này?",
-      content: "Thao tác này sẽ không thể hoàn tác và mất toàn bộ dữ liệu về sản phẩm.",
-      okText: "Xóa",
-      okType: "danger",
-      cancelText: "Hủy",
-      onOk: async () => {
-        setLoading(true); // Bắt đầu trạng thái loading
-        try {
-          await axios.delete(`http://localhost:3001/product/delete-product/${id}`);
-          message.success("Xóa sản phẩm thành công!");
-          fetchProducts(); // Cập nhật lại danh sách sản phẩm sau khi xóa thành công
-        } catch (error) {
-          message.error("Xóa sản phẩm thất bại.");
-        } finally {
-          setLoading(false); // Kết thúc trạng thái loading, bất kể thành công hay thất bại
-        }
-      }
-    });
-  };
+  // const handleDelete = (id) => {
+  //   Modal.confirm({
+  //     title: "Bạn có chắc muốn xóa sản phẩm này?",
+  //     content: "Thao tác này sẽ không thể hoàn tác và mất toàn bộ dữ liệu về sản phẩm.",
+  //     okText: "Xóa",
+  //     okType: "danger",
+  //     cancelText: "Hủy",
+  //     onOk: async () => {
+  //       setLoading(true); // Bắt đầu trạng thái loading
+  //       try {
+  //         await axios.delete(`http://localhost:3001/product/delete-product/${id}`);
+  //         message.success("Xóa sản phẩm thành công!");
+  //         fetchProducts(); // Cập nhật lại danh sách sản phẩm sau khi xóa thành công
+  //       } catch (error) {
+  //         message.error("Xóa sản phẩm thất bại.");
+  //       } finally {
+  //         setLoading(false); // Kết thúc trạng thái loading, bất kể thành công hay thất bại
+  //       }
+  //     }
+  //   });
+  // };
 
   // Handle image upload with file list management
   const handleBeforeUpload = (file) => {
@@ -348,7 +348,8 @@ const Products = () => {
         `http://localhost:3001/product/get-product/${editingProduct._id}`
       );
       setEditingProduct(updatedProduct.data);
-      form.setFieldsValue(updatedProduct.data); 
+      form.setFieldsValue(updatedProduct.data);
+      fetchProducts()
     } catch (error) {
       message.error("Failed to change price");
     }
@@ -445,9 +446,9 @@ const Products = () => {
           <Button onClick={() => showModal(record)} type="link">
             Edit
           </Button>
-          <Button onClick={() => handleDelete(record._id)} type="link" danger>
+          {/* <Button onClick={() => handleDelete(record._id)} type="link" danger>
             Delete
-          </Button>
+          </Button> */}
         </span>
       ),
     },
@@ -695,7 +696,9 @@ const Products = () => {
                 <Col span={6}>
                   <Button
                     style={{ backgroundColor: "green", color: "white", width: "100%" }} // Nút chiếm toàn bộ chiều rộng cột
-                    onClick={() => handleUpdateSizePrice(editingProduct.sizes[showSizes].size)}
+                    onClick={() =>{
+                      handleUpdateSizePrice(editingProduct.sizes[showSizes].size)
+                    }}
                   >
                     Update Price
                   </Button>
