@@ -217,11 +217,15 @@ const ImportNote = () => {
                 setSelectedProduct(null);
                 fetchProductsBySupplier(value);
               }}
+              disabled={selectedProducts.length !== 0  || selectedProduct}
             >
               {suppliers.map((supplier) => (
-                <Option key={supplier._id} value={supplier._id}>
+                <Option 
+                  key={supplier._id} 
+                  value={supplier._id}
+                >
                   {supplier.name}
-                </Option>
+                </Option>     
               ))}
             </Select>
           </div>
@@ -239,6 +243,12 @@ const ImportNote = () => {
               }
               disabled={!selectedSupplier || loadingProducts}
             >
+              <Option
+                onChange={() => setSelectedProduct(null)}
+              >
+                None
+              </Option>
+
               {products.map((product) => (
                 <Option key={product._id} value={product._id}>
                   {product.name}

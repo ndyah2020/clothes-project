@@ -31,13 +31,26 @@ class ProductController {
   // Tạo mới sản phẩm
   async createProduct(req, res) {
     try {
-      const { sku, name, category, size, status, description, supplier} = req.body;
+      const { name, category, size, status, description, supplier } = req.body;
 
-      // Xử lý hình ảnh từ `req.files` (nếu có)
+
       const images = req.files?.map((file) => ({
         data: file.buffer.toString("base64"),
         contentType: file.mimetype,
       }));
+
+      const product = await ProductModel.find();
+      let sku = "PD001";
+      if (product.length > 0) {
+        const lastProduct = product[product.length - 1].sku;
+        const match = lastProduct.match(/^PD(\d+)$/);
+        if (match) {
+          const lastNumber = parseInt(match[1], 10);
+          const nextNumber = lastNumber + 1;
+          sku = `PD${nextNumber.toString().padStart(3, "0")}`;
+        }
+      }
+
       const newProduct = new ProductModel({
         sku,
         name,
@@ -49,7 +62,7 @@ class ProductController {
           type: "letter",
         },
         status,
-        description, 
+        description,
         supplier,
         images,
       });
@@ -66,7 +79,7 @@ class ProductController {
   async addSize(req, res) {
     const { id } = req.params;
     const { size } = req.body;
-    
+
     const upperSize = size.toUpperCase();
     try {
       const product = await ProductModel.findById(id);
@@ -95,46 +108,46 @@ class ProductController {
       res.status(500).json({ message: "Error adding size to product", error });
     }
   }
-//Xóa size 
+  //Xóa size 
   async deleteSize(req, res) {
     const { id } = req.params;
     const { size } = req.body;
     const upperSize = size.toUpperCase();
     try {
       const product = await ProductModel.findById(id)
-      const  sizeCurrent = product.sizes.find(item => item.size === size)
-      if(sizeCurrent.quantity !== 0 ){
-        return res.status(400).json({message: 'Cannot delete sizes that already have quantity'})
+      const sizeCurrent = product.sizes.find(item => item.size === size)
+      if (sizeCurrent.quantity !== 0) {
+        return res.status(400).json({ message: 'Cannot delete sizes that already have quantity' })
       }
       const deleteSizes = await ProductModel.findByIdAndUpdate(
         id,
         {
-            $pull: {sizes:{size:upperSize}}
+          $pull: { sizes: { size: upperSize } }
         },
-        {new: true, runValidators: true}
+        { new: true, runValidators: true }
       );
       res.status(200).json(deleteSizes)
-    }catch (error) {
+    } catch (error) {
       res.status(500).json({ message: "Error deleting size", error });
     }
   }
-  
+
   async changeSizePrice(req, res) {
     const { id } = req.params;
-    const { price, size } = req.body; 
+    const { price, size } = req.body;
     const upperSize = size.toUpperCase();
     try {
       const updatedProduct = await ProductModel.findByIdAndUpdate(
         id,
         {
           $set: {
-            "sizes.$[elem].price": price  
+            "sizes.$[elem].price": price
           }
         },
         {
-          new: true,  
-          runValidators: true,  
-          arrayFilters: [{ "elem.size": upperSize }]  
+          new: true,
+          runValidators: true,
+          arrayFilters: [{ "elem.size": upperSize }]
         }
       );
       res.status(200).json(updatedProduct);
@@ -143,7 +156,7 @@ class ProductController {
     }
   }
   async updateQuantityProduct(req, res) {
-    const { cart } = req.body; 
+    const { cart } = req.body;
     console.log(cart)
     try {
       for (const cartItem of cart) {
@@ -153,13 +166,13 @@ class ProductController {
             message: `Product with ID ${cartItem._id} not found`,
           });
         }
-    
+
         product.sizes[cartItem.selectedSizeIndex].quantity -= cartItem.quantity;
         await product.save();
       }
       res.status(200).json({ message: "Product quantities updated successfully" });
     } catch (error) {
-        res.status(500).json({
+      res.status(500).json({
         message: "Error updating product quantities",
         error: error.message,
       });
@@ -211,7 +224,7 @@ class ProductController {
       if (images) {
         updatedFields.images = images;
       }
-      
+
       // Loại bỏ các trường không có giá trị (undefined)
       Object.keys(updatedFields).forEach(
         (key) => updatedFields[key] === undefined && delete updatedFields[key]
