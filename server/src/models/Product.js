@@ -35,9 +35,10 @@ const Product = new Schema(
       count: { type: Number, default: 0 },
     },
     tags: [{ type: String }],
-    supplier: { 
-      type: String ,
-      required: true, 
+    supplier: {
+      type: Schema.Types.ObjectId,
+      ref: 'Supplier', 
+      required: true,
     },
     discount: {
       type: String,

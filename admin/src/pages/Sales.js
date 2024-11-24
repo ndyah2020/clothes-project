@@ -127,10 +127,10 @@ const Sales = () => {
     if (customerDiscount === 0) {
       calculatedDiscountedTotal = calculatedSubtotal - calculatedSubtotal * discount / 100;
     } else {
-      let customerDiscountedTotal =  calculatedSubtotal * customerDiscount / 100 ;
+      let customerDiscountedTotal = calculatedSubtotal * customerDiscount / 100;
       let promoDiscountedTotal = calculatedSubtotal * discount / 100;
 
-        calculatedDiscountedTotal = calculatedSubtotal - promoDiscountedTotal - customerDiscountedTotal;
+      calculatedDiscountedTotal = calculatedSubtotal - promoDiscountedTotal - customerDiscountedTotal;
     }
     setDiscountedTotal(Math.max(calculatedDiscountedTotal, 0));
 
@@ -226,11 +226,11 @@ const Sales = () => {
 
 
   const createInvoiceWithDetails = async () => {
-    if(cart.length === 0){
+    if (cart.length === 0) {
       message.error("Please add product");
       return;
     }
-    if(orderType === 'online' && !shippingAddress){
+    if (orderType === 'online' && !shippingAddress) {
       message.error("Please enter shipping address");
       return;
     }
@@ -361,59 +361,62 @@ const Sales = () => {
           style={{ marginBottom: 16 }}
         />
 
-        <List
-          grid={{ gutter: 16, column: 4 }}
-          dataSource={filteredProducts}
-          loading={loading}
-          renderItem={(product) => (
-            <List.Item>
-              <Card
-                cover={
-                  <img
-                    src={product.image}
-                    alt="product"
-                    style={{ height: 150, objectFit: "cover" }}
-                  />
-                }
-                actions={[
-                  <Button
-                    type="primary"
-                    onClick={() => addToCart(product)}
-                    disabled={product.sizes[product.selectedSizeIndex].quantity === 0}
-                  >
-                    Add to Cart
-                  </Button>,
-                ]}
-              >
-                <Card.Meta title={product.name} />
-                <Select
-                  value={product.selectedSizeIndex}
-                  onChange={(index) => {
-                    product.selectedSizeIndex = index;
-                    setProducts([...products]);
-                  }}
-                  style={{ width: "100%", marginTop: 8 }}
+        <div style={{ maxHeight: "680px", overflowY: "auto", paddingRight: "8px" }}>
+          <List
+            grid={{ gutter: 16, column: 4 }}
+            dataSource={filteredProducts}
+            loading={loading}
+            renderItem={(product) => (
+              <List.Item>
+                <Card
+                  cover={
+                    <img
+                      src={product.image}
+                      alt="product"
+                      style={{ height: 150, objectFit: "cover" }}
+                    />
+                  }
+                  actions={[
+                    <Button
+                      type="primary"
+                      onClick={() => addToCart(product)}
+                      disabled={product.sizes[product.selectedSizeIndex].quantity === 0}
+                    >
+                      Add to Cart
+                    </Button>,
+                  ]}
                 >
-                  {product.sizes.map((size, index) => (
-                    <Option key={index} value={index}>
-                      {size.size}
-                    </Option>
-                  ))}
-                </Select>
-                <div style={{ marginTop: 8 }}>
-                  Quantity: {product.sizes[product.selectedSizeIndex].quantity || 0}
-                </div>
-                <div style={{ marginTop: 8 }}>
-                  Price:{" "}
-                  {(
-                    product.sizes[product.selectedSizeIndex].price || 0
-                  ).toLocaleString('it-IT', { style: 'currency', currency: 'VND' })}{" "}
-                </div>
-              </Card>
-            </List.Item>
-          )}
-        />
+                  <Card.Meta title={product.name} />
+                  <Select
+                    value={product.selectedSizeIndex}
+                    onChange={(index) => {
+                      product.selectedSizeIndex = index;
+                      setProducts([...products]);
+                    }}
+                    style={{ width: "100%", marginTop: 8 }}
+                  >
+                    {product.sizes.map((size, index) => (
+                      <Option key={index} value={index}>
+                        {size.size}
+                      </Option>
+                    ))}
+                  </Select>
+                  <div style={{ marginTop: 8 }}>
+                    Quantity: {product.sizes[product.selectedSizeIndex].quantity || 0}
+                  </div>
+                  <div style={{ marginTop: 8 }}>
+                    Price:{" "}
+                    {(
+                      product.sizes[product.selectedSizeIndex].price || 0
+                    ).toLocaleString('it-IT', { style: 'currency', currency: 'VND' })}{" "}
+                  </div>
+                </Card>
+              </List.Item>
+            )}
+          />
+        </div>
       </Col>
+
 
       <Col span={8}>
         <Divider>Customer Details</Divider>

@@ -4,7 +4,8 @@ class ProductController {
   // Lấy tất cả sản phẩm
   async getProducts(req, res) {
     try {
-      const products = await ProductModel.find();
+      const products = await ProductModel.find()
+      .populate('supplier', 'name phonenumber email')
       res.status(200).json(products);
     } catch (error) {
       res.status(500).json({ message: "Error fetching products", error });
@@ -32,7 +33,6 @@ class ProductController {
   async createProduct(req, res) {
     try {
       const { name, category, size, status, description, supplier } = req.body;
-
 
       const images = req.files?.map((file) => ({
         data: file.buffer.toString("base64"),
@@ -67,6 +67,7 @@ class ProductController {
         images,
       });
       await newProduct.save();
+
       res.status(201).json({
         message: "Product created successfully",
         product: newProduct,

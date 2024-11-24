@@ -32,7 +32,6 @@ const Products = () => {
   const [newSizeByProduct, setNewSizeByProduct] = useState({});
   const [showSizes, setShowSize] = useState(0);
   const [suppliers, setSuppliers] = useState([]);
-  const [getSupplierById, setGetSupplierById] = useState("")
   const validSizes = ["S", "M", "L", "XL", "XXL"];
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -110,21 +109,8 @@ const Products = () => {
   const showDetailModal = (product) => {
     setSelectedProduct(product);
     setIsDetailModalVisible(true);
-    handleGetSupplierById(product)
   };
 
-
-  const handleGetSupplierById = async (product) => {
-    console.log(product.supplier)
-    try {
-      const response = await fetch(`http://localhost:3001/supplier/get-supplier/${product.supplier}`)
-      const data = await response.json();
-      setGetSupplierById(data)
-    } catch (error) {
-      console.error("Error fetching supplier:", error);
-      message.error("Failed to fetch supplier.");
-    }
-  }
 
   // Handle form submission to create or update product
   const handleSubmit = async (values) => {
@@ -143,7 +129,7 @@ const Products = () => {
       formData.append("category", values.category);
       formData.append("status", values.status);
       formData.append("supplier", values.supplier);
-
+ 
       if (values.size && validSizes.includes(values.size.toUpperCase())) {
         formData.append("size", values.size.toUpperCase());
       }
@@ -494,6 +480,7 @@ const Products = () => {
         dataSource={filteredProducts}
         loading={loading}
         rowKey="_id"
+        pagination={{ pageSize:  5}}
       />
       {/* modal detail */}
       <Modal
@@ -511,7 +498,7 @@ const Products = () => {
             <p><strong>SKU:</strong> {selectedProduct.sku}</p>
             <p><strong>Name:</strong> {selectedProduct.name}</p>
             <p><strong>Category:</strong> {selectedProduct.category}</p>
-            <p><strong>Supplier:</strong> {getSupplierById.name}</p>
+            <p><strong>Supplier:</strong> {selectedProduct.supplier.name}</p>
             <p><strong>Description:</strong> {selectedProduct.description}</p>
             <p><strong>Status:</strong> {selectedProduct.status}</p>
             <p><strong>Sizes:</strong></p>
