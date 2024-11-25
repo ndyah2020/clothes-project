@@ -17,7 +17,7 @@ import {
 import { Menu } from "antd";
 import { NavLink } from "react-router-dom";
 import logo from "../../assets/images/logo.png";
-
+import jwt from "jsonwebtoken"
 
 function Sidenav({ color }) {
   const sales = <ShoppingCartOutlined style={{ color }} />;
@@ -31,7 +31,7 @@ function Sidenav({ color }) {
   const products = <AppstoreOutlined style={{ color }} />;
   const importForm = <UploadOutlined style={{ color }} />;
   const importNoteList = <FileTextOutlined style={{ color }} />
-
+  const decoded = jwt.decode(localStorage.getItem("token"));
   // const page = pathname.replace("/", "");
 
   const dashboard = [
@@ -202,18 +202,25 @@ function Sidenav({ color }) {
             <span className="label">Invoice List</span>
           </NavLink>
         </Menu.Item>
-        <Menu.Item key="4">
-          <NavLink to="/users">
-            <span className="icon">{users}</span>
-            <span className="label">Users</span>
-          </NavLink>
-        </Menu.Item>
-        <Menu.Item key="5">
-          <NavLink to="/employee">
-            <span className="icon">{employee}</span>
-            <span className="label">Employee</span>
-          </NavLink>
-        </Menu.Item>
+        {decoded.role === 'admin' && (
+          <>
+            <Menu.Item key="4">
+              <NavLink to="/users">
+                <span className="icon">{users}</span>
+                <span className="label">Users</span>
+              </NavLink>
+            </Menu.Item>
+
+            <Menu.Item key="5">
+              <NavLink to="/employee">
+                <span className="icon">{employee}</span>
+                <span className="label">Employee</span>
+              </NavLink>
+            </Menu.Item>
+          </>
+
+        )}
+
         <Menu.Item key="6">
           <NavLink to="/customer">
             <span className="icon">{customer}</span>
@@ -221,42 +228,47 @@ function Sidenav({ color }) {
           </NavLink>
         </Menu.Item>
         <Menu.Item key="7">
-          <NavLink to="/loyalty-discount">
-            <span className="icon">{loyaltyDiscount}</span>
-            <span className="label">Loyalty Discount</span>
-          </NavLink>
-        </Menu.Item>
-        <Menu.Item key="8">
-          <NavLink to="/promotion">
-            <span className="icon">{promotion}</span>
-            <span className="label">Promotion</span>
-          </NavLink>
-        </Menu.Item>
-        <Menu.Item key="9">
-          <NavLink to="/supplier">
-            <span className="icon">{supplier}</span>
-            <span className="label">Supplier</span>
-          </NavLink>
-        </Menu.Item>
-        <Menu.Item key="10">
-          <NavLink to="/products">
-            <span className="icon">{products}</span>
-            <span className="label">Products</span>
-          </NavLink>
-        </Menu.Item>
-        <Menu.Item key="11">
-          <NavLink to="/import-form">
-            <span className="icon">{importForm}</span>
-            <span className="label">Import</span>
-          </NavLink>
-        </Menu.Item>
+              <NavLink to="/loyalty-discount">
+                <span className="icon">{loyaltyDiscount}</span>
+                <span className="label">Loyalty Discount</span>
+              </NavLink>
+            </Menu.Item>
+        {decoded.role === "admin" && (
+          <>
+            
+            <Menu.Item key="8">
+              <NavLink to="/promotion">
+                <span className="icon">{promotion}</span>
+                <span className="label">Promotion</span>
+              </NavLink>
+            </Menu.Item>
+            <Menu.Item key="9">
+              <NavLink to="/supplier">
+                <span className="icon">{supplier}</span>
+                <span className="label">Supplier</span>
+              </NavLink>
+            </Menu.Item>
+            <Menu.Item key="10">
+              <NavLink to="/products">
+                <span className="icon">{products}</span>
+                <span className="label">Products</span>
+              </NavLink>
+            </Menu.Item>
+            <Menu.Item key="11">
+              <NavLink to="/import-form">
+                <span className="icon">{importForm}</span>
+                <span className="label">Import</span>
+              </NavLink>
+            </Menu.Item>
 
-        <Menu.Item key="12">
-          <NavLink to="/import-note-list">
-            <span className="icon">{importNoteList}</span>
-            <span className="label">Import List</span>
-          </NavLink>
-        </Menu.Item>
+            <Menu.Item key="12">
+              <NavLink to="/import-note-list">
+                <span className="icon">{importNoteList}</span>
+                <span className="label">Import List</span>
+              </NavLink>
+            </Menu.Item>
+          </>
+        )}
         <Menu.Item key="13">
           <NavLink to="/rtl">
             <span className="icon">{rtl}</span>

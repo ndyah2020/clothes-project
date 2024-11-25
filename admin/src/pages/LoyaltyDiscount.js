@@ -12,6 +12,7 @@ import {
   Badge,
   InputNumber,
 } from "antd";
+import jwt from "jsonwebtoken"
 const { Option } = Select;
 
 const LoyaltyDiscount = () => {
@@ -23,7 +24,7 @@ const LoyaltyDiscount = () => {
   const [monetaryNormData, setMonetaryNormData] = useState({})
   const [monetaryNorm, setMonetaryNorm] = useState("")
   const [form] = Form.useForm();
-
+  const decoded = jwt.decode(localStorage.getItem("token"));
 
   const fetchData = async () => {
     try {
@@ -74,6 +75,11 @@ const LoyaltyDiscount = () => {
   };
 
   const handleUpdateMonetaryNorm = async () => {
+    if (!monetaryNorm || isNaN(monetaryNorm)) {
+      message.error("Please enter a valid monetary norm value.");
+      return;
+    }
+
     try {
       const response = await fetch(
         `http://localhost:3001/loyalty-discount/update-monetary-norm/${monetaryNormData._id}`,
@@ -84,19 +90,21 @@ const LoyaltyDiscount = () => {
           },
           body: JSON.stringify({ moneyPerPoint: monetaryNorm }),
         }
-      )
+      );
+
       const result = await response.json();
       if (response.ok) {
         message.success(result.message || "Monetary norm updated successfully.");
+        fetchMonetaryNorm();
       } else {
         message.error(result.message || "Failed to update monetary norm.");
       }
-      fetchMonetaryNorm()
     } catch (error) {
       console.error("Error updating monetary norm:", error);
       message.error("An unexpected error occurred. Please try again.");
     }
   };
+
 
 
   const handleOk = async (values) => {
@@ -185,90 +193,99 @@ const LoyaltyDiscount = () => {
     })
   };
 
+  const columns = [
+    {
+      title: "Name",
+      dataIndex: "name",
+      sorter: (a, b) => a.name.localeCompare(b.name),
+    },
+    {
+      title: "Required Points",
+      dataIndex: "requiredPoints",
+      sorter: (a, b) => a.requiredPoints - b.requiredPoints,
+    },
+    {
+      title: "Discount",
+      dataIndex: "discount",
+      sorter: (a, b) => a.discount - b.discount,
+      render: (data, record) => record.discount + `%`,
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      sorter: (a, b) => a.status.localeCompare(b.status),
+      render: (status, record) => (
+        <div>
+          <Badge
+            color={
+              status === "active"
+                ? "green"
+                : status === "paused"
+                  ? "red"
+                  : "white"
+            }
+            style={{ marginRight: 8 }}
+          />
+          {record.status.charAt(0).toUpperCase() +
+            record.status.slice(1).toLowerCase()}
+        </div>
+      ),
+    },
+  ];
+
+  if (decoded.role === "admin") {
+    columns.push({
+      title: "Actions",
+      render: (text, record) => (
+        <div>
+          <Button onClick={() => handleEdit(record)} style={{ marginRight: 8 }}>
+            Edit
+          </Button>
+          <Button type="danger" onClick={() => handleDelete(record._id)}>
+            Delete
+          </Button>
+        </div>
+      ),
+    });
+  }
 
   return (
     <div>
-      <Row justify="space-between" style={{ marginBottom: 16 }}>
-        <Col>
-          <Input
-            placeholder="Search loyalty discounts"
-            onChange={(e) => setSearchText(e.target.value)}
-            style={{ width: 300 }}
-          />
-        </Col>
-        <Col>
-          <Button
-            type="primary"
-            onClick={handleUpdateMonetaryNorm}
-            style={{ marginLeft: 450, marginRight: 4 }}>
-            Change Money Per Point
-          </Button>
-          Monetary Norm:
-          <InputNumber
-            onChange={(value) => setMonetaryNorm(value)}
-            style={{ marginLeft: 8, padding: 4 }}
-            value={monetaryNormData.moneyPerPoint}
-          />
-        </Col>
-        <Col>
-          <Button type="primary" onClick={showModal} st>
-            Create New Loyalty Discount
-          </Button>
-        </Col>
+      {decoded.role === "admin" && (
+        <Row justify="space-between" style={{ marginBottom: 16 }}>
+          <Col>
+            <Input
+              placeholder="Search loyalty discounts"
+              onChange={(e) => setSearchText(e.target.value)}
+              style={{ width: 300 }}
+            />
+          </Col>
+          <Col>
+            <Button
+              type="primary"
+              onClick={handleUpdateMonetaryNorm}
+              style={{ marginLeft: 450, marginRight: 4 }}>
+              Change Money Per Point
+            </Button>
+            Monetary Norm:
+            <InputNumber
+              onChange={(value) => setMonetaryNorm(value)}
+              style={{ marginLeft: 8, padding: 4 }}
+              value={monetaryNormData?.moneyPerPoint || 0}
+            />
 
-      </Row>
+          </Col>
+          <Col>
+            <Button type="primary" onClick={showModal} st>
+              Create New Loyalty Discount
+            </Button>
+          </Col>
+        </Row>
+      )}
+
 
       <Table
-        columns={[
-          {
-            title: "Name",
-            dataIndex: "name",
-            sorter: (a, b) => a.name.localeCompare(b.name),
-          },
-          {
-            title: "Required Points",
-            dataIndex: "requiredPoints",
-            sorter: (a, b) => a.requiredPoints - b.requiredPoints
-          },
-          {
-            title: "Discount",
-            dataIndex: "discount",
-            sorter: (a, b) => a.discount - b.discount,
-            render: (data, record) => record.discount + `%`
-          },
-          {
-            title: "Status",
-            dataIndex: "status",
-            sorter: (a, b) => a.status.localeCompare(b.status),
-            render: (status, record) => (
-              <div>
-                <Badge
-                  color={
-                    status === "active" ? "green" :
-                      status === "paused" ? "red" : "white"
-                  }
-                  style={{ marginRight: 8 }}
-                />
-                {record.status.charAt(0).toUpperCase() + record.status.slice(1).toLowerCase()}
-              </div>
-            )
-          },
-          {
-            title: "Actions",
-            render: (text, record) => (
-              <div>
-                <Button onClick={() => handleEdit(record)}>Edit</Button>
-                <Button
-                  type="danger"
-                  onClick={() => handleDelete(record._id)}
-                  style={{ marginLeft: 8 }}
-                >
-                  Delete
-                </Button>
-              </div>
-            ),
-          }
-        ]}
+        columns={columns}
         dataSource={filteredData}
         pagination={{ pageSize: 5 }}
       />
