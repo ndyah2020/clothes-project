@@ -69,12 +69,23 @@ const Sales = () => {
   const addToCart = (product) => {
     const selectedSize = product.sizes[product.selectedSizeIndex];
 
+    // Kiểm tra số lượng tồn kho
+    if (selectedSize.quantity <= 0) {
+      message.error("This product is out of stock");
+      return;
+    }
+
     const cartItemKey = `${product._id}-${selectedSize.size}`;
     const existingProduct = cart.find(
       (item) => item.cartItemKey === cartItemKey
     );
-    console.log(existingProduct)
+
     if (existingProduct) {
+      if (existingProduct.quantity + 1 > selectedSize.quantity) {
+        message.error("Cannot add more than available stock");
+        return;
+      }
+
       setCart(
         cart.map((item) =>
           item.cartItemKey === cartItemKey
@@ -83,15 +94,13 @@ const Sales = () => {
         )
       );
     } else {
-      // if(existingProduct.quantity >= ){
-
-      // }
       setCart([
         ...cart,
         { ...product, quantity: 1, selectedSize, cartItemKey },
       ]);
     }
   };
+
 
   // Remove product from cart
   const removeFromCart = (cartItemKey) => {
@@ -382,10 +391,19 @@ const Sales = () => {
                     <Button
                       type="primary"
                       onClick={() => addToCart(product)}
-                      disabled={product.sizes[product.selectedSizeIndex].quantity === 0}
+                      disabled={
+                        product.sizes[product.selectedSizeIndex].quantity === 0 ||
+                        cart.some(
+                          (item) =>
+                            item.cartItemKey ===
+                            `${product._id}-${product.sizes[product.selectedSizeIndex].size}` &&
+                            item.quantity >= product.sizes[product.selectedSizeIndex].quantity
+                        )
+                      }
                     >
                       Add to Cart
-                    </Button>,
+                    </Button>
+
                   ]}
                 >
                   <Card.Meta title={product.name} />
@@ -427,7 +445,13 @@ const Sales = () => {
             <Input
               placeholder="Phone Number"
               value={customerPhone}
-              onChange={(e) => setCustomerPhone(e.target.value)}
+              onChange={(e) => {
+                const inputValue = e.target.value;
+                const formattedValue = inputValue.replace(/[^0-9]/g, "");
+
+                setCustomerPhone(formattedValue);
+              }}
+              maxLength={10}
             />
           </Col>
           <Col span={8} style={{ display: 'flex' }}>
@@ -496,11 +520,16 @@ const Sales = () => {
                   </Col>
                   <Col span={4}>
                     <InputNumber
-                      min={1}
+                      min={1} 
+                      max={item.selectedSize.quantity} 
                       value={item.quantity}
-                      onChange={(value) =>
-                        updateQuantity(item.cartItemKey, value)
-                      }
+                      onChange={(value) => {
+                        if (value > item.selectedSize.quantity) {
+                          message.error("Cannot exceed available stock");
+                          return;
+                        }
+                        updateQuantity(item.cartItemKey, value);
+                      }}
                       style={{ width: "80%" }}
                     />
                   </Col>

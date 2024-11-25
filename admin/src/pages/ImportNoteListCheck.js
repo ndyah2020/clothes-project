@@ -137,23 +137,33 @@ const ImportNoteListCheck = () => {
 
 
     const handleCancelImportNote = async () => {
-        try {
-            const response = await axios.patch(`http://localhost:3001/import-note/cancel-status-import-note/${id}`);
-    
-            if (response.status === 200) {
-                message.success(response.data.message);
-                fetchData();
-                return true; 
-            } else {
-                message.error(response.data.message);
-                return false; 
+        Modal.confirm({
+            title: "Are you sure you want to cancel this import note?",
+            content: "Once canceled, this action cannot be undone.",
+            okText: "Cancel Import Note",
+            okType: "danger",
+            cancelText: "Go Back",
+            onOk: async () => {
+                try {
+                    const response = await axios.patch(`http://localhost:3001/import-note/cancel-status-import-note/${id}`);
+            
+                    if (response.status === 200) {
+                        message.success("The import note has been successfully canceled.");
+                        fetchData();
+                        return true; 
+                    } else {
+                        message.error(response.data.message || "Failed to cancel the import note.");
+                        return false; 
+                    }
+                } catch (error) {
+                    console.error('Error cancelling import note:', error);
+                    message.error("An error occurred while canceling the import note. Please try again.");
+                    return false;
+                }
             }
-        } catch (error) {
-            console.error('Error cancelling import note:', error);
-            message.error('Failed to cancel the import note. Please try again.');
-            return false;
-        }
+        });
     };
+    
 
 
     useEffect(() => {

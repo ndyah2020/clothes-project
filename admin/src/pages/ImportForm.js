@@ -119,7 +119,7 @@ const ImportNote = () => {
     try {
       const response = await axios.post(
         "http://localhost:3001/import-note/create-import-note",
-        {noteData},
+        { noteData },
         {
           validateStatus: (status) => status >= 200 && status < 500,
         }
@@ -128,7 +128,7 @@ const ImportNote = () => {
       if (response.status === 200 && response.data) {
         message.success("Import note successfully created!");
         console.log(response.data.message);
-      
+
         setSelectedSupplier("");
         setSelectedProducts([]);
         setProducts([]);
@@ -146,7 +146,7 @@ const ImportNote = () => {
       message.error("Failed to create import note. Please try again.");
     }
   };
-  
+
 
 
   useEffect(() => {
@@ -217,15 +217,15 @@ const ImportNote = () => {
                 setSelectedProduct(null);
                 fetchProductsBySupplier(value);
               }}
-              disabled={selectedProducts.length !== 0  || selectedProduct}
+              disabled={selectedProducts.length !== 0 || selectedProduct}
             >
               {suppliers.map((supplier) => (
-                <Option 
-                  key={supplier._id} 
+                <Option
+                  key={supplier._id}
                   value={supplier._id}
                 >
                   {supplier.name}
-                </Option>     
+                </Option>
               ))}
             </Select>
           </div>
@@ -281,8 +281,15 @@ const ImportNote = () => {
           <div style={{ marginBottom: "15px" }}>
             <span style={{ fontWeight: "bold" }}>Quantity:</span>
             <InputNumber
-              placeholder="Enter quantity"
               min={1}
+              formatter={(value) => value?.replace(/\D/g, "")}
+              parser={(value) => value.replace(/\D/g, "")}
+              onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}
+              placeholder="Enter quantity"
               style={{ width: "100%", marginTop: "5px" }}
               value={productQuantity}
               onChange={(value) => setProductQuantity(value)}
@@ -295,13 +302,23 @@ const ImportNote = () => {
               placeholder="Enter price"
               min={0}
               style={{ width: "100%", marginTop: "5px" }}
-              formatter={(value) =>
-                `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " VND"
-              }
-              parser={(value) => value.replace(/\VND\s?|(,*)/g, "")}
+              formatter={(value) => {
+                if (!value) return "0 VND";
+                return `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " VND";
+              }}
+              parser={(value) => {
+                const onlyNumbers = value.replace(/[^0-9]/g, "");
+                return onlyNumbers || "0";
+              }}
               value={productPrice}
-              onChange={(value) => setProductPrice(value)}
+              onChange={(value) => {
+
+                const validValue = value === null || value === undefined ? 0 : value;
+                setProductPrice(validValue);
+              }}
             />
+
+
           </div>
         </div>
       </div>
