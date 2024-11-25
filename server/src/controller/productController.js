@@ -156,7 +156,7 @@ class ProductController {
       res.status(500).json({ message: "Error updating size", error });
     }
   }
-  async updateQuantityProduct(req, res) {
+  async updateQuantityProductDown(req, res) {
     const { cart } = req.body;
     console.log(cart)
     try {
@@ -172,6 +172,31 @@ class ProductController {
         await product.save();
       }
       res.status(200).json({ message: "Product quantities updated successfully" });
+    } catch (error) {
+      res.status(500).json({
+        message: "Error updating product quantities",
+        error: error.message,
+      });
+    }
+  }
+
+  async updateQuantityProductUp(req, res) {
+    const { importNoteQuantity } = req.body;
+    
+    try {
+      for (const productQuantity of importNoteQuantity) {
+        const product = await ProductModel.findById(productQuantity.productId);
+        if (!product) {
+          return res.status(404).json({
+            message: `Product with ID ${productQuantity.productId} not found`,
+          });
+        }
+        const indexSize = product.sizes.findIndex((size) => size.size === productQuantity.size)
+        product.sizes[indexSize].quantity += productQuantity.receivedQuantity;
+        console.log(product.sizes[indexSize].quantity)
+        await product.save();
+      }
+      res.status(200).json({ message: "Product quantities updated successfully"});
     } catch (error) {
       res.status(500).json({
         message: "Error updating product quantities",

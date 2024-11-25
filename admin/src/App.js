@@ -23,6 +23,7 @@ import InvoiceList from "./pages/InvoiceList.js";
 import ForgotPassword from "./pages/ForgotPassword.js";
 import ResetPassword from "./pages/ResetPassword.js";
 import ImportNoteList from "./pages/ImportNoteList.js"
+import ImportNoteListCheck from "./pages/ImportNoteListCheck.js";
 const isTokenValid = () => {
   const token = localStorage.getItem("token");
   if (!token) {
@@ -76,7 +77,7 @@ function App() {
             <Route exact path="/profile" component={Profile} />
             <Route exact path="/import-form" component={ImportForm} />
             <Route exact path="/import-note-list" component={ImportNoteList} />
-          
+            <Route exace path='/import-note-check/:id' component={ImportNoteListCheck} />
             <Redirect from="*" to="/dashboard" />
           </Main>
         ) : (

@@ -48,6 +48,7 @@ router.patch("/deletesize/:id", productController.deleteSize)
 //cập nhật giá của size
 router.patch("/update-size-price/:id", productController.changeSizePrice)
 //Cập nhật số lượng sản phẩm khi mua hàng
-router.patch("/update-quatity-by-sales", productController.updateQuantityProduct)
-
+router.patch("/update-quatity-by-sales", productController.updateQuantityProductDown)
+//Cập nhật số lượng từ phiếu nhập 
+router.patch('/update-quatity-by-import-note', productController.updateQuantityProductUp)
 module.exports = router;

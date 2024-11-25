@@ -34,9 +34,13 @@ const Promotion = () => {
     }
 
     useEffect(() => {
-      fetchData(); // Gọi hàm fetchData khi component được mount
+      fetchData(); 
     }, []);
     
+    useEffect(() => {
+      fetchData(); 
+    }, [isEditMode,isModalVisible]);
+
     useEffect(() => {
       if (isEditMode && currentPromotion) {
         form.setFieldsValue({

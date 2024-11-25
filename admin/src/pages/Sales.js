@@ -73,8 +73,7 @@ const Sales = () => {
     const existingProduct = cart.find(
       (item) => item.cartItemKey === cartItemKey
     );
-
-    cart.forEach(item => console.log(item))
+    console.log(existingProduct)
     if (existingProduct) {
       setCart(
         cart.map((item) =>
@@ -84,6 +83,9 @@ const Sales = () => {
         )
       );
     } else {
+      // if(existingProduct.quantity >= ){
+
+      // }
       setCart([
         ...cart,
         { ...product, quantity: 1, selectedSize, cartItemKey },

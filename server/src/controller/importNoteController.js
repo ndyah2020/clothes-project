@@ -32,7 +32,6 @@ class ImportNoteController {
                 totalAmount,
             });
     
-       
             const saveImportNote = await importNote.save();
     
             const importNoteDetails = noteData.products.map((product) => ({
@@ -76,6 +75,73 @@ class ImportNoteController {
         }
     }
     
+    async getImportNoteById(req, res) {
+        const {id} = req.params;
+        try{
+            const importData = await ImportNoteModel.findById(id)
+            .populate('supplierId', 'name phonenumber email') 
+            .populate('createdBy', 'lastName firstName email') 
+            .populate({
+                path: 'importNoteDetail', 
+                populate: {
+                    path: 'productId', 
+                    select: 'name sku',
+                },
+            });
+            res.status(200).json(importData)
+        }catch(error){
+            console.error('Error retrieving import:', error);
+            res.status(500).json({ message: 'Error retrieving import', error });
+        }
+    }
+
+    async completeImportNote(req, res) {
+        const { id } = req.params;
+        try {
+            const updateImportNote = await ImportNoteModel.findByIdAndUpdate(
+                id,
+                { status: 'Completed' },
+                { new: true }
+            );
+            if (!updateImportNote) {
+                return res.status(404).json({ message: 'Import note not found' });
+            }
+            res.status(200).json({
+                message: 'Import note status updated to Completed successfully',
+                data: updateImportNote,
+            });
+        } catch (error) {
+            console.error('Error updating import note status:', error);
+            res.status(500).json({
+                message: 'Error updating import note status',
+                error: error.message,
+            });
+        }
+    }
+
+    async cancelImportNote(req, res) {
+        const { id } = req.params;
+        try {
+            const updateImportNote = await ImportNoteModel.findByIdAndUpdate(
+                id,
+                { status: 'Cancelled' },
+                { new: true }
+            );
+            if (!updateImportNote) {
+                return res.status(404).json({ message: 'Import note not found' });
+            }
+            res.status(200).json({
+                message: 'Import note status updated to Completed successfully',
+                data: updateImportNote,
+            });
+        } catch (error) {
+            console.error('Error updating import note status:', error);
+            res.status(500).json({
+                message: 'Error updating import note status',
+                error: error.message,
+            });
+        }
+    }
 }
 
 module.exports = new ImportNoteController

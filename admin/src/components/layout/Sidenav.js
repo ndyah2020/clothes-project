@@ -15,7 +15,7 @@ import {
 } from "@ant-design/icons";
 
 import { Menu } from "antd";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import logo from "../../assets/images/logo.png";
 
 
@@ -31,7 +31,7 @@ function Sidenav({ color }) {
   const products = <AppstoreOutlined style={{ color }} />;
   const importForm = <UploadOutlined style={{ color }} />;
   const importNoteList = <FileTextOutlined style={{ color }} />
-  const { pathname } = useLocation();
+
   // const page = pathname.replace("/", "");
 
   const dashboard = [

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useHistory } from "react-router-dom";
 import {
     Table,
     Input,
@@ -12,7 +13,6 @@ import {
     Tooltip,
 } from "antd";
 import moment from "moment";
-import axios from "axios";
 
 const ImportNoteList = () => {
     const [searchText, setSearchText] = useState("");
@@ -20,7 +20,7 @@ const ImportNoteList = () => {
     const [detailsModalVisible, setDetailsModalVisible] = useState(false);
     const [currentDetails, setCurrentDetails] = useState([]);
     const [selectedImportNote, setSelectedImportNote] = useState("")
-
+    const history = useHistory();
     // Hàm lấy danh sách hóa đơn từ API
     const fetchData = async () => {
         try {
@@ -43,7 +43,7 @@ const ImportNoteList = () => {
                     ? `${importNote.createdBy.firstName} ${importNote.createdBy.lastName}`
                     : "N/A",
                 employeeEmail: importNote.createdBy?.email || "N/A",
-                
+
                 status: importNote.status || "N/A",
                 totalAmount: importNote.totalAmount,
                 importNoteDetail: importNote.importNoteDetail.map((detail) => ({
@@ -68,27 +68,6 @@ const ImportNoteList = () => {
 
 
 
-    const handleCancelImportNote = async (idImportNote) => {
-
-    };
-
-
-
-    const handleCompleteImportNote = async () => {
-
-    };
-
-
-    const confirmCompleteImportNote = (callback) => {
-
-    };
-
-
-    const handleUpdatePointCustomer = async (currentImportNote) => {
-
-    };
-
-
     useEffect(() => {
         fetchData();
     }, []);
@@ -104,10 +83,6 @@ const ImportNoteList = () => {
         setDetailsModalVisible(true);
     };
 
-
-    const calculateGrandTotal = (details) => {
-        return details.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
-    };
 
     const supplierInfor = selectedImportNote && importNoteList.length > 0
         ? (() => {
@@ -141,7 +116,7 @@ const ImportNoteList = () => {
                 : {
                     name: "Unknown",
                     email: "N/A",
-        
+
                 };
         })()
         : {
@@ -149,7 +124,7 @@ const ImportNoteList = () => {
             email: "N/A",
 
         };
-
+        
     return (
         <div>
             <Row justify="space-between" style={{ marginBottom: 16 }}>
@@ -175,13 +150,15 @@ const ImportNoteList = () => {
                         title: "Note Code",
                         dataIndex: "noteCode",
                         key: "noteCode",
-                        render: (text) => 
+                        render: (text, record) => (
                             <Button
                                 type="link"
-                                style={{fontSize: 14}}
+                                style={{ fontSize: 14 }}
+                                onClick={() => history.push(`/import-note-check/${record.key}`)} 
                             >
                                 {text}
                             </Button>
+                        ),
                     },
                     {
                         title: "Employee Name",
@@ -320,9 +297,9 @@ const ImportNoteList = () => {
                     pagination={false}
                     scroll={{ x: "max-content" }}
                     summary={() => {
-                        const totalAmount = currentDetails.reduce((sum, product) =>{
+                        const totalAmount = currentDetails.reduce((sum, product) => {
                             return sum += product.price * product.quantity
-                        },0)
+                        }, 0)
 
                         return (
                             <>
