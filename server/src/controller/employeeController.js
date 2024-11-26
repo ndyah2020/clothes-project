@@ -44,6 +44,11 @@ class EmployeeContronller {
     if(!name || !phonenumber || !address || !email) {
       return res.status(400).json({message: "Missing required fields"})
     }
+
+    if (!/^\d+$/.test(phonenumber)) {
+      return res.status(400).json({ message: "Please enter a valid phone number" });
+    }
+    
     try {
       const existingEmail = await employeeModel.findOne({ email});
       if (existingEmail) {
@@ -78,7 +83,10 @@ class EmployeeContronller {
 
     if(phonenumber.length !== 10)
       return res.status(403).json({ message: "Phone number must be 10 digits" });
-
+    
+    if (!/^\d+$/.test(phonenumber)) {
+      return res.status(400).json({ message: "Please enter a valid phone number" });
+    }
     try {
       
       const isPhone = await employeeModel.findOne({ phonenumber, _id: { $ne: id } });

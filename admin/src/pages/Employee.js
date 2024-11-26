@@ -70,38 +70,21 @@ const Employee = () => {
 
   const handleOk = async (values) => {
     const { email,
-            name,
-            address,
-            phonenumber,
-            entryDate,
-            basicSalary,
-            position, 
-            status,
-          } = values;
+      name,
+      address,
+      phonenumber,
+      entryDate,
+      basicSalary,
+      position,
+      status,
+    } = values;
 
     try {
       const response = isEditMode
         ? await fetch(
-            `http://localhost:3001/employee/update-employee/${currentEmployees._id}`,
-            {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ 
-                email,
-                name,
-                address,
-                phonenumber,
-                entryDate,
-                basicSalary,
-                position,
-                status,
-              }),
-            }
-          )
-        : await fetch("http://localhost:3001/employee/create-employee", {
-            method: "POST",
+          `http://localhost:3001/employee/update-employee/${currentEmployees._id}`,
+          {
+            method: "PUT",
             headers: {
               "Content-Type": "application/json",
             },
@@ -113,14 +96,31 @@ const Employee = () => {
               entryDate,
               basicSalary,
               position,
+              status,
             }),
-          });
+          }
+        )
+        : await fetch("http://localhost:3001/employee/create-employee", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            name,
+            address,
+            phonenumber,
+            entryDate,
+            basicSalary,
+            position,
+          }),
+        });
 
       if (response.ok) {
         message.success(
           `Employee ${isEditMode ? "updated" : "created"} successfully!`
         );
-        fetchData(); 
+        fetchData();
         setIsModalVisible(false);
       } else {
         const errorData = await response.json();
@@ -134,7 +134,7 @@ const Employee = () => {
 
   const handleCancel = () => {
     setIsModalVisible(false);
-    if(!isEditMode){
+    if (!isEditMode) {
       form.resetFields();
     }
   };
@@ -225,7 +225,7 @@ const Employee = () => {
           {
             title: "Position",
             dataIndex: "position",
-            render: (value, record) => 
+            render: (value, record) =>
               record.position.charAt(0).toUpperCase() + record.position.slice(1).toLowerCase()
           },
           {
@@ -237,7 +237,7 @@ const Employee = () => {
               return (
                 <Badge
                   color={status === "working" ? "green" : "red"}
-                  text={formattedStatus} 
+                  text={formattedStatus}
                 />
               );
             },
@@ -268,8 +268,11 @@ const Employee = () => {
         onCancel={handleCancel}
         footer={null}
       >
-        <Form form={form} layout="vertical" onFinish={handleOk}>
-
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleOk}
+        >
           <Form.Item
             name="email"
             label="Email"
@@ -283,13 +286,13 @@ const Employee = () => {
             label="Name"
             rules={[{ required: true, message: "Please enter name!" }]}
           >
-            <Input/>
+            <Input />
           </Form.Item>
-          
+
           <Form.Item
             name="address"
             label="Address"
-            rules={[{ required: true, message: "Please enter first address!" }]}
+            rules={[{ required: true, message: "Please enter address!" }]}
           >
             <Input />
           </Form.Item>
@@ -297,58 +300,68 @@ const Employee = () => {
           <Form.Item
             name="phonenumber"
             label="Phone Number"
-            rules={[{ required: true, message: "Please enter last phone number!" }]}
+            rules={[
+              { required: true, message: "Please enter a valid phone number!" },
+              {
+                pattern: /^\d{10}$/,
+                message: "Phone number must be exactly 10 digits!",
+              },
+            ]}
           >
-            <Input />
+            <Input maxLength={10} />
           </Form.Item>
+
           {isEditMode && (
             <Form.Item
-            name="status"
-            label="Status"
-            rules={[{ required: true, message: "Please select a status" }]}
+              name="status"
+              label="Status"
+              rules={[{ required: true, message: "Please select a status" }]}
             >
-              <Select>
+              <Select
+                defaultValue={'working'}
+              >
                 <Option value="working">Working</Option>
                 <Option value="quit">Quit</Option>
               </Select>
             </Form.Item>
           )}
-            <Form.Item
-              name="entryDate"
-              label="Entry Date"
-              rules={[
-                { required: true, message: "Please enter the entry date!" },
-              ]}
-            >
-              <DatePicker
-                format="YYYY-MM-DD"
-                style={{ width: "100%" }}
-                placeholder="Select Entry Date"
-              />
-            </Form.Item>
+
+          <Form.Item
+            name="entryDate"
+            label="Entry Date"
+            rules={[{ required: true, message: "Please enter the entry date!" }]}
+          >
+            <DatePicker
+              format="YYYY-MM-DD"
+              style={{ width: "100%" }}
+              placeholder="Select Entry Date"
+            />
+          </Form.Item>
+
           <Form.Item
             name="basicSalary"
             label="Basic Salary"
-            rules={[{ required: true, message: "Please enter last phone Basic Salary!" }]}
+            rules={[{ required: true, message: "Please select a basic salary!" }]}
           >
             <Select placeholder="Select basic salary">
-              <Option value="23000"> 23.000 VNĐ/h </Option>
-              <Option value="30000"> 30.000 VNĐ/h </Option>
+              <Option value="23000">23.000 VNĐ/h</Option>
+              <Option value="30000">30.000 VNĐ/h</Option>
             </Select>
           </Form.Item>
+
           {!isEditMode && (
             <Form.Item
-            name="position"
-            label="Position"
-            rules={[{ required: true, message: "Please select a status!" }]}
+              name="position"
+              label="Position"
+              rules={[{ required: true, message: "Please select a position!" }]}
             >
-              <Select placeholder="Select status">
-                <Option value="parking attendant">Parking attendant</Option>
+              <Select placeholder="Select position">
+                <Option value="parking attendant">Parking Attendant</Option>
                 <Option value="employee">Employee</Option>
               </Select>
             </Form.Item>
           )}
-          
+
           <Form.Item>
             <Button type="primary" htmlType="submit">
               Submit
