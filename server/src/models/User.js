@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema({
   },
   accountStatus: {
     type: String,
-    enum: ["active", "inactive", "suspended"],
+    enum: ["active", "block"],
     default: "active",
   },
   createdAt: {

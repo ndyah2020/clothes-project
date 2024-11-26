@@ -175,40 +175,40 @@ const Users = () => {
     form.setFieldsValue(user);
   };
 
-  // const handleDelete = (id) => {
-  //   Modal.confirm({
-  //       title: "Bạn có chắc muốn xóa người dùng này?",
-  //       content: "Thao tác này sẽ không thể hoàn tác.",
-  //       okText: "Xóa",
-  //       okType: "danger",
-  //       cancelText: "Hủy",
-  //     onOk: async () => {
-  //       try {
-  //         const response = await fetch(
-  //           `http://localhost:3001/user/delete-user/${id}`,
-  //           {
-  //             method: "DELETE",
-  //           }
-  //         );
-  //         if (response.ok) {
-  //           message.success("Xóa người dùng thành công!");
-  //           fetchData();
-  //         } else {
-  //           const errorData = await response.json();
-  //           message.error(
-  //             `Lỗi: ${errorData.message || "Xóa người dùng thất bại."}`
-  //           );
-  //         }
-  //       } catch (error) {
-  //         console.error("Error deleting user:", error);
-  //         message.error("Xóa người dùng thất bại.");
-  //       }
-  //     },
-  //     onCancel() {
-  //       message.info("Hủy thao tác xóa người dùng.");
-  //     },
-  //   });
-  // };
+  const handleDelete = (id) => {
+    Modal.confirm({
+        title: "Bạn có chắc muốn xóa người dùng này?",
+        content: "Thao tác này sẽ không thể hoàn tác.",
+        okText: "Xóa",
+        okType: "danger",
+        cancelText: "Hủy",
+      onOk: async () => {
+        try {
+          const response = await fetch(
+            `http://localhost:3001/user/delete-user/${id}`,
+            {
+              method: "DELETE",
+            }
+          );
+          if (response.ok) {
+            message.success("Xóa người dùng thành công!");
+            fetchData();
+          } else {
+            const errorData = await response.json();
+            message.error(
+              `Lỗi: ${errorData.message || "Xóa người dùng thất bại."}`
+            );
+          }
+        } catch (error) {
+          console.error("Error deleting user:", error);
+          message.error("Xóa người dùng thất bại.");
+        }
+      },
+      onCancel() {
+        message.info("Hủy thao tác xóa người dùng.");
+      },
+    });
+  };
 
   const handleChangeStatus = async (userId, status) => {
     try {
@@ -291,9 +291,7 @@ const Users = () => {
                   color={
                     status === "active"
                       ? "green"
-                      : status === "inactive"
-                      ? "orange"
-                      : status === "suspended"
+                      : status === "block"
                       ? "red"
                       : "white"
                   }
@@ -305,8 +303,7 @@ const Users = () => {
                   style={{ width: 120 }} // Adjust the width as needed
                 >
                   <Option value="active">Active</Option>
-                  <Option value="inactive">Inactive</Option>
-                  <Option value="suspended">Suspended</Option>
+                  <Option value="block">Block</Option>
                 </Select>
               </div>
             ),
@@ -316,13 +313,13 @@ const Users = () => {
             render: (text, record) => (
               <div>
                 <Button onClick={() => handleEdit(record)}>Edit</Button>
-                {/* <Button
+                <Button
                   type="danger"
                   onClick={() => handleDelete(record._id)}
                   style={{ marginLeft: 8 }}
                 >
                   Delete
-                </Button> */}
+                </Button>
               </div>
             ),
           },

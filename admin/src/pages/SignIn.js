@@ -10,7 +10,7 @@ import {
   Input,
   message,
 } from "antd";
-
+import jwt from "jsonwebtoken";
 import axios from "axios";
 import signinbg from "../assets/images/img-signin.jpg";
 import { EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
@@ -30,6 +30,12 @@ export default class SignIn extends Component {
         // Xử lý đăng nhập thành công
         if (response.status === 200) {
           const { token } = response.data;
+          const decoded = jwt.decode(token);
+          if(decoded.status === 'block'){
+            message.status("User Blocked")
+            return;
+          }
+    
           localStorage.setItem("token", token);
           message.success("Login successful!");
           window.location.href = "/dashboard";

@@ -193,7 +193,12 @@ const Sales = () => {
 
       if (response.status === 200 && response.data) {
         console.log(response.data.userDiscount)
-        setCustomerDiscount(response.data.userDiscount)
+        setCustomerDiscount(
+          response.data.LoyaltyDicountId 
+            ? response.data.LoyaltyDicountId.discount 
+            : 0
+        )
+
         setCustomerName(response.data.name);
         message.success("Customer found");
         setIsExistCustomer(true)
@@ -258,6 +263,7 @@ const Sales = () => {
       shippingFee,
       cart,
       totalPrice,
+      discountedTotal,
     };
 
     try {
@@ -315,6 +321,8 @@ const Sales = () => {
         {
           name: customerName,
           phonenumber: customerPhone,
+          totalPriceAfterDiscount:discountedTotal,
+          invoiceType: orderType,
         },
         {
           validateStatus: (status) => status < 500,

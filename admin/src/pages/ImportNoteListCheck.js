@@ -168,8 +168,7 @@ const ImportNoteListCheck = () => {
 
     useEffect(() => {
         fetchData();
-    }, [id]);
-
+    }, []);
 
     const supplierInfor = importNote
         ? (() => {

@@ -37,6 +37,10 @@ const Customer = () => {
   }, []);
 
   useEffect(() => {
+    fetchData();
+  }, [customers]);
+  
+  useEffect(() => {
     if (isEditMode && currentCustomer) {
       form.setFieldsValue(currentCustomer);
     } else {
@@ -51,7 +55,7 @@ const Customer = () => {
   );
 
 
-
+  console.log(customers)
   // const showDetailModal = (product) => {
   //   setSelectedCustomer(product);
   //   setIsDetailModalVisible(true);
@@ -182,6 +186,11 @@ const Customer = () => {
             title: "Point",
             dataIndex: "point",
             sorter: (a, b) => a.point.localeCompare(b.point),
+          },
+          {
+            title: "Discount",
+            dataIndex: "LoyaltyDicountId discount",
+            render: (text, record) => ( !record.LoyaltyDicountId ? '0%' : `${record.LoyaltyDicountId.discount}%` )
           },
           {
             title: "Actions",

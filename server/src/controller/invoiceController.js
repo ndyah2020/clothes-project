@@ -68,6 +68,7 @@ class InvoiceController {
             promoCode,
             customerDiscount,
             totalPrice,
+            discountedTotal,
             cart,
         } = req.body;
 
@@ -124,7 +125,7 @@ class InvoiceController {
                     return res.status(400).json({ message: 'Monetary norm not found' });
                 }
 
-                const newPointCustomer = Math.round((totalPrice- shippingFee) / monetaryNorm.moneyPerPoint);
+                const newPointCustomer = Math.round(discountedTotal/ monetaryNorm.moneyPerPoint);
                 customer.point += newPointCustomer;
                 await customer.save();
             }

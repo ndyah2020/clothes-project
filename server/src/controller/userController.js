@@ -31,7 +31,7 @@ class UserController {
         password: hashedPassword,
         firstName,
         lastName,
-        role: role || "client",
+        role: role || "employee",
         accountStatus: accountStatus || "active",
       });
 
