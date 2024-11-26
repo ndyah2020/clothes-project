@@ -6,6 +6,7 @@ const MonetaryNormModel = require('../models/MonetaryNorm');
 const UserModel = require('../models/User')
 const ProductModel = require('../models/Product')
 const mongoose = require('mongoose');
+const { patch } = require('../routes/user');
 class InvoiceController {
     //Hiển thị thông tin hóa đơn
 
@@ -14,7 +15,14 @@ class InvoiceController {
             const invoices = await InvoiceModel.find()
                 .populate('customer', 'name phonenumber point')
                 .populate('promoCode', 'name discount startTime endTime')
-                .populate('employeeGetByUser', 'firstName lastName email accountStatus')
+                .populate({
+                    path: 'employeeGetByUser',
+                    select: 'email',
+                    populate: {
+                        path: 'employeeId',
+                        select: 'name phonenumber position'
+                    }
+                })
                 .populate({
                     path: 'invoiceDetails',
                     populate: {

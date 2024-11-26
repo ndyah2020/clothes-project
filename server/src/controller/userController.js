@@ -8,7 +8,8 @@ class UserController {
   // Lấy tất cả người dùng
   async getUsers(req, res) {
     try {
-      const users = await UserModel.find();
+      const users = await UserModel.find()
+        .populate('employeeId')
       res.status(200).json(users);
     } catch (error) {
       res.status(500).json({ message: "Error retrieving users", error });
@@ -17,7 +18,7 @@ class UserController {
 
   // Tạo mới người dùng
   async createNewUser(req, res) {
-    const { email, password, firstName, lastName, role, accountStatus } =
+    const { email, password, firstName, lastName, role, accountStatus, emplyeeSelected } =
       req.body;
 
     if (!email || !password || !firstName || !lastName) {
@@ -33,6 +34,7 @@ class UserController {
         lastName,
         role: role || "employee",
         accountStatus: accountStatus || "active",
+        employeeId: emplyeeSelected || null,
       });
 
       await newUser.save();
@@ -48,12 +50,12 @@ class UserController {
   // Cập nhật người dùng
   async updateUser(req, res) {
     const { id } = req.params;
-    const { email, firstName, lastName, role, accountStatus } = req.body;
+    const { email, firstName, lastName } = req.body;
 
     try {
       const updatedUser = await UserModel.findByIdAndUpdate(
         id,
-        { email, firstName, lastName, role, accountStatus },
+        { email, firstName, lastName,},
         { new: true, runValidators: true }
       );
 

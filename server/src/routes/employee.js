@@ -6,8 +6,6 @@ const employeeController = require("../controller/employeeController");
 // Lấy tất nhân viên
 router.get("/get-employee", employeeController.getEmployee);
 
-//tạo nhân viên khi tạo 1 tài khoản từ user
-router.post("/create-from-user", employeeController.createEmployeeFromUser);
 
 // cập nhật nhân viên từ user
 router.put("/update-from-user/:id", employeeController.updateEmployeeFromUser);

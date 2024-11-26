@@ -34,11 +34,9 @@ const InvoiceList = () => {
                 pointCustomer: invoice.customer?.point || 0,
                 discount: invoice.discount,
 
-                employeeName: invoice.employeeGetByUser
-                    ? `${invoice.employeeGetByUser.firstName} ${invoice.employeeGetByUser.lastName}`
-                    : "N/A",
+                employeeName: invoice.employeeGetByUser.employeeId?.name || "N/A",
                 employeeEmail: invoice.employeeGetByUser?.email || "N/A",
-                employeeStatus: invoice.employeeGetByUser.accountStatus,
+                employeePhone: invoice.employeeGetByUser.employeeId?.phonenumber,
 
                 orderType: invoice.orderType,
                 shippingAddress: invoice?.shippingAddress || "N/A",
@@ -212,18 +210,18 @@ const InvoiceList = () => {
                 ? {
                     name: selectedInvoiceData.employeeName || "Unknown",
                     email: selectedInvoiceData.employeeEmail || "N/A",
-                    status: selectedInvoiceData.employeeStatus || "N/A",
+                    phoneNumber: selectedInvoiceData.employeePhone || "N/A",
                 }
                 : {
                     name: "Unknown",
                     email: "N/A",
-                    status: "N/A",
+                    phoneNumber: "N/A",
                 };
         })()
         : {
             name: "Unknown",
             email: "N/A",
-            status: "N/A",
+            phoneNumber: "N/A",
         };
 
     const PromoInFor = selectedInvoice && invoiceList.length > 0
@@ -388,7 +386,7 @@ const InvoiceList = () => {
                             >
                                 <p><strong>Name:</strong> {employeeInfor.name}</p>
                                 <p><strong>Email:</strong> {employeeInfor.email}</p>
-                                <p><strong>Status:</strong> {employeeInfor.status}</p>
+                                <p><strong>Phone Number:</strong> {employeeInfor.phoneNumber}</p>
                             </Card>
                         </Col>
                     )}

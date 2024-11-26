@@ -33,13 +33,9 @@ const Customer = () => {
   };
 
   useEffect(() => {
-    fetchData(); // Gọi hàm fetchData khi component được mount
+    fetchData(); 
   }, []);
 
-  useEffect(() => {
-    fetchData();
-  }, [customers]);
-  
   useEffect(() => {
     if (isEditMode && currentCustomer) {
       form.setFieldsValue(currentCustomer);

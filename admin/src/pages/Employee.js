@@ -344,6 +344,7 @@ const Employee = () => {
             >
               <Select placeholder="Select status">
                 <Option value="parking attendant">Parking attendant</Option>
+                <Option value="employee">Employee</Option>
               </Select>
             </Form.Item>
           )}

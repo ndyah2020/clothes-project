@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 
 const userSchema = new mongoose.Schema({
   email: {
@@ -22,6 +23,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ["admin", "employee"],
     default: "employee",
+  },
+  employeeId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Employee',
+    default: null,
   },
   accountStatus: {
     type: String,

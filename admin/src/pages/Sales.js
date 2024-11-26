@@ -33,6 +33,7 @@ const Sales = () => {
   const [customerDiscount, setCustomerDiscount] = useState(0)
   const [subtotal, setSubtotal] = useState(0);
   const [discountedTotal, setDiscountedTotal] = useState(0);
+  
   // const [isReset, setIsReset] = useState(false);
   // Fetch product list
   const fetchProducts = async () => {
@@ -242,6 +243,7 @@ const Sales = () => {
 
 
   const createInvoiceWithDetails = async () => {
+    
     if (cart.length === 0) {
       message.error("Please add product");
       return;
@@ -267,6 +269,7 @@ const Sales = () => {
     };
 
     try {
+      setLoading(true)
       if (cart.length !== 0 && !isExistCustomer) {
         const checkCustomer = await handleCreateCustomerByPhone();
         if (!checkCustomer) {
@@ -303,6 +306,8 @@ const Sales = () => {
       message.error(
         error.response?.data?.message || "An error occurred while creating the invoice."
       );
+    } finally {
+      setLoading(false); 
     }
   };
 
@@ -609,8 +614,9 @@ const Sales = () => {
           type="primary"
           block
           style={{ marginTop: 16 }}
+          disabled={loading}
         >
-          Pay Now
+          {loading ? 'Processing...' : 'Pay Now'}
         </Button>
       </Col>
     </Row>

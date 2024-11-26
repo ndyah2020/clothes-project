@@ -20,8 +20,11 @@ const Users = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const [employees, setEmployees] = useState([])
   const [users, setUsers] = useState([]);
-  // Hàm lấy danh sách người dùng từ API
+  const [roleUser, setRoleUser] = useState("");
+  const [employeeId, setEmployeeId] = useState("")
+
   const fetchData = async () => {
     try {
       const response = await fetch("http://localhost:3001/user/get-users");
@@ -33,8 +36,23 @@ const Users = () => {
     }
   };
 
+  const fetchEmployee = async () => {
+    try {
+      const response = await fetch("http://localhost:3001/employee/get-employee");
+      const data = await response.json();
+      setEmployees(data);
+    } catch (error) {
+      console.error("Error fetching employees:", error);
+      message.error("Failed to fetch employees.");
+    }
+  };
+
   useEffect(() => {
-    fetchData(); // Gọi hàm fetchData khi component được mount
+    fetchData();
+  }, [isModalVisible]);
+
+  useEffect(() => {
+    fetchEmployee()
   }, []);
 
   useEffect(() => {
@@ -55,51 +73,43 @@ const Users = () => {
     setIsModalVisible(true);
     setIsEditMode(false);
     setCurrentUser(null);
-    form.resetFields(); 
+    form.resetFields();
   };
 
   const handleOk = async (values) => {
-    const { email, password, firstName, lastName, role } = values;
+    const { email, password, firstName, lastName, role, emplyeeSelected } = values;
     try {
       const response = isEditMode
         ? await fetch(
-            `http://localhost:3001/user/update-user/${currentUser._id}`,
-            {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ email, firstName, lastName, role }),
-            }
-          )
-        : await fetch("http://localhost:3001/user/create-user", {
-            method: "POST",
+          `http://localhost:3001/user/update-user/${currentUser._id}`,
+          {
+            method: "PUT",
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({
-              email,
-              password,
-              firstName,
-              lastName,
-              role,
-            }),
-          });
-          
+            body: JSON.stringify({ email, firstName, lastName, role }),
+          }
+        )
+        : await fetch("http://localhost:3001/user/create-user", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            password,
+            firstName,
+            lastName,
+            role,
+            emplyeeSelected,
+          }),
+        });
+
       if (response.ok) {
         message.success(
           `User ${isEditMode ? "updated" : "created"} successfully!`
         );
-        const userData = await response.json()
-        const idUser = userData._id
-        if (isEditMode) {
-          await handleUpdateEmployee({ email, firstName, lastName, role, idUser });
-        }
-
-        if (!isEditMode && role === "employee") {
-          await handleCreateEmployee({ email, firstName, lastName, role, idUser });
-        }
-        fetchData(); 
+        fetchData();
         setIsModalVisible(false);
       } else {
         const errorData = await response.json();
@@ -111,59 +121,12 @@ const Users = () => {
     }
   };
 
-  const handleCreateEmployee = async ({ email, firstName, lastName, role, idUser }) => {
-    try {
-      const response = await fetch("http://localhost:3001/employee/create-from-user", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          firstName,
-          lastName,
-          role,
-          idUser,
-        }),
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        message.error(`Error creating employee: ${errorData.message || "Failed to create employee."}`);
-      }
-    } catch (error) {
-      console.error("Error creating employee:", error);
-      message.error("Failed to create employee.");
-    }
-  };
 
-  const handleUpdateEmployee = async ({ email, firstName, lastName, role, idUser }) => {
-    try {
-      const response = await fetch(`http://localhost:3001/employee/update-from-user/${idUser}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          firstName,
-          lastName,
-          role,
-        }),
-      });
-  
-      if (!response.ok) {
-        const errorData = await response.json();
-        message.error(`Error updating employee: ${errorData.message || "Failed to update employee."}`);
-      }
-    } catch (error) {
-      console.error("Error updating employee:", error);
-      message.error("Failed to update employee.");
-    }
-  };
 
   const handleCancel = () => {
     setIsModalVisible(false);
-    if(!isEditMode){
+    setRoleUser('')
+    if (!isEditMode) {
       form.resetFields();
     }
   };
@@ -177,11 +140,11 @@ const Users = () => {
 
   const handleDelete = (id) => {
     Modal.confirm({
-        title: "Bạn có chắc muốn xóa người dùng này?",
-        content: "Thao tác này sẽ không thể hoàn tác.",
-        okText: "Xóa",
-        okType: "danger",
-        cancelText: "Hủy",
+      title: "Bạn có chắc muốn xóa người dùng này?",
+      content: "Thao tác này sẽ không thể hoàn tác.",
+      okText: "Xóa",
+      okType: "danger",
+      cancelText: "Hủy",
       onOk: async () => {
         try {
           const response = await fetch(
@@ -238,6 +201,9 @@ const Users = () => {
     }
   };
 
+  const onEmployeeChange = (value) => {
+    setEmployeeId(value);
+  };
   return (
     <div>
       <Row justify="space-between" style={{ marginBottom: 16 }}>
@@ -292,8 +258,8 @@ const Users = () => {
                     status === "active"
                       ? "green"
                       : status === "block"
-                      ? "red"
-                      : "white"
+                        ? "red"
+                        : "white"
                   }
                   style={{ marginRight: 8 }}
                 />
@@ -325,11 +291,9 @@ const Users = () => {
           },
         ]}
         dataSource={filteredData}
-        rowKey="_id"  // Ensure each row has a unique key, here we are using '_id'
+        rowKey="_id"
         pagination={{ pageSize: 5 }}
       />
-
-
       <Modal
         title={isEditMode ? "Edit User" : "Create New User"}
         open={isModalVisible}
@@ -337,12 +301,66 @@ const Users = () => {
         footer={null}
       >
         <Form form={form} layout="vertical" onFinish={handleOk}>
+          {!isEditMode && (
+            <>
+              <Form.Item
+                name="role"
+                label="Role"
+                rules={[{ required: true, message: "Please select a role!" }]}
+              >
+                <Select
+                  placeholder="Select role"
+                  onChange={(value) => setRoleUser(value)}
+                  disabled={roleUser === 'employee'}
+                >
+                  <Option value="admin">Admin</Option>
+                  <Option value="employee">Employee</Option>
+                </Select>
+              </Form.Item>
+              {roleUser === 'employee' && (
+                <>
+                  <Form.Item
+                    name="emplyeeSelected"
+                    label="Employee"
+                    rules={[{ required: true, message: "Please select an employee!" }]}
+                  >
+                    <Select
+                      placeholder="Select employee"
+                      onChange={onEmployeeChange}
+                    >
+                      {employees
+                        .filter((employee) => employee.position === 'employee')
+                        .map((employee) => (
+                          <Option key={employee._id} value={employee._id}>
+                            {employee.name}
+                          </Option>
+                        ))}
+                    </Select>
+                  </Form.Item>
+
+                  <Form.Item
+                    name="employeePhone"
+                    label="Employee Phone Number"
+                  >
+                    <Input
+                      value={employeeId ? employees.find((employee) => employee._id === employeeId)?.phonenumber : ''}
+                      disabled
+                    />
+                    {console.log(employeeId)}
+                  </Form.Item>
+
+                </>
+              )}
+            </>
+          )}
           <Form.Item
             name="email"
             label="Email"
             rules={[{ required: true, message: "Please enter email!" }]}
           >
-            <Input disabled={isEditMode} />
+            <Input
+              disabled={isEditMode}
+            />
           </Form.Item>
 
           <Form.Item
@@ -363,17 +381,6 @@ const Users = () => {
 
           {!isEditMode && (
             <div>
-              <Form.Item
-              name="role"
-              label="Role"
-              rules={[{ required: true, message: "Please select a role!" }]}
-              >
-              <Select placeholder="Select role">
-                <Option value="admin">Admin</Option>
-                <Option value="employee">Employee</Option>
-              </Select>
-              </Form.Item>
-
               <Form.Item
                 name="password"
                 label="Password"
