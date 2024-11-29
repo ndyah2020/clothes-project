@@ -100,6 +100,7 @@ const Products = () => {
       form.setFieldsValue(product);
       setEditingProduct(product);
       setImageUrl(product.image || null);
+      setShowSize(0)
     } else {
       setEditingProduct(null);
     }
@@ -293,6 +294,7 @@ const Products = () => {
         console.log(result)
         return message.error(result.message);
       } else {
+        setNewPrice(null)
         message.success("Price updated");
       }
       const updatedProduct = await axios.get(
@@ -530,11 +532,7 @@ const Products = () => {
         onOk={() => form.submit()}
       >
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
-
-
-          {!editingProduct && (
-            <>
-              <Form.Item
+        <Form.Item
                 name="category"
                 label="Category"
                 rules={[{ required: true, message: "Please select a category" }]}
@@ -563,6 +561,10 @@ const Products = () => {
                   </OptGroup>
                 </Select>
               </Form.Item>
+
+          {!editingProduct && (
+            <>
+              
               <Form.Item
                 name="supplier"
                 label="Supplier"
@@ -647,7 +649,7 @@ const Products = () => {
                     <Input
                       type="number"
                       onChange={(e) => setNewPrice(e.target.value)}
-                      value={newPrice !== null ? newPrice : editingProduct.sizes[showSizes].price}
+                      value={newPrice !== null ? newPrice : editingProduct.sizes[showSizes]?.price}
                     />
                   </Col>
                   <Col span={6}>
@@ -667,12 +669,13 @@ const Products = () => {
 
               <Form.Item label="Quantity">
                 <Input
-                  value={editingProduct.sizes[showSizes].quantity}
+                  value={editingProduct.sizes[showSizes] ? editingProduct.sizes[showSizes].quantity : 0}
                   disabled={editingProduct}
                 />
+
               </Form.Item>
 
-
+                  
               <Button
                 style={{ color: 'white', backgroundColor: 'red' }}
                 onClick={() => {

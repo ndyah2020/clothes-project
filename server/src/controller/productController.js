@@ -34,6 +34,7 @@ class ProductController {
     try {
       const { name, category, size, status, description, supplier } = req.body;
 
+      console.log(description)
       const images = req.files?.map((file) => ({
         data: file.buffer.toString("base64"),
         contentType: file.mimetype,
@@ -50,7 +51,7 @@ class ProductController {
           sku = `PD${nextNumber.toString().padStart(3, "0")}`;
         }
       }
-
+      
       const newProduct = new ProductModel({
         sku,
         name,
@@ -62,7 +63,7 @@ class ProductController {
           type: "letter",
         },
         status,
-        description,
+        description: description === 'undefined' ? 'N/A' : description,
         supplier,
         images,
       });
@@ -215,12 +216,11 @@ class ProductController {
         name,
         description, // Thêm trường description
         brand,
-        category,
         color,
         sizes,
+        category,
         status,
         tags,
-        supplier,
       } = req.body;
 
       // Xử lý hình ảnh từ `req.files` nếu có
@@ -231,19 +231,18 @@ class ProductController {
           contentType: file.mimetype,
         }));
       }
-
+      
       // Cập nhật các trường thông tin sản phẩm
       const updatedFields = {
         sku,
         name,
-        description, // Thêm trường description vào các trường cập nhật
-        brand,
         category,
+        description: description === 'undefined' ? 'N/A' : description,
+        brand,
         color,
         sizes,
         status,
         tags,
-        supplier,
       };
 
       // Chỉ thêm trường `images` nếu có tệp mới được tải lên
@@ -256,6 +255,7 @@ class ProductController {
         (key) => updatedFields[key] === undefined && delete updatedFields[key]
       );
 
+      console.log(updatedFields)
       // Tìm và cập nhật sản phẩm
       const updatedProduct = await ProductModel.findByIdAndUpdate(
         id,

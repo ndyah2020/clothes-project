@@ -405,7 +405,7 @@ const Sales = () => {
                       type="primary"
                       onClick={() => addToCart(product)}
                       disabled={
-                        product.sizes[product.selectedSizeIndex].quantity === 0 ||
+                        product.sizes[product.selectedSizeIndex].quantity === 0 || product.sizes[product.selectedSizeIndex].price === 0 ||
                         cart.some(
                           (item) =>
                             item.cartItemKey ===
