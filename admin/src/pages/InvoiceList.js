@@ -28,13 +28,16 @@ const InvoiceList = () => {
             const formattedData = data.map((invoice) => ({
                 key: invoice._id,
 
+                sku: invoice.InvoiceCode,
                 customerId: invoice.customer?._id || "N/A",
                 customer: invoice.customer?.name || "Unknown",
                 phoneNumber: invoice.customer?.phonenumber || "N/A",
                 pointCustomer: invoice.customer?.point || 0,
                 discount: invoice.discount,
 
-                employeeName: invoice.employeeGetByUser.employeeId?.name || "N/A",
+                employeeName: invoice.employeeGetByUser
+                    ? `${invoice.employeeGetByUser.firstName} ${invoice.employeeGetByUser.lastName}`
+                    : "N/A",
                 employeeEmail: invoice.employeeGetByUser?.email || "N/A",
                 employeePhone: invoice.employeeGetByUser.employeeId?.phonenumber,
 
@@ -268,6 +271,11 @@ const InvoiceList = () => {
 
             <Table
                 columns={[
+                    {
+                        title: "SKU",
+                        dataIndex: "sku",
+                        key: "sku",
+                    },
                     {
                         title: "Customer",
                         dataIndex: "customer",

@@ -171,8 +171,10 @@ const Sales = () => {
         setDiscount(response.data.discount)
       } else if (response.status === 404) {
         message.info("Code not found");
+        setPromoCode("")
       } else {
         message.error(response.data.message);
+        setPromoCode("")
       }
     } catch (error) {
       console.error("Error apply code:", error);
