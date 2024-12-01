@@ -119,33 +119,32 @@ class CustomerContronller {
         return res.status(400).json({ message: "Please click check" });
       }
 
-      let applicableDiscountId = null;
-      if (invoiceType === 'shop') {
-        const monetaryNorm = await MonetaryNormModel.findOne();
-        if (!monetaryNorm) {
-          return res.status(400).json({ message: 'Monetary norm not found' });
-        }
+      // let applicableDiscountId = null;
+      // if (invoiceType === 'shop') {
+      //   const monetaryNorm = await MonetaryNormModel.findOne();
+      //   if (!monetaryNorm) {
+      //     return res.status(400).json({ message: 'Monetary norm not found' });
+      //   }
 
-        const loyaltyDiscounts = await LoyaltyDiscountModel.find({ status: 'active' });
-        if (!loyaltyDiscounts || loyaltyDiscounts.length === 0) {
-          return res.status(404).json({ message: "No active loyalty discounts available" });
-        }
+      //   const loyaltyDiscounts = await LoyaltyDiscountModel.find({ status: 'active' });
+      //   if (!loyaltyDiscounts || loyaltyDiscounts.length === 0) {
+      //     return res.status(404).json({ message: "No active loyalty discounts available" });
+      //   }
 
-        const newPointCustomer = Math.round(totalPriceAfterDiscount / monetaryNorm.moneyPerPoint);
+      //   const newPointCustomer = Math.round(totalPriceAfterDiscount / monetaryNorm.moneyPerPoint);
 
         
-        loyaltyDiscounts.forEach((discount) => {
-          if (newPointCustomer >= discount.requiredPoints) {
-            if (!applicableDiscountId || loyaltyDiscounts.requiredPoints >= applicableDiscountId.requiredPoints)
-              applicableDiscountId = discount
-          }
-        })
-      }
+      //   loyaltyDiscounts.forEach((discount) => {
+      //     if (newPointCustomer >= discount.requiredPoints) {
+      //       if (!applicableDiscountId || loyaltyDiscounts.requiredPoints >= applicableDiscountId.requiredPoints)
+      //         applicableDiscountId = discount
+      //     }
+      //   })
+      // }
 
       const newCustomer = new CustomerModel({
         name,
         phonenumber,
-        LoyaltyDicountId: applicableDiscountId ? applicableDiscountId._id : null,
       })
 
       await newCustomer.save()

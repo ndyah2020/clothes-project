@@ -89,7 +89,6 @@ class PromotionController {
             if (!promotion) {
                 return res.status(404).json({ message: "promotion does not exist", data: promotion});
             }
-          
             if(promotion.status === 'Not Applied') {
                 return res.status(400).json({ message: 'Promotion not applicable' });
 
@@ -100,7 +99,7 @@ class PromotionController {
         } catch (error) {
             res.status(500).json({ message: "Error retrieving promotion", error });
         }
-      }
+    }
 
     //cập nhật khuyến mãi
     async updatePromotion(req, res) {

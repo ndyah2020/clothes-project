@@ -71,7 +71,7 @@ class EmployeeContronller {
         entryDate
       })
       await newEmployee.save()
-      res.json(newEmployee)
+      res.status(200).json(newEmployee)
     } catch(error) {
         res.status(500).json({message: "Error creating employee", error})
     }

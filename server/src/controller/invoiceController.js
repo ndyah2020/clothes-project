@@ -17,7 +17,7 @@ class InvoiceController {
                 .populate('promoCode', 'name discount startTime endTime')
                 .populate({
                     path: 'employeeGetByUser',
-                    select: 'email',
+                    select: 'email firstName lastName',
                     populate: {
                         path: 'employeeId',
                         select: 'name phonenumber position'
@@ -103,7 +103,20 @@ class InvoiceController {
                 }
             }
             // Tạo hóa đơn
+            const invoices = await InvoiceModel.find();
+            let InvoiceCode = "INV001"; // Giá trị mặc định
+            if (invoices.length > 0) {
+                const lastNote = invoices[invoices.length - 1].InvoiceCode; // Lấy code cuối cùng
+                const match = lastNote.match(/^INV(\d+)$/); // Regex để lấy số từ định dạng GRxxx
+                if (match) {
+                    const lastNumber = parseInt(match[1], 10); // Lấy số thứ tự
+                    const nextNumber = lastNumber + 1; // Tăng số thứ tự
+                    InvoiceCode = `INV${nextNumber.toString().padStart(3, "0")}`;
+                }
+            }
+
             const newInvoice = new InvoiceModel({
+                InvoiceCode,
                 customer: customer._id,
                 employeeGetByUser: user._id,
                 orderType,
