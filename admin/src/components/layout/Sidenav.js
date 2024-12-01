@@ -269,12 +269,12 @@ function Sidenav({ color }) {
             </Menu.Item>
           </>
         )}
-        <Menu.Item key="13">
+        {/* <Menu.Item key="13">
           <NavLink to="/rtl">
             <span className="icon">{rtl}</span>
             <span className="label">RTL</span>
           </NavLink>
-        </Menu.Item>
+        </Menu.Item> */}
 
         {/* <Menu.Item className="menu-item-header" key="5">
           Account Pages

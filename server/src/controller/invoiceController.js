@@ -58,7 +58,7 @@ class InvoiceController {
                 return res.status(404).json({ message: 'Invoice not found' });
             }
 
-            res.status(200).json(invoice);
+            res.status(200).json(invoices);
         } catch (error) {
             console.error('Error retrieving invoice:', error);
             res.status(500).json({ message: 'Error retrieving invoice', error });
@@ -151,7 +151,7 @@ class InvoiceController {
                 await customer.save();
             }
             
-            res.status(201).json({ message: "Invoice created successfully", invoice: savedInvoice });
+            res.status(201).json({ message: "Invoice created successfully" });
         } catch (error) {
             console.error("Error creating invoice:", error);
             res.status(500).json({ message: "Error creating invoice", error: error.message });
