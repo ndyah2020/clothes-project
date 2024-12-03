@@ -354,7 +354,7 @@ const InvoiceList = () => {
                     {selectedInvoice &&
                         (() => {
                             const selectedInvoiceData = invoiceList.find(invoice => invoice.key === selectedInvoice);
-                            if (selectedInvoiceData && selectedInvoiceData.orderType === 'online' && selectedInvoiceData.status === 'Pending') {
+                            if (selectedInvoiceData && selectedInvoiceData.status === 'Pending') {
                                 return (
                                     <>
                                         <Button

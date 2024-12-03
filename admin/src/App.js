@@ -24,6 +24,7 @@ import ForgotPassword from "./pages/ForgotPassword.js";
 import ResetPassword from "./pages/ResetPassword.js";
 import ImportNoteList from "./pages/ImportNoteList.js"
 import ImportNoteListCheck from "./pages/ImportNoteListCheck.js";
+import Category from "./pages/Category.js";
 const isTokenValid = () => {
   const token = localStorage.getItem("token");
   if (!token) {
@@ -69,6 +70,7 @@ function App() {
             <Route exact path="/users" component={User} />
             <Route exact path="/employee" component={Employee} />
             <Route exact path="/customer" component={Customer} />
+            <Route exact path="/category" component={Category} />
             <Route exact path="/products" component={Products} />
             <Route exact path="/loyalty-discount" component={LoyaltyDiscount} />
             <Route exact path="/promotion" component={Promotion} />

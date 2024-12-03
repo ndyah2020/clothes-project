@@ -1,11 +1,12 @@
 const express = require('express')
 const router = express.Router()
 
-const productsController = require('../controller/productController')
+const CategoryController = require('../controller/categoryController')
 
-// router.get('/show', productsController.show)
-// router.get('/search', productsController.search)
-// router.post('/create', productsController.create)
-// router.put('/:id', productsController.update)
+router.get('/get-category', CategoryController.getCategory)
+router.post('/create-category', CategoryController.createCategory)
 
+router.put('/update-category/:id', CategoryController.updataCategory)
+
+router.get('/get-category-by-id/:id', CategoryController.getCategoryById)
 module.exports = router

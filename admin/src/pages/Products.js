@@ -36,7 +36,7 @@ const Products = () => {
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [newPrice, setNewPrice] = useState(null);
-
+  const [categorysData, setCategorysData] = useState([]);
   // Fetch product list
   const fetchProducts = async () => {
     setLoading(true);
@@ -58,6 +58,17 @@ const Products = () => {
     setLoading(false);
   };
 
+  const fetchCategory = async () => {
+    try {
+      const response = await fetch("http://localhost:3001/category/get-category");
+      const data = await response.json();
+      setCategorysData(data);
+    } catch (error) {
+      console.error("Error fetching categorys:", error);
+      message.error("Failed to fetch categorys.");
+    }
+  };
+
   const fetchSuppliers = async () => {
     try {
       const response = await fetch("http://localhost:3001/supplier/get-supplier");
@@ -70,6 +81,7 @@ const Products = () => {
   };
 
   useEffect(() => {
+    fetchCategory()
     fetchProducts();
     fetchSuppliers();
   }, []);
@@ -315,6 +327,12 @@ const Products = () => {
       key: "sku",
     },
     {
+      title: "Category",
+      dataIndex: "category",
+      key: "category",
+      render: (category) => category?.name || "No Category",
+    },
+    {
       title: "Name",
       dataIndex: "name",
       key: "name",
@@ -499,7 +517,7 @@ const Products = () => {
           <div>
             <p><strong>SKU:</strong> {selectedProduct.sku}</p>
             <p><strong>Name:</strong> {selectedProduct.name}</p>
-            <p><strong>Category:</strong> {selectedProduct.category}</p>
+            <p><strong>Category:</strong> {selectedProduct.category.name}</p>
             <p><strong>Supplier:</strong> {selectedProduct.supplier.name}</p>
             <p><strong>Description:</strong> {selectedProduct.description}</p>
             <p><strong>Status:</strong> {selectedProduct.status}</p>
@@ -538,27 +556,11 @@ const Products = () => {
                 rules={[{ required: true, message: "Please select a category" }]}
               >
                 <Select>
-                  <OptGroup label="Shirts">
-                    <Option value="T-shirt">T-shirt</Option>
-                    <Option value="Shirt">Shirt</Option>
-                    <Option value="Jacket">Jacket</Option>
-                    <Option value="Sweater">Sweater</Option>
-                    <Option value="Turtleneck">Turtleneck</Option>
-                  </OptGroup>
-                  <OptGroup label="Pants">
-                    <Option value="Jeans">Jeans</Option>
-                    <Option value="Shorts">Shorts</Option>
-                    <Option value="Joggers">Joggers</Option>
-                    <Option value="Trousers">Trousers</Option>
-                  </OptGroup>
-                  <OptGroup label="Underwear">
-                    <Option value="Underwear">Underwear</Option>
-                    <Option value="Bra">Bra</Option>
-                  </OptGroup>
-                  <OptGroup label="Accessories">
-                    <Option value="Scarf">Scarf</Option>
-                    <Option value="Hat">Hat</Option>
-                  </OptGroup>
+                  {categorysData.map((category) => (
+                    <Option key={category._id} value={category._id}>
+                      {category.name}
+                    </Option>
+                  ))}
                 </Select>
               </Form.Item>
 

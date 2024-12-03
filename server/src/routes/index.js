@@ -8,7 +8,7 @@ const promotionRouter = require("./promotion");
 const invoiceRouter = require("./invoice");
 const importNodeRouter = require("./importNode");
 const dasnboardRouter = require("./dashboard.js");
-
+const categoryRouter = require("./category.js")
 function route(app) {
   app.use("/user", userRouter);
   app.use("/product", productRouter);
@@ -20,6 +20,7 @@ function route(app) {
   app.use("/invoice", invoiceRouter);
   app.use("/import-note", importNodeRouter);
   app.use("/dashboard", dasnboardRouter);
+  app.use("/category",categoryRouter)
 }
 
 module.exports = route;

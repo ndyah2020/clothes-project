@@ -52,9 +52,10 @@ const InvoiceSchema = new Schema({
   status: {
     type: String,
     enum: ['Pending', 'Cancelled', 'Completed'], 
-    default: function() {
-      return this.orderType === 'online' ? 'Pending' : 'Completed';
-    }, 
+    // default: function() {
+    //   return this.orderType === 'online' ? 'Pending' : 'Completed';
+    // }, 
+    default: 'Pending',
     required: true,
   },
 }, { timestamps: true });

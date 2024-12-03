@@ -249,19 +249,25 @@ function Sidenav({ color }) {
               </NavLink>
             </Menu.Item>
             <Menu.Item key="10">
+              <NavLink to="/category">
+                <span className="icon">{products}</span>
+                <span className="label">Categorys</span>
+              </NavLink>
+            </Menu.Item>
+            <Menu.Item key="11">
               <NavLink to="/products">
                 <span className="icon">{products}</span>
                 <span className="label">Products</span>
               </NavLink>
             </Menu.Item>
-            <Menu.Item key="11">
+            <Menu.Item key="12">
               <NavLink to="/import-form">
                 <span className="icon">{importForm}</span>
                 <span className="label">Import</span>
               </NavLink>
             </Menu.Item>
 
-            <Menu.Item key="12">
+            <Menu.Item key="13">
               <NavLink to="/import-note-list">
                 <span className="icon">{importNoteList}</span>
                 <span className="label">Import List</span>

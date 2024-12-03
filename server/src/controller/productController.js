@@ -6,6 +6,7 @@ class ProductController {
     try {
       const products = await ProductModel.find()
       .populate('supplier', 'name phonenumber email')
+      .populate('category', 'name')
       res.status(200).json(products);
     } catch (error) {
       res.status(500).json({ message: "Error fetching products", error });

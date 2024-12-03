@@ -35,16 +35,18 @@ class dashboard {
       );
 
       // Lấy danh sách khách hàng VIP
-      const vipCustomers = customersWithStats.sort((a, b) => b.point - a.point); // Sắp xếp theo số lần mua
-
-      const topVipCustomers = vipCustomers.slice(0, 5); // Lấy top 5 khách hàng VIP
+      const vipCustomers = customersWithStats.sort((a, b) => b.totalRevenue - a.totalRevenue); // Sắp xếp theo tổng số tiền đã mua
+      console.log(vipCustomers)
+      const topVipCustomers = vipCustomers.slice(0, 5);
 
       console.log("TOP Khách Hàng VIP:", topVipCustomers); 
 
       // 2. Lấy danh sách nhân viên
       const employees = await Employee.find().lean();
       const totalEmployees = employees.length;
+      // Tính tổng nhân viên có hóa đơn nhiều nhất
 
+      
       // 3. Lấy danh sách sản phẩm
       const products = await Product.find().lean();
       const totalProducts = products.length;

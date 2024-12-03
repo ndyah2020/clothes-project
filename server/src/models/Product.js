@@ -4,9 +4,13 @@ const Schema = mongoose.Schema;
 const Product = new Schema(
   {
     sku: { type: String, required: true, unique: true },
+    category: {
+      type: Schema.Types.ObjectId,
+      ref: 'Category', 
+      required: true,
+    },
     name: { type: String, required: true },
     description: { type: String },
-    category: { type: String, required: true },
     sizes: [
       {
         size: { type: String ,required: true}, // Example: "M", "L", "XL"

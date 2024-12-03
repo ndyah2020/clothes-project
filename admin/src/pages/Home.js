@@ -93,12 +93,12 @@ const Home = () => {
         style: { fontSize: 14 },
       },
     },
-    tooltip: {
-      formatter: (datum) => ({
-        name: `Kích thước ${datum.size}`,
-        value: `Tồn kho: ${datum.quantity}`,
-      }),
-    },
+    // tooltip: {
+    //   formatter: (datum) => ({
+    //     name: `Kích thước ${datum.size}`,
+    //     value: `Tồn kho: ${datum.quantity}`,
+    //   }),
+    // },
   };
 
   // Cấu hình bảng Top Nhân Viên Xuất Sắc
@@ -142,6 +142,18 @@ const Home = () => {
       render: (value) => value.toLocaleString("vi-VN"),
     },
   ];
+  const supplierData = details.importNotes.reduce((acc, note) => {
+    const supplierName = note.supplierId.name;
+    if (!acc[supplierName]) {
+      acc[supplierName] = 0;
+    }
+    acc[supplierName] += note.totalAmount;
+    return acc;
+  }, {});
+  const pieData = Object.keys(supplierData).map(supplierName => ({
+    supplier: supplierName,
+    total: supplierData[supplierName],
+  }));
 
   return (
     <div style={{ backgroundColor: "#f5f5f5", padding: "20px" }}>
@@ -339,10 +351,7 @@ const Home = () => {
         <Col span={12}>
           <Card title="Chi Phí Nhập Hàng Theo Nhà Cung Cấp">
             <Pie
-              data={details.importNotes.map((note) => ({
-                supplier: note.supplierId.name,
-                total: note.totalAmount,
-              }))}
+              data={pieData} // Kiểm tra lại dữ liệu ở đây
               angleField="total"
               colorField="supplier"
               radius={0.8}
@@ -356,12 +365,6 @@ const Home = () => {
                   fontWeight: "bold",
                   textAlign: "center",
                 },
-              }}
-              tooltip={{
-                formatter: (datum) => ({
-                  name: datum.supplier,
-                  value: `${datum.total} VND`,
-                }),
               }}
               interactions={[
                 { type: "element-selected" },
