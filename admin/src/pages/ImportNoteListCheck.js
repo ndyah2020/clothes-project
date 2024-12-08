@@ -170,44 +170,44 @@ const ImportNoteListCheck = () => {
         fetchData();
     }, []);
 
-    const supplierInfor = importNote
-        ? (() => {
-            return importNote
-                ? {
-                    name: importNote.supplierName || "Unknown",
-                    phoneNumber: importNote.phoneNumber || "N/A",
-                    email: importNote.supplierEmail || "N/A",
-                }
-                : {
-                    name: "Unknown",
-                    phoneNumber: "N/A",
-                    shippingAddress: "N/A",
-                };
-        })()
-        : {
-            name: "Unknown",
-            phoneNumber: "N/A",
-            shippingAddress: "N/A",
-        };
+    // const supplierInfor = importNote
+    //     ? (() => {
+    //         return importNote
+    //             ? {
+    //                 name: importNote.supplierName || "Unknown",
+    //                 phoneNumber: importNote.phoneNumber || "N/A",
+    //                 email: importNote.supplierEmail || "N/A",
+    //             }
+    //             : {
+    //                 name: "Unknown",
+    //                 phoneNumber: "N/A",
+    //                 shippingAddress: "N/A",
+    //             };
+    //     })()
+    //     : {
+    //         name: "Unknown",
+    //         phoneNumber: "N/A",
+    //         shippingAddress: "N/A",
+    //     };
 
-    const employeeInfor = importNote
-        ? (() => {
-            return importNote
-                ? {
-                    name: importNote.employeeName || "Unknown",
-                    email: importNote.employeeEmail || "N/A",
-                }
-                : {
-                    name: "Unknown",
-                    email: "N/A",
+    // const employeeInfor = importNote
+    //     ? (() => {
+    //         return importNote
+    //             ? {
+    //                 name: importNote.employeeName || "Unknown",
+    //                 email: importNote.employeeEmail || "N/A",
+    //             }
+    //             : {
+    //                 name: "Unknown",
+    //                 email: "N/A",
 
-                };
-        })()
-        : {
-            name: "Unknown",
-            email: "N/A",
+    //             };
+    //     })()
+    //     : {
+    //         name: "Unknown",
+    //         email: "N/A",
 
-        };
+    //     };
 
     const createObjToUpdate = (value, record, index) => {
         if (value > record.quantity) {
@@ -254,7 +254,7 @@ const ImportNoteListCheck = () => {
                     })()
                 }
             </Row>
-            <Row gutter={[16, 16]} style={{ marginBottom: "20px" }}>
+            {/* <Row gutter={[16, 16]} style={{ marginBottom: "20px" }}>
                 {employeeInfor && (
                     <>
                         <Col span={12}>
@@ -305,7 +305,7 @@ const ImportNoteListCheck = () => {
                         </Card>
                     </Col>
                 )}
-            </Row>
+            </Row> */}
 
             <Table
                 columns={[

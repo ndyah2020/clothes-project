@@ -238,7 +238,7 @@ const ImportNoteList = () => {
                     {supplierInfor && (
                         <Col span={12}>
                             <Card
-                                title="Customer"
+                                title="Supplier"
                                 bordered={false}
                                 style={{
                                     height: "100%",

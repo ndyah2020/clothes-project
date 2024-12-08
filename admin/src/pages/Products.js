@@ -81,8 +81,8 @@ const Products = () => {
   };
 
   useEffect(() => {
-    fetchCategory()
     fetchProducts();
+    fetchCategory()
     fetchSuppliers();
   }, []);
 
@@ -93,7 +93,7 @@ const Products = () => {
         product.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.name.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = !statusFilter || product.status === statusFilter;
-      const matchesCategory = !categoryFilter || product.category === categoryFilter;
+      const matchesCategory = !categoryFilter || product.category.name === categoryFilter;
 
       return matchesSearch && matchesStatus && matchesCategory;
     });
@@ -107,9 +107,13 @@ const Products = () => {
     setImageUrl(null);
     setFileList([]); // Reset the file list here
     setIsModalVisible(true);
-
     if (product) {
-      form.setFieldsValue(product);
+      form.setFieldsValue({
+        category: product.category._id,
+        name: product.name,
+        description: product.description,
+        status: product.status,
+      });
       setEditingProduct(product);
       setImageUrl(product.image || null);
       setShowSize(0)
@@ -142,7 +146,7 @@ const Products = () => {
       formData.append("category", values.category);
       formData.append("status", values.status);
       formData.append("supplier", values.supplier);
- 
+
       if (values.size && validSizes.includes(values.size.toUpperCase())) {
         formData.append("size", values.size.toUpperCase());
       }
@@ -450,7 +454,7 @@ const Products = () => {
             style={{ width: 200 }}
           />
         </Col>
-        <Col>
+        {/* <Col>
           <Select
             placeholder="Filter by Status"
             value={statusFilter || undefined} // Ensure undefined to display placeholder
@@ -492,7 +496,7 @@ const Products = () => {
               <Option value="Hat">Hat</Option>
             </OptGroup>
           </Select>
-        </Col>
+        </Col> */}
       </Row>
 
       <Table
@@ -500,7 +504,7 @@ const Products = () => {
         dataSource={filteredProducts}
         loading={loading}
         rowKey="_id"
-        pagination={{ pageSize:  5}}
+        pagination={{ pageSize: 5 }}
       />
       {/* modal detail */}
       <Modal
@@ -550,23 +554,26 @@ const Products = () => {
         onOk={() => form.submit()}
       >
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
-        <Form.Item
-                name="category"
-                label="Category"
-                rules={[{ required: true, message: "Please select a category" }]}
-              >
-                <Select>
-                  {categorysData.map((category) => (
-                    <Option key={category._id} value={category._id}>
-                      {category.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-
+          <Form.Item
+            name="category"
+            label="Category"
+            rules={[{ required: true, message: "Please select a category" }]}
+          >
+            <Select>
+              {categorysData.map((category) =>  
+              category.status === 'Available'
+              ?(
+                <Option key={category._id} value={category._id}>
+                  {category.name}
+                </Option>
+              )
+              : null
+              )}
+            </Select>
+          </Form.Item>
           {!editingProduct && (
             <>
-              
+
               <Form.Item
                 name="supplier"
                 label="Supplier"
@@ -677,7 +684,7 @@ const Products = () => {
 
               </Form.Item>
 
-                  
+
               <Button
                 style={{ color: 'white', backgroundColor: 'red' }}
                 onClick={() => {

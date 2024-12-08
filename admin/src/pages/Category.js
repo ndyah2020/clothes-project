@@ -34,18 +34,20 @@ const Category = () => {
   };
 
   useEffect(() => {
-    fetchData(); 
+    fetchData();
   }, []);
 
   useEffect(() => {
     if (isEditMode && currentCategorys) {
       form.setFieldsValue({
         name: currentCategorys.name,
+        status: currentCategorys.status,
       });
     } else {
       form.resetFields();
     }
   }, [currentCategorys, isEditMode, form]);
+  
 
   const filteredData = category.filter((category) =>
     Object.values(category).some((value) =>
@@ -61,7 +63,7 @@ const Category = () => {
   };
 
   const handleOk = async (values) => {
-    const { 
+    const {
       name,
       status,
     } = values;
@@ -110,9 +112,10 @@ const Category = () => {
   const handleCancel = () => {
     setIsModalVisible(false);
     if (!isEditMode) {
-      form.resetFields();
+      form.resetFields(); 
     }
   };
+  
 
   const handleEdit = (category) => {
     setCurrentCategorys(category);
@@ -143,7 +146,7 @@ const Category = () => {
           {
             title: "Category Id",
             dataIndex: "categoryCode",
-          }, 
+          },
           {
             title: "Category Name",
             dataIndex: "name",
@@ -186,6 +189,9 @@ const Category = () => {
           form={form}
           layout="vertical"
           onFinish={handleOk}
+          initialValues={{
+            status: 'Available',
+          }}
         >
           <Form.Item
             name="name"
@@ -194,16 +200,13 @@ const Category = () => {
           >
             <Input />
           </Form.Item>
-
           {isEditMode && (
             <Form.Item
               name="status"
               label="Status"
               rules={[{ required: true, message: "Please select a status" }]}
             >
-              <Select
-                defaultValue={'in use'}
-              >
+              <Select>
                 <Option value="Available">Available</Option>
                 <Option value="Unavailable">Unavailable</Option>
               </Select>

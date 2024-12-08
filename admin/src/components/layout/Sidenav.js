@@ -182,14 +182,15 @@ function Sidenav({ color }) {
         <span>Clothes Store</span>
       </div>
       <hr />
-
-      <Menu theme="light" mode="inline">
-        <Menu.Item key="1">
-          <NavLink to="/dashboard">
-            <span className="icon">{dashboard}</span>
-            <span className="label">Dashboard</span>
-          </NavLink>
-        </Menu.Item>
+        <Menu theme="light" mode="inline">
+        {decoded.role === "admin" && (
+          <Menu.Item key="1">
+            <NavLink to="/dashboard">
+              <span className="icon">{dashboard}</span>
+              <span className="label">Dashboard</span>
+            </NavLink>
+          </Menu.Item>
+        )}
         <Menu.Item key="2">
           <NavLink to="/sales">
             <span className="icon">{sales}</span>

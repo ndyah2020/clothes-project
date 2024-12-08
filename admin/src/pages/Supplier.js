@@ -223,7 +223,7 @@ const Supplier = () => {
       />
 {/* modal seen detail */}
       <Modal
-        title="Product Details"
+        title="Supplier details"
         open={isDetailModalVisible}
         onCancel={() => setIsDetailModalVisible(false)}
         footer={[

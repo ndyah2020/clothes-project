@@ -27,15 +27,18 @@ class CategoryController {
                     categoryCode = `CG${nextNumber.toString().padStart(3, "0")}`; 
                 }
             }
+            if(categorys.find((item) => item.name === name && item.status === 'Available')){
+                return res.status(400).json({message: 'Category already exists'})
+            }
 
             const category = new CategoryModel({
                 categoryCode,
-                name,
+                name: name.toUpperCase(),
             })
             await category.save(category)
             res.status(200).json()
         }catch(error){
-            res.status(500).json({ message: "Error creating customer", error })
+            res.status(500).json({ message: "Error creating category", error })
         }
     }
     async updataCategory(req, res) {
@@ -45,7 +48,7 @@ class CategoryController {
             const updateCategory = await CategoryModel.findByIdAndUpdate(
                 id,
                 {
-                    name,
+                    name: name.toUpperCase(),
                     status,
                 },
                 { new: true, runValidators: true },
